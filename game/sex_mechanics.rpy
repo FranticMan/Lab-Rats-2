@@ -1,4 +1,4 @@
-label fuck_person(the_person, private = True, start_position = None, start_object = None, skip_intro = False, girl_in_charge = False, self_strip = True, hide_leave = False, position_locked = False, report_log = None, affair_ask_after = True, ignore_taboo = False):
+label fuck_person(the_person, private = True, start_position = None, start_object = None, skip_intro = False, girl_in_charge = False, self_strip = True, hide_leave = False, position_locked = False, report_log = None, affair_ask_after = True, ignore_taboo = False, skip_condom = True):
     # When called fuck_person starts a sex scene with someone. Sets up the encounter, mainly with situational modifiers.
     show screen person_info_ui(the_person)
     if report_log is None:
