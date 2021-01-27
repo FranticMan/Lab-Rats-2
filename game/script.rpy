@@ -6641,6 +6641,13 @@ init -5 python:
         return return_list
 
 
+    def find_in_list(lambda_func, outfits_lst):
+        for o in outfits_lst:
+            if lambda_func(o):
+                return o
+        return
+
+
     class Wardrobe(renpy.store.object): #A bunch of outfits!
         def __init__(self,name,outfits = None, underwear_sets = None, overwear_sets = None): #Outfits is a list of Outfit objects, or empty if the wardrobe starts empty
             self.name = name
