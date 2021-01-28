@@ -1040,9 +1040,9 @@ label command_person(the_person):
     #TODO: Add more commands
     #TODO: Add a way to add role specific commands.
 
-    $ player_choice = call_formated_action_choice([change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, bc_demand_action, "Return"])
+    #$ player_choice = call_formated_action_choice([change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, bc_demand_action, "Return"])
     #call screen main_choice_display([["Command her to...", change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, "Return"]])
-    #$ player_choice = _return
+    $ player_choice = _return
     if player_choice == "Return":
         pass
     else:
