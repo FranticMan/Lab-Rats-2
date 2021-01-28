@@ -92,17 +92,15 @@ init -2 python:
 
     def add_aunt_phase_three_action():
         aunt.home.move_person(aunt, hall)
-        aunt.home = hall
-        aunt.set_schedule(aunt.home, times = [0,1,2,3,4]) #Hide them in their bedroom off the map until they're ready.
+        aunt.set_schedule(hall, times = [0,1,2,3,4])
 
-        aunt_intro_phase_three = Action("aunt_intro_phase_three", aunt_intro_phase_three_requirement, "aunt_intro_phase_three_label", requirement_args = day + renpy.random.randint(6,10))
+        aunt_intro_phase_three = Action("aunt_intro_phase_three", aunt_intro_phase_three_requirement, "aunt_intro_phase_three_label", requirement_args = day + renpy.random.randint(18,24))
         mc.business.mandatory_morning_crises_list.append(aunt_intro_phase_three)
         return
 
     def add_cousin_phase_one_action():
         cousin.home.move_person(cousin,lily_bedroom)
-        cousin.home = lily_bedroom
-        cousin.set_schedule(cousin.home, times = [0,4])
+        cousin.set_schedule(lily_bedroom, times = [0,4])
         cousin.set_schedule(None, times = [1,2,3])
 
         cousin_intro_phase_one = Action("cousin_intro_phase_one", cousin_intro_phase_one_requirement, "cousin_intro_phase_one_label", requirement_args = day + renpy.random.randint(2,5))

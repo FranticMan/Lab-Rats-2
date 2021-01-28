@@ -20,10 +20,10 @@ label study_check_up(the_student, the_mom):
     # If her marks have improved enough, and if you haven't been already, Christina invites you to stay for dinner.
 
     $ clear_scene()
-    $ hall.show_background()
+    "[the_student.title] opens the door to her room and leads you downstairs. [the_mom.title] is waiting at the front door."
+    $ her_hallway.show_background()
     $ the_group = GroupDisplayManager([the_student, the_mom], primary_speaker = the_mom)
     $ the_group.draw_group()
-    "[the_student.title] opens the door to her room and leads you downstairs. [the_mom.title] is waiting at the front door."
     the_mom.char "All done for tonight? Tell me [the_mom.mc_title], how is my daughter doing?"
     $ current_marks = the_student.event_triggers_dict.get("current_marks",0)
     if current_marks < 20:
@@ -259,7 +259,7 @@ label student_dinner(the_student, the_mom, first_time):
     mc.name "The dinner was fantastic. I'm lucky to have such a generous, beautiful host."
     "[the_mom.title] seems to blush, although it might just be wine taking effect."
 
-    $ renpy.show(name = "apartment lobby", what = apartment_background, layer = "master")
+    $ her_hallway.show_background()
     $ the_group.draw_group()
     "[the_mom.title] and [the_student.title] walk you to the door to say goodbye."
     the_student.char "Bye [the_student.mc_title], I hope you'll be by again soon!"

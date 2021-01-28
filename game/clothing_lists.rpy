@@ -770,7 +770,7 @@ init -1:
                     return potential_match.get_copy()
 
         def outfit_from_xml(outfit_element):
-            return_outfit = Outfit(outfit_element.attrib["name"].replace("_", " ").title())
+            return_outfit = Outfit(outfit_element.attrib["name"])
             clothing_mapping = {"UpperBody":Outfit.add_upper, "LowerBody":Outfit.add_lower, "Feet":Outfit.add_feet, "Accessories":Outfit.add_accessory}
 
             for location in clothing_mapping:

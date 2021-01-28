@@ -624,7 +624,7 @@ label punishment_pay_cut(the_person, the_infraction): #There is a similar option
             maj_amount = the_person.salary
 
     menu:
-        "Minor cut (-$[minor_amount]/day)":
+        "Minor cut\n{color=#00ff00}{size=18}Profit: $[minor_amount] / day{/size}{/color}":
             mc.name "I'm going to be generous. Your pay will only be cut by $[minor_amount] per day."
             $ the_person.change_salary(-minor_amount)
             $ the_person.change_happiness(-2)
@@ -633,7 +633,7 @@ label punishment_pay_cut(the_person, the_infraction): #There is a similar option
             "[the_person.possessive_title] seems upset by the news, but she nods her understanding."
             mc.name "Good. Now get back to work."
 
-        "Moderate cut (-$[mod_amount]/day)":
+        "Moderate cut\n{color=#00ff00}{size=18}Profit: $[mod_amount] / day{/size}{/color}":
             mc.name "You will see a $[mod_amount] reduction in your daily pay, effective immediately."
             $ the_person.change_salary(-mod_amount)
             $ the_person.change_happiness(-5)
@@ -649,7 +649,7 @@ label punishment_pay_cut(the_person, the_infraction): #There is a similar option
             mc.name "Good, now get back to work before I have to write you up again."
 
 
-        "Major cut (-$[maj_amount]/day)":
+        "Major cut\n{color=#00ff00}{size=18}Profit: $[maj_amount] / day{/size}{/color}":
             mc.name "There will be a $[maj_amount] cut to your daily pay, effective immediately."
             $ the_person.change_salary(-maj_amount)
             $ the_person.change_happiness(-10)

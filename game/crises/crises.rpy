@@ -1361,7 +1361,7 @@ label quitting_crisis_label(the_person): #The person tries to quit, you have a c
             "[the_person.possessive_title] takes a long moment before responding."
             the_person.char "I think I would need an extra $[deficit] a day in wages. That would keep me here."
             menu:
-                "Accept (+$[deficit]/day)":
+                "Accept\n{color=#ff0000}{size=18}Costs: $[deficit] / day{/size}{/color}":
                     $ the_person.salary += deficit
                     $ raise_string = the_person.title +": +$" +str(deficit) + "/day Salary"
                     $ mc.log_event(raise_string,"float_text_green")
@@ -2521,7 +2521,7 @@ label serum_creation_crisis_label(the_serum): # Called every time a new serum is
                     the_person.char "That's a big risk you know. If I'm going to do something like that, I think I deserve a raise."
                     $ raise_amount = int(the_person.salary*0.1)
                     menu:
-                        "Give [the_person.title] a 10%% raise (+$[raise_amount]/day)":
+                        "Give [the_person.title] a 10%% raise\n{color=#ff0000}{size=18}Costs: $[raise_amount] / day{/size}{/color}":
                             $ mc.log_event(the_person.title + ": +$[raise_amount]/day Salary", "float_text_green")
                             mc.name "Alright, you've got yourself a deal. I'll have the books updated by the end of the day."
                             $ the_person.salary += raise_amount

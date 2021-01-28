@@ -2426,7 +2426,7 @@ init -5 python:
             # generate new home location if we don't have one
             start_home = self.home
             if not start_home:
-                start_home = Room(self.name + " " + self.last_name + " home", self.name + " " + self.last_name + " home", [], standard_bedroom_backgrounds[:], [make_wall(), make_floor(), make_bed(), make_window()],[],[],False,[0.5,0.5], visible = False, hide_in_known_house_map = False, lighting_conditions = standard_indoor_lighting)
+                start_home = Room(self.name + " " + self.last_name + " home", self.name + " " + self.last_name + " home", [], standard_house_backgrounds, [make_wall(), make_floor(), make_couch(), make_window()],[],[],False,[0.5,0.5], visible = False, hide_in_known_house_map = False, lighting_conditions = standard_indoor_lighting)
 
             # add home location to list of places, before assignment
             if not start_home in list_of_places:
@@ -6641,6 +6641,13 @@ init -5 python:
         return return_list
 
 
+    def find_in_list(lambda_func, outfits_lst):
+        for o in outfits_lst:
+            if lambda_func(o):
+                return o
+        return
+
+
     class Wardrobe(renpy.store.object): #A bunch of outfits!
         def __init__(self,name,outfits = None, underwear_sets = None, overwear_sets = None): #Outfits is a list of Outfit objects, or empty if the wardrobe starts empty
             self.name = name
@@ -6708,16 +6715,25 @@ init -5 python:
 
             return base_wardrobe
 
-        def add_outfit(self, new_outfit):
-            new_outfit.restore_all_clothing() #Ensure none of the outfits have half-off clothing.
-            self.outfits.append(new_outfit)
+        def add_outfit(self, the_outfit):
+            the_outfit.restore_all_clothing() #Ensure none of the outfits have half-off clothing.
+            found = find_in_list(lambda x: x.name == the_outfit.name, self.outfits)
+            if found:   # if we already have an outfit with that name, replace it (outfit name must be unique)
+                self.outfits.remove(found)
+            self.outfits.append(the_outfit)
 
         def add_underwear_set(self, the_outfit):
             the_outfit.restore_all_clothing()
+            found = find_in_list(lambda x: x.name == the_outfit.name, self.underwear_sets)
+            if found:   # if we already have an outfit with that name, replace it (outfit name must be unique)
+                self.underwear_sets.remove(found)
             self.underwear_sets.append(the_outfit)
 
         def add_overwear_set(self, the_outfit):
             the_outfit.restore_all_clothing()
+            found = find_in_list(lambda x: x.name == the_outfit.name, self.overwear_sets)
+            if found:   # if we already have an outfit with that name, replace it (outfit name must be unique)
+                self.overwear_sets.remove(found)
             self.overwear_sets.append(the_outfit)
 
         def remove_outfit(self, old_outfit):
@@ -11230,6 +11246,10 @@ label outfit_master_manager(*args, **kwargs): #WIP new outfit manager that centr
     call screen outfit_select_manager(*args, **kwargs)
 
     if _return == "No Return":
+        if "the_person" in globals():   # restore character on screen
+            $ the_person.draw_person()
+        else:
+            $ clear_scene()
         return None #We're done and want to leave.
 
     $ outfit_type = None

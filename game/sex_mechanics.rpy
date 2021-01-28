@@ -460,7 +460,7 @@ label check_position_willingness(the_person, the_position, ignore_taboo = False,
         # She's willing to be commanded to do it. Reduce her happiness by the difference (increase arousal if she likes being submissive)
         "[the_person.possessive_title] doesn't seem enthusiastic, but a little forceful encouragement would probably convince her."
         menu:
-            "Order her.":
+            "Order her":
                 mc.name "[the_person.title], this is going to happen."
                 $ happiness_drop = the_person.effective_sluttiness(the_position.associated_taboo) - the_position.slut_requirement #Our initial conditions mean this is a negative number
                 $ the_person.change_arousal(the_person.get_opinion_score("being submissive")*2)
@@ -472,7 +472,7 @@ label check_position_willingness(the_person, the_position, ignore_taboo = False,
                     $ the_person.call_dialogue("sex_obedience_accept")
                 $ report_log["used_obedience"] = True
                 $ willing = True
-            "Try something else.":
+            "Try something else":
                 mc.name "Let's try something else that you might be more comfortable with."
                 $ willing = False
 
@@ -805,14 +805,14 @@ label strip_menu(the_person, the_verbing = "fucking", is_private = True): #TODO:
             if willing_if_ordered:
                 $ the_person.call_dialogue("strip_obedience_accept", the_clothing = strip_choice, strip_type = strip_type)
                 menu:
-                    "Do it anyways.":
+                    "Do it anyways":
                         "You proceed despite [the_person.possessive_title]'s objections, trusting her to remain obedient and docile."
                         $ willing_to_strip = True
                         $ ordered_to_strip = True
                         $ the_person.discover_opinion("being submissive")
                         $ the_person.change_happiness(-5 + (5*the_person.get_opinion_score("being submissive")))
 
-                    "Let it be.":
+                    "Let it be":
                         "You leave [the_person.possessive_title]'s [strip_choice.display_name] in place, and she relaxes."
 
         if willing_to_strip:

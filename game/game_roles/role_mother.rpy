@@ -1255,7 +1255,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
 
 
                 $ the_mom.add_situational_slut("Eager", 10, "I'll show that skank how a {i}real{/i} woman should treat him!")
-                call fuck_person(the_mom, private = True, skip_intro = skip_intro, start_position = start_position, skip_condom = skip_condom) from _call_fuck_person_36
+                call fuck_person(the_mom, private = True, skip_intro = skip_intro, start_position = start_position, asked_for_condom = skip_condom) from _call_fuck_person_36
                 $ the_report = _return
                 $ the_mom.clear_situational_slut("Eager")
                 if the_report.get("guy orgasms", 0) > 0:

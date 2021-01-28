@@ -111,6 +111,7 @@ label fuck_date_label(the_person):
             return
 
     $ mc.change_location(the_person.home)
+    $ mc.location.show_background()
     $ so_title = SO_relationship_to_title(the_person.relationship) #TODO: Make sure she's still in a relationship, or void this date if she isn't (because she's your girlfriend now).
 
     if the_person.home not in mc.known_home_locations:
@@ -120,7 +121,7 @@ label fuck_date_label(the_person):
         "You make your way to [the_person.possessive_title]'s house. You text her first, in case her [so_title] is unexpectedly home."
     mc.name "I'm here. Are you ready?"
     the_person.char "Come on in, the door is unlocked. I'm in the bedroom"
-    $ mc.location.show_background()
+    $ aunt_bedroom.show_background()
     "You go inside. The only light in the house comes from a room with its door ajar. When you swing it open you see [the_person.title] waiting."
     $ the_person.add_situational_slut("Date", 20, "There's no reason to hold back, he's here to fuck me!") # Bonus to sluttiness since you're in an affair and this is blatently a date to get fucked on.
     call fuck_date_event(the_person) from _call_fuck_date_event
@@ -160,7 +161,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
     $ done = False
     $ girl_came = False
     $ so_called = False
-    $ energy_gain_amount = 50 #Drops each round, representing your flagging endurance.
+    $ energy_gain_amount = mc.max_energy // 3 #Drops each round, representing your flagging endurance.
     while not done:
         if the_report.get("girl orgasms", 0) > 0: #TODO: Have some variation to this based on how many times we've looped around.
             $ the_person.change_love(2 + the_person.get_opinion_score("cheating on men"))
@@ -199,12 +200,13 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
             $ mc.change_energy(energy_gain_amount)
             $ the_person.change_energy(energy_gain_amount) #She gains some back too
             if energy_gain_amount >= 10:
-                $ energy_gain_amount += -10 #Gain less and less energy back each time until eventually you're exhausted and gain nothing back.
+                $ energy_gain_amount -= 10 #Gain less and less energy back each time until eventually you're exhausted and gain nothing back.
             menu:
                 "Fuck her again":
                     "Soon you're ready to go again and you wrap your arms around [the_person.title]."
                     mc.name "Come here you little slut."
-                    if renpy.random.randint(0,100) < 10 and not so_called:
+                    $ ran_num = renpy.random.randint(0,100)
+                    if ran_num < 15 and not so_called:
                         #Her SO Comes home (unless he's called, in which case we know where he is.)
                         "She smiles and wraps her arms around you in return, pressing her body against yours."
                         the_person.char "Come and take me. I..."
@@ -338,7 +340,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "All I want is his cock!"
                                 "He gibbers weakly to himself and turns around, leaving the room. Shortly after you hear the engine of his car start up and he drives away."
 
-                                call fuck_person(the_person, private = True, start_position = doggy, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, skip_condom = True) from _call_fuck_person_101
+                                call fuck_person(the_person, private = True, start_position = doggy, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, asked_for_condom = True) from _call_fuck_person_101
                                 $ the_report = _return
                                 call transform_affair(the_person) from _call_transform_affair_1 #She's no longer with her husband, obviously.
 
@@ -346,7 +348,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "Oh my god, that was actually it. It's just me and you, nobody else in our way."
                                 "She holds onto you tightly and rests her head on your chest."
 
-                    elif ran_num < 20 and not so_called:
+                    elif ran_num < 30 and not so_called:
                         #Her SO calls home. Depending on Love/Sluttiness she might want to stop, or keep going while talking to him.
                         $ so_called = True
                         "She smiles and moves to kiss you, when a happy little jingle fills the room."
@@ -484,7 +486,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "Oh fuck, you're crazy [the_person.mc_title]! What if we get caught?"
                                 mc.name "We'll deal with that if it happens. Just relax and enjoy."
 
-                                call fuck_person(the_person, private = True, start_position = missionary, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, skip_condom = true) from _call_fuck_person_102
+                                call fuck_person(the_person, private = True, start_position = missionary, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, asked_for_condom = True) from _call_fuck_person_102
                                 $ the_report = _return
 
                         #TODO: At this point run a check on her arousal.

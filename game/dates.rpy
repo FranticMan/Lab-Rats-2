@@ -311,7 +311,6 @@ label movie_date_label(the_person):
                     $ the_person.add_situational_slut("Romanced",15,"What a wonderful date!")
                     call date_take_home_her_place(the_person, date_type = "movie") from _call_date_take_home_her_place
                     $ the_person.clear_situational_slut("Romanced")
-                    "When you and [the_person.possessive_title] are finished you give her a goodbye kiss and head home yourself.."
 
                 "Call it a night":
                     mc.name "I'd like to call it an early night today, but maybe I'll take you up on the offer some other time."
@@ -463,7 +462,6 @@ label dinner_date_label(the_person):
                     $ the_person.add_situational_slut("Romanced",25,"What a wonderful date!")
                     call date_take_home_her_place(the_person, date_type = "dinner") from _call_date_take_home_her_place_1
                     $ the_person.clear_situational_slut("Romanced")
-                    "When you and [the_person.possessive_title] are finished you give her a goodbye kiss and head home yourself.."
 
                 "Call it a night":
                     mc.name "I'd like to call it an early night today, but maybe I'll take you up on the offer some other time."
@@ -491,6 +489,8 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
         $ mc.location.show_background()
 
         call fuck_date_event(the_person) from _call_fuck_date_event_1 #You're having an affair, leads to all of the normal affair stuff like being caught. #TODO: Make sure the date seduction dialogue leads into this properly.
+        $ the_person.draw_person(position = "missionary") # drop on the bed to rest
+        "When you and [the_person.possessive_title] are finished you give her a goodbye kiss and head home yourself.."
 
         #TODO: Refactor this huge conditional. It's hard to read
     elif (the_person.effective_sluttiness(["vaginal_sex", "sucking_cock"]) >= 70 and the_person.relationship == "Single") or (the_person.effective_sluttiness(["vaginal_sex", "sucking_cock"]) >= 70-(10*the_person.get_opinion_score("cheating on men")) and the_person.relationship != "Single"): #TODO: Figure out what triggers we want for this

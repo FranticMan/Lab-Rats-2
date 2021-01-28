@@ -603,6 +603,18 @@ label lunch_date_plan_label(the_person):
         mc.name "I'm going to get some lunch, would you like to come along with me?"
         the_person.char "You want me to be seen in public with you? You're really pushing it [the_person.mc_title], but sure."
 
+    elif affair_role in the_person.special_role:
+        mc.name "[the_person.title], I was going to get some lunch, would you like to join me?"
+        the_person.char "That sounds nice, [the_person.mc_title]."
+        "She pauses and seems to consider something for a moment."
+        the_person.char "Are you sure my husband won't find out?"
+        if the_person == christina:
+            mc.name "You could always say you had to go over something, with [emily.name] her tutor."
+            the_person.char "You are right, let's go!"
+        else:
+            mc.name "Can't you go and grab lunch with an acquaintance?"
+            the_person.char "Of course I can, let's get going!"
+
     elif not (the_person.relationship == "Single" or the_person.get_opinion_score("cheating on men") > 0): #IF she likes cheating she doesn't even mention she's in a relationship
         mc.name "[the_person.title], I was going to get some lunch, would you like to join me? Maybe just grab a coffee and hang out for a while?"
         $ so_title = SO_relationship_to_title(the_person.relationship)
