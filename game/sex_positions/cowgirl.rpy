@@ -2,8 +2,8 @@
     python:
         cowgirl = Position(name = "Cowgirl", slut_requirement = 60, slut_cap = 80, requires_hard = True, requires_large_tits = False,
             position_tag = "cowgirl", requires_location = "Lay", requires_clothing = "Vagina", skill_tag = "Vaginal",
-            girl_arousal = 18, girl_energy = 14,
-            guy_arousal = 14, guy_energy = 10,
+            girl_arousal = 18, girl_energy = 9,
+            guy_arousal = 14, guy_energy = 6,
             connections = [],
             intro = "intro_cowgirl",
             scenes = ["scene_cowgirl_1","scene_cowgirl_2","scene_cowgirl_3"],
@@ -12,7 +12,8 @@
             strip_description = "strip_cowgirl", strip_ask_description = "strip_ask_cowgirl",
             orgasm_description = "orgasm_cowgirl",
             taboo_break_description = "taboo_break_cowgirl",
-            opinion_tags = ["taking control", "vaginal sex"], record_class = "Vaginal Sex",
+            verb = "be ridden by", verbing = "being ridden by",
+            opinion_tags = ["vaginal sex", "taking control"], record_class = "Vaginal Sex",
             default_animation = blowjob_bob,
             associated_taboo = "vaginal_sex")
 
@@ -28,8 +29,9 @@ label intro_cowgirl(the_girl, the_location, the_object):
     if the_girl.outfit.vagina_visible():
         "She leans back and grinds herself against you. The shaft of your cock rubs against the lips of her pussy."
     else:
-        $ blocking_item = the_girl.outift.get_visible_lower()[0]
-        "She leans back and grinds herself against you. Underneath her [blocking_item.name] you can feel the lips of her pussy sliding along the length of your shaft."
+        $ the_clothing = the_girl.outfit.get_lower_top_layer()
+        "She leans back and grinds herself against you. Underneath her [the_clothing.name] you can feel the lips of her pussy sliding along the length of your shaft."
+        $ del the_clothing
     the_girl.char "Ready?"
     if the_girl.sex_skills["Vaginal"] >= 3:
         "You nod. She grinds forward one last time, then lifts herself up and lets your tip fall into place. With one smooth movement she slides you deep into her tight cunt."
@@ -73,7 +75,7 @@ label scene_cowgirl_2(the_girl, the_location, the_object):
     "[the_girl.title] speeds up, working her thighs to pump herself up and down your cock."
     if the_girl.has_large_tits():
         if the_girl.outfit.tits_visible():
-            "Her large, unconstrained tits bouncse up and down with each stroke."
+            "Her large, unconstrained tits bounces up and down with each stroke."
             the_girl.char "Fuck, hold onto these!"
             "[the_girl.possessive_title] reaches down and grabs your hands. She brings them up to her tits and plants them there."
             "She moans and grinds your hands into her breasts, then puts her hands on your chest and focuses on fucking you."
@@ -86,7 +88,7 @@ label scene_cowgirl_2(the_girl, the_location, the_object):
             the_girl.char "Ah!"
         else:
             $ the_clothing = the_girl.outfit.get_upper_visible()[0]
-            "She reaches up and grabs onto one of her small tits through her [the_clothing.name]. She kneeds it through the fabric and moans loudly while she rides you."
+            "She reaches up and grabs onto one of her small tits through her [the_clothing.name]. She kneads it through the fabric and moans loudly while she rides you."
             the_girl. char "Ah!"
     return
 
@@ -145,20 +147,20 @@ label outro_cowgirl(the_girl, the_location, the_object):
     else:
         #She hesitates and you can decide to pull her down or not.
         #There is no condom branch here because 100% of the condom branches go to the first version.
-        "[the_girl.title] starts to pull up and off of you. She hesistates with the tip of your cock just inside of her pussy."
+        "[the_girl.title] starts to pull up and off of you. She hesitates with the tip of your cock just inside of her pussy."
         the_girl.char "I... I really shouldn't let you..."
         "She bites her lip and moans, unsure of what to do."
         menu:
-            "Pull her down and cum inside her.":
+            "Pull her down and cum inside her":
                 "You reach up and grab [the_girl.possessive_title] by the hips. With one confident pull she plunges back onto your cock, gasping with pleasure."
-                "The feeling of her warm, wet pussy sliding down and englufing your cock again pushes you over the edge. You pull [the_girl.title] tight against you and unload inside of her."
+                "The feeling of her warm, wet pussy sliding down and engulfing your cock again pushes you over the edge. You pull [the_girl.title] tight against you and unload inside of her."
                 the_girl.char "Ah! Just... Just this once!"
                 $ the_girl.call_dialogue("cum_vagina")
                 $ the_girl.cum_in_vagina()
                 $ the_girl.change_obedience(3)
                 "You give a few half-hearted pumps when you're done, then tap [the_girl.title] on the ass. She slides off of your dick and collapses beside you."
 
-            "Let her pull off and cum on her stomach.":
+            "Let her pull off and cum on her stomach":
                 "You stay silent. [the_girl.possessive_title] waits another second, as if waiting to be convinced, then pulls off of your cock."
                 "She grinds the lips of her pussy against your shaft as you climax. You fire your hot load over her stomach."
                 $ the_girl.cum_on_stomach()
@@ -185,12 +187,12 @@ label strip_cowgirl(the_girl, the_clothing, the_location, the_object):
 label strip_ask_cowgirl(the_girl, the_clothing, the_location, the_object):
     the_girl.char "[the_girl.mc_title], I'd like to take off my [the_clothing.name]. Would you mind?"
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = cowgirl.position_tag)
             "[the_girl.title] slows down her pace while she strips out of her [the_clothing.name]. When she's free of it she puts her hands on your chest and fucks you faster again."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 70:
                 the_girl.char "Yeah? Do I look sexy in it?"
@@ -203,7 +205,7 @@ label strip_ask_cowgirl(the_girl, the_clothing, the_location, the_object):
 label orgasm_cowgirl(the_girl, the_location, the_object):
     "[the_girl.title] works her hips faster and her breathing grows heavier."
     $ the_girl.call_dialogue("climax_responses_vaginal")
-    the_girl.char "With one last gasp she collapses down against you. Her thighs quiver as she climaxes."
+    "With one last gasp she collapses down against you. Her thighs quiver as she climaxes."
     "After a second [the_girl.title] regains control of herself. Her breath is warm against your ear as she whispers to you."
     the_girl.char "I can't stop now, I want you to make me cum again!"
     "She leans back and starts to ride you faster than ever."

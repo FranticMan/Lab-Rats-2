@@ -1,7 +1,7 @@
 init -1 python:
     def downtown_search_requirement():
         if time_of_day >= 4:
-            return "Too late to explore."
+            return "Too late to explore"
         else:
             return True
 
@@ -15,6 +15,23 @@ init -1 python:
     def meet_person_requirement():
         return True
 
+    def get_downtown_search_event():
+        possible_downtown_events = []
+        for possible_event in list_of_downtown_events: #Make a list of the valid events.
+            if possible_event[0].is_action_enabled():
+                possible_downtown_events.append(possible_event)
+
+        return get_random_from_weighted_list(possible_downtown_events)
+
+
+    list_of_downtown_events = []
+    find_nothing_action = Action("Find nothing", find_nothing_requirement, "find_nothing_label")
+    lady_of_the_night_action = Action("Lady of the night", lady_of_the_night_requirement, "lady_of_the_night_label")
+    meet_person_action = Action("Meet person", meet_person_requirement, "meet_person_label")
+
+    list_of_downtown_events.append([find_nothing_action,10])
+    list_of_downtown_events.append([lady_of_the_night_action,3])
+    list_of_downtown_events.append([meet_person_action,6]) #Now is combined with the find cash event.
 
 
 
@@ -28,23 +45,10 @@ label downtown_search_label(advance_time = True):
     #Otherwise we add some random events and draw from the list.
 
     else:
-        python:
-            list_of_downtown_events = []
-            find_nothing_action = Action("Find nothing", find_nothing_requirement, "find_nothing_label")
-            lady_of_the_night_action = Action("Lady of the night", lady_of_the_night_requirement, "lady_of_the_night_label")
-            meet_person_action = Action("Meet person", meet_person_requirement, "meet_person_label")
-
-            list_of_downtown_events.append([find_nothing_action,10])
-            list_of_downtown_events.append([lady_of_the_night_action,3])
-            list_of_downtown_events.append([meet_person_action,6]) #Now is combined with the find cash event.
-
-            possible_downtown_events = []
-            for possible_event in list_of_downtown_events: #Make a list of the valid events.
-                if possible_event[0].is_action_enabled():
-                    possible_downtown_events.append(possible_event)
-
-            the_event = get_random_from_weighted_list(possible_downtown_events)
-            the_event.call_action()
+        $ the_event = get_downtown_search_event()
+        if the_event:
+            $ the_event.call_action()
+        $ del the_event
 
     if advance_time:
         call advance_time from _call_advance_time_26
@@ -70,14 +74,14 @@ label discover_stripclub_label():
     "{color=#29e729}GIRLS GIRLS GIRLS{/color}\n{color=#e72929}[club_name]{/color}"
     $ strip_club.visible = True
     menu:
-        "Go inside.":
+        "Go inside":
             "You open the door and are immediately assaulted by pulsing, base heavy music."
 
             $ mc.change_location(strip_club)
+            $ mc.location.show_background()
 
 
-
-        "Keep exploring.":
+        "Keep exploring":
             "You make a mental note of this location in case you want to come back later, but decide against visiting it."
             call downtown_search_label(advance_time = False) from _call_downtown_search_label
     return
@@ -112,7 +116,7 @@ label lady_of_the_night_label():
     the_person.char "You're looking a little lonely all by yourself. Are you looking for a friend to keep you warm?"
     "Her tone suggests that her \"friendship\" won't come free."
     menu:
-        "Pay her. -$200":
+        "Pay her\n{color=#ff0000}{size=18}Costs: $200{/size}{/color}":
             $ the_person.generate_home()
             $ downtown.add_person(the_person) #If you pay her add her to the location so that she is kept track of in the future.
             mc.name "That sounds nice. It's nice to meet you..."
@@ -128,17 +132,24 @@ label lady_of_the_night_label():
             $ the_report = _return
             $ the_person.clear_situational_obedience("prostitute")
 
-            if the_report.get("girl orgasms",0) > 0:
+            if the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0:
                 "It takes [the_person.title] a few moments to catch her breath."
                 the_person.char "Maybe I should be paying you... Whew!"
+            elif the_report.get("girl orgasms", 0) > 0:
+                "It takes [the_person.title] a few moments to catch her breath."
+                the_person.char "Am I not hot enough for you, darling?"
+            else:
+                the_person.char "Not bad darling, I hope you had a good time."
 
             $ the_person.review_outfit()
+            $ the_person.draw_person()
 
             the_person.char "It's been fun, if you ever see me around maybe we can do this again."
+            $ the_person.draw_person(position = "walking_away")
             "She gives you a peck on the cheek, then turns and struts off into the night."
             $ clear_scene()
 
-        "Say no.":
+        "Say no":
             mc.name "Thanks for the offer, but no thanks."
             "She shrugs."
             the_person.char "Suit yourself."
@@ -156,7 +167,7 @@ label meet_person_label():
     "She rushes to get back to her feet, unaware that her wallet has slipped out and is sitting on the sidewalk."
     "You crouch down to pick it up. A discreet check reveals there is a sizeable amount of cash inside."
     menu:
-        "Return everything.":
+        "Return everything":
             $ downtown.add_person(the_person)
             $ the_person.generate_home()
             "You speed up to a jog to catch the woman."
@@ -185,7 +196,7 @@ label meet_person_label():
             "She smiles and steps onto the bus, waving briefly from one of the windows."
 
 
-        "Keep the cash.\n{color=#0F0}+$200{/color}":
+        "Keep the cash\n{color=#00ff00}{size=18}Income: $200{/size}{/color}":
             $ mc.business.funds += 200
             "You slip the cash out of the womans wallet and watch as she rushes to catch her bus."
             $ clear_scene()

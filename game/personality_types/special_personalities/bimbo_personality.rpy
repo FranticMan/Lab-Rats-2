@@ -6,10 +6,9 @@ init 1300:
         def bimbo_possessive_titles(the_person):
             return bimbo_titles(the_person)
         def bimbo_player_titles(the_person):
-            valid_mc_titles = []
-            valid_mc_titles.append(mc.name)
-            valid_mc_titles.append("cutie")
-            return valid_mc_titles
+            valid_titles = [mc.name]
+            valid_titles.append("Cutie")
+            return valid_titles
         bimbo_personality = Personality("bimbo", #Currently used in the head researcher event line.
         common_likes = ["skirts", "small talk", "the colour pink", "makeup", "pop"],
         common_sexy_likes = ["giving blowjobs", "missionary style sex", "being submissive", "skimpy outfits", "showing her tits", "showing her ass", "not wearing anything", "not wearing underwear", "lingerie", "cum facials"],
@@ -136,7 +135,7 @@ label bimbo_sex_responses_vaginal(the_person):
             the_person.char "Yes! Keep fucking me!"
             "She giggles happily, clearly having a good time."
         else:
-            the_person.char "Oh wow! Mmmm, you're cock is driving me crazy [the_person.mc_title]!"
+            the_person.char "Oh wow! Mmmm, your cock is driving me crazy [the_person.mc_title]!"
     else:
         if the_person.sluttiness > 50:
             if the_person.relationship == "Single":
@@ -147,7 +146,7 @@ label bimbo_sex_responses_vaginal(the_person):
                 the_person.char "Oh well, I just want to cum! Make me cum! Make me cum my brains out!"
 
         else:
-            the_person.char "Oh my god, you're... You might make me cum if you keep going!"
+            the_person.char "Oh my god, you... You might make me cum if you keep going!"
     return
 
 label bimbo_sex_responses_anal(the_person):
@@ -159,7 +158,7 @@ label bimbo_sex_responses_anal(the_person):
 
     elif the_person.arousal < 50:
         if the_person.sluttiness > 50:
-            the_person.char "Fuck my ass [the_person.mc_title], fuck me it's raw and you're done with me!"
+            the_person.char "Fuck my ass [the_person.mc_title], fuck me until it's raw and you're done with me!"
         else:
             the_person.char "Oh, it feels like you're stirring up my insides with your dick! Ah!"
 
@@ -237,7 +236,7 @@ label bimbo_clothing_reject(the_person):
 
 label bimbo_clothing_review(the_person):
     if the_person.obedience > 130:
-        the_person.char "Hehe, you really made a mess of me. I should go get tidied up, I'm suppose to be a proper lady here!"
+        the_person.char "Hehe, you really made a mess of me. I should go get tidied up, I'm supposed to be a proper lady here!"
     else:
         if the_person.sluttiness > 40:
             "[the_person.title] looks down at herself and giggles."
@@ -266,24 +265,24 @@ label bimbo_strip_obedience_accept(the_person, the_clothing, strip_type = "Full"
 
 label bimbo_grope_body_reject(the_person):
     if the_person.effective_sluttiness("touching_body") < 5: #Fail point for touching shoulder
-        the_person "Oh my god [the_person.title], you can't touch me like this."
+        the_person.char "Oh my god [the_person.title], you can't touch me like this."
         "She takes a step back and giggles."
-        the_person "I'm flattered, but I don't think it's okay..."
+        the_person.char "I'm flattered, but I don't think it's okay..."
         "You pull your hand back and laugh along with her, diffusing the tension."
         mc.name "Of course, forget I did anything."
     else: #Fail point for touching waist
-        the_person "Hey... I don't think you should be touching me like that..."
+        the_person.char "Hey... I don't think you should be touching me like that..."
         "She giggles to herself."
-        the_person "It's kind of fun, but I know where this is going."
+        the_person.char "It's kind of fun, but I know where this is going."
         "You give her a last squeeze and pull your hand back."
         mc.name "Yeah, of course. Maybe I'll be able to convince you."
-        the_person "Hehe, we'll see..."
+        the_person.char "Hehe, we'll see..."
     return
 
 label bimbo_sex_accept(the_person):
     if the_person.sluttiness > 70:
         if the_person.obedience < 70:
-            the_person.char "Oh yeah, that's one of my favourite things to do! Come on, let's do it!"
+            the_person.char "Oh yeah, that's one of my favorite things to do! Come on, let's do it!"
         else:
             the_person.char "Yeah, let's do it! You're so cute when you're horny, did you know that?"
     else:
@@ -318,7 +317,7 @@ label bimbo_sex_angry_reject(the_person):
         "[the_person.title] glares at you you and walks away."
     else:
         the_person.char "Eew! No, no, no! I will NEVER do that with ANYONE! Eew!"
-        "[the_person.title] shakes her head and stalkes away."
+        "[the_person.title] shakes her head and walks away."
     return
 
 label bimbo_seduction_response(the_person):
@@ -328,7 +327,7 @@ label bimbo_seduction_response(the_person):
         else:
             the_person.char "All I can think about is that cute little dress I saw this morning. Oh, that's not you meant, was it..."
             "[the_person.title] giggles."
-            the_person.char "Nevermind, lead the way!"
+            the_person.char "Never mind, lead the way!"
     else:
         if the_person.sluttiness > 50:
             the_person.char "Yay! I was getting so horny that I was ready to jump you in the hall!"
@@ -336,6 +335,15 @@ label bimbo_seduction_response(the_person):
             the_person.char "Hehe, I thought you had the that look in your eye. I have a sixth sense, but it's for horny guys instead of ghosts!"
         else:
             the_person.char "Oh, I don't really know what to say [the_person.mc_title]..."
+    return
+label bimbo_seduction_accept_crowded(the_person):
+    the_person.char "Yay, lets show these sluts how it is done!"
+    return
+label bimbo_seduction_accept_alone(the_person):
+    the_person.char "Oh, I was like, I'm going to fuck him right now."
+    return
+label bimbo_seduction_refuse(the_person):
+    the_person.char "Duh, do you think I'm just some cheap fuck, perhaps if you took me shopping..."
     return
 
 label bimbo_flirt_response(the_person):
@@ -463,10 +471,10 @@ label bimbo_flirt_response_mid(the_person):
 
 label bimbo_flirt_response_high(the_person):
     if mc.location.get_person_count() > 1 and the_person.effective_sluttiness() < (25 - (5*the_person.get_opinion_score("public_sex"))):
-        "[the_person.possessive_title] giggles andand looks around nervously."
+        "[the_person.possessive_title] giggles and looks around nervously."
         the_person.char "Oh my god, [the_person.mc_title]! That's so naughty!"
         menu:
-            "Find someplace quiet.":
+            "Find someplace quiet":
                 mc.name "Come with me and we can do some more naughty things."
                 "[the_person.title] giggles again and nods eagerly. You take her hand and lead her away."
                 "When you're finally alone you put your arm around her waist and pull her close."
@@ -474,14 +482,12 @@ label bimbo_flirt_response_high(the_person):
                 if the_person.has_taboo("kissing"):
                     $ the_person.call_dialogue("kissing_taboo_break")
                     $ the_person.break_taboo("kissing")
-                else:
-                    pass
+
                 "You kiss her, and she responds by leaning her body against you eagerly."
                 call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_55
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-            "Just flirt.":
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
+            "Just flirt":
                 mc.name "Wait until I get you alone and you'll see how naughty I can get."
                 the_person.char "Hehe, I'm excited to find out!"
 
@@ -501,7 +507,7 @@ label bimbo_flirt_response_high(the_person):
             the_person.char "Do you want to have some fun?"
 
         menu:
-            "Kiss her.":
+            "Kiss her":
                 mc.name "Yeah, I do. Come here."
                 $ the_person.draw_person()
                 if the_person.has_taboo("kissing"):
@@ -511,11 +517,10 @@ label bimbo_flirt_response_high(the_person):
                     "You kiss her, and she rubs her body against you eagerly."
                 else:
                     "You put your arm around [the_person.title]'s waist and pull her close. She leans her body against you eagerly as you kiss her."
-                call fuck_person(the_person, start_position = kissing, skip_intro = True) from _call_fuck_person_56
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-            "Just flirt.":
+                call fuck_person(the_person, start_position = kissing, private = mc.location.get_person_count() < 2, skip_intro = True) from _call_fuck_person_56
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
+            "Just flirt":
                 mc.name "I do, but it'll have to be some other time."
                 $ the_person.draw_person(emotion = "sad")
                 "She pouts and crosses her arms dramatically."
@@ -536,16 +541,15 @@ label bimbo_flirt_response_girlfriend(the_person):
             "She takes your hand and starts trying to lead you away."
             the_person.char "Come on, let's go find somewhere we can make out."
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "Alright, let's go."
-                    "You let [the_person.title] lead you away. After a few mintes of searching you find a private spot away from prying eyes."
+                    "You let [the_person.title] lead you away. After a few minutes of searching you find a private spot away from prying eyes."
                     "You put your arm around her waist, resting your hand on her ass, and kiss her passionately."
                     "[the_person.possessive_title] returns the kiss and begins to grind her hips against your thigh."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_61
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-                "Just flirt.":
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
+                "Just flirt":
                     mc.name "I don't have time right now, but I like the enthusiasm."
                     "She pouts and nods."
                     the_person.char "Okay... Don't forget about me though, I need some attention every once in a while."
@@ -554,7 +558,7 @@ label bimbo_flirt_response_girlfriend(the_person):
             "[the_person.possessive_title] giggles and pets your arm affectionately."
             the_person.char "Oh my god, you're such a sweetie! Do you want me to suck your cock?"
             menu:
-                "Get a blowjob.":
+                "Get a blowjob":
                     mc.name "Is that even a question? Of course I do!"
                     "She grins and knees down, ignoring the other people in the room."
                     "[the_person.title] unzips your pants and pulls your cock out, eagerly running her tongue along the sides."
@@ -562,11 +566,10 @@ label bimbo_flirt_response_girlfriend(the_person):
                     $ blowjob.current_modifier = "blowjob"
                     $ blowjob.redraw_scene(the_person)
                     "She slips you into her warm, wet mouth and sucks on the tip eagerly."
-                    call fuck_person(the_person, start_position = blowjob, skip_intro = True) from _call_fuck_person_62
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-                "Just flirt.":
+                    call fuck_person(the_person, start_position = blowjob, private = False, skip_intro = True) from _call_fuck_person_62
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
+                "Just flirt":
                     mc.name "Thanks for the offer, but I'm a little busy at the moment."
                     "She pouts and sighs."
                     the_person.char "Awww, I was already getting exited. I get so horny when I think about having your cock in my mouth..."
@@ -576,14 +579,14 @@ label bimbo_flirt_response_girlfriend(the_person):
         the_person.char "Oh my god, you're such a sweetie!"
         "She throws her arms around your neck, kissing your face eagerly."
         menu:
-            "Make out.":
+            "Make out":
                 "You put your arms around her and pull her tight against you as you return her kisses."
                 "Bit by bit they transition from energetic to sensual, and soon you have [the_person.possessive_title]'s body grinding against yours as you make out."
                 call fuck_person(the_person, start_position = kissing, skip_intro = True) from _call_fuck_person_63
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
 
-            "Just flirt.":
+            "Just flirt":
                 "You give [the_person.possessive_title] a few quick kisses, then lean your head back to get some air."
                 mc.name "Easy there, down girl."
                 "She lets go of you and giggles."
@@ -601,7 +604,7 @@ label bimbo_flirt_response_affair(the_person):
             "She runs a hand over your chest, oblivious to anyone nearby who might be watching."
             the_person.char "But you do [the_person.mc_title]. You, like, get me."
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "Alright, but we can't do anything here. Follow me."
                     "She nods her head happily and follows you like a happy puppy."
                     "After a few minutes of searching you find a quiet spot away from any interruptions."
@@ -609,10 +612,9 @@ label bimbo_flirt_response_affair(the_person):
                     "She kisses you right back, pressing her tits against your chest and pawing at your crotch in her excitement."
 
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_64
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-                "Just flirt.":
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
+                "Just flirt":
                     mc.name "I do, but you'll have to wait a little while longer. I just don't have the time right now."
                     "She pouts and sighs."
                     the_person.char "Aww... Okay, but I really need you soon. You aren't bored of me, are you?"
@@ -629,7 +631,7 @@ label bimbo_flirt_response_affair(the_person):
         "She wraps her arms around you and hugs you tight. When she lets go she tilts her head and smiles."
         the_person.char "So, do you want me to suck your cock then? Is that one of the things?"
         menu:
-            "Get a blowjob.":
+            "Get a blowjob":
                 "You were expecting to need to convince her a little more, but you aren't about to complain."
                 mc.name "Yeah, that sounds good."
                 "She giggles and drops to her knees on the spot. You step close and she unzips your pants."
@@ -639,10 +641,9 @@ label bimbo_flirt_response_affair(the_person):
                 $ blowjob.redraw_scene(the_person)
                 call fuck_person(the_person, start_position = blowjob, skip_intro = True) from _call_fuck_person_65
                 $ blowjob.current_modifier = None
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
-
-            "Just flirt.":
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
+            "Just flirt":
                 mc.name "How did you guess?"
                 the_person.char "Everyone likes having their cock sucked. Well, not women I guess. But all men do."
                 "She starts to kneel down, but you put your arm around her waist and hold her close."
@@ -679,7 +680,7 @@ label bimbo_cum_mouth(the_person):
             the_person.char "Your cum tastes great [the_person.mc_title], thanks for giving me so much of it."
             "[the_person.title] licks her lips and sighs happily."
         else:
-            the_person.char "Bleh, I don't know if I'll ever get use to that."
+            the_person.char "Bleh, I don't know if I'll ever get used to that."
     return
 
 label bimbo_cum_pullout(the_person):
@@ -764,6 +765,11 @@ label bimbo_cum_vagina(the_person):
             if the_person.relationship != "Single":
                 $ so_title = SO_relationship_to_title(the_person.relationship)
                 the_person.char "My [so_title] gets angry when I forget, but it's not like he fucks me much anyways."
+        elif pregnant_role in the_person.special_role:
+            the_person.char "Mmm, wow you really pumped it into me. But since i've already got one in the oven, that's fine."
+            if the_person.relationship != "Single":
+                $ so_title = SO_relationship_to_title(the_person.relationship)
+                the_person.char "My [so_title] can't get mad about me getting knocked up, right? He already did it."
         elif the_person.effective_sluttiness() > 75 or the_person.get_opinion_score("creampies") > 0:
             if the_person.relationship != "Single":
                 $ so_title = SO_relationship_to_title(the_person.relationship)
@@ -849,35 +855,36 @@ label bimbo_sex_strip(the_person):
     return
 
 label bimbo_sex_watch(the_person, the_sex_person, the_position):
+    $ title = the_person.title if the_person.title else "The stranger"
     if the_person.sluttiness < the_position.slut_requirement - 20:
         $ the_person.draw_person(emotion = "angry")
         the_person.char "Is that, like, allowed? I thought that was illegal or something. Ugh."
         $ the_person.change_obedience(-2)
         $ the_person.change_happiness(-1)
-        "[the_person.title] looks away while you and [the_sex_person.name] [the_position.verb]."
+        "[title] looks away while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement - 10:
         $ the_person.draw_person()
         the_person.char "Could you two get a room or something? There are some of us here who are trying to focus and you're being very distracting."
         $ the_person.change_happiness(-1)
-        "[the_person.title] tries to avert her gaze while you and [the_sex_person.name] [the_position.verb]."
+        "[title] tries to avert her gaze while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement:
         $ the_person.draw_person()
         the_person.char "Wow [the_sex_person.name] you're so adventurous, I don't think I could ever do that. But it looks, like, super fun!"
         $ change_report = the_person.change_slut_temp(1)
-        "[the_person.title] averts her gaze, but keeps glancing over while you and [the_sex_person.name] [the_position.verb]."
+        "[title] averts her gaze, but keeps glancing over while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness > the_position.slut_requirement and the_person.sluttiness < the_position.slut_cap:
         $ the_person.draw_person()
         the_person.char "Oh. My. God. That is so fucking hot... Keep it up girl, you're doing great!"
         $ change_report = the_person.change_slut_temp(2)
-        "[the_person.title] watches you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches you and [the_sex_person.name] [the_position.verb]."
 
     else:
         $ the_person.draw_person(emotion = "happy")
         the_person.char "Mmm, come on [the_person.mc_title], you should do something more to her. I bet she wants it real bad. I know I do..."
-        "[the_person.title] watches eagerly while you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches eagerly while you and [the_sex_person.name] [the_position.verb]."
     return
 
 label bimbo_being_watched(the_person, the_watcher, the_position):
@@ -1033,7 +1040,7 @@ label bimbo_sex_end_early(the_person):
                 the_person.char "That's all? Aww, I hope you had a good time with me..."
         else:
             if the_person.arousal > 60:
-                "Wait, you're stopping? Aren't crazy horny right now too?"
+                "Wait, you're stopping? Aren't you crazy horny right now too?"
             else:
                 the_person.char "Don't you want to play with me any more? Oh well, your loss."
 
@@ -1052,11 +1059,12 @@ label bimbo_sex_end_early(the_person):
     return
 
 label bimbo_sex_review(the_person, the_report):
-    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
     $ comment_position = the_person.pick_position_comment(the_report)
-
     if comment_position is None:
         return #You didn't actually do anything, no need to comment.
+
+    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
+    $ the_person.draw_person()  # make sure she stands up for talking with you
 
     #She's worried about her SO finding out because it was in public
     if the_report.get("was_public", False) and the_person.relationship != "Single" and the_person.get_opinion_score("cheating on men") <= 0: #It was public and she cares.
@@ -1089,6 +1097,17 @@ label bimbo_sex_review(the_person, the_report):
             mc.name "Don't worry, nobody really cares what we do."
             "[the_person.possessive_title] shrugs."
             the_person "You're probably right, you're smart about these sort of things."
+
+    # special condition - you fucked her brains out
+    elif the_report.get("girl orgasms", 0) > 2:
+        if used_obedience:
+            the_person "Fuck me, like, I thought I was a good fuck, but that, like, was totally something."
+            the_person "You're so bad [the_person.mc_title]!"
+            "She pouts a little, but is clearly impressed by what she just experienced."
+        else:
+            the_person "Oh my god, I never, like, came like that."
+            the_person "You're so bad for me [the_person.mc_title], you're turning me into, like, a total slut!"
+            "She giggles. Not in the least bit too upset by the idea."
 
     #No special conditions, just respond based on how orgasmed and how slutty the position was.
     elif the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0: #You both came
@@ -1155,14 +1174,14 @@ label bimbo_sex_review(the_person, the_report):
             the_person "That wasn't so bad, I guess. It's kind of fun making you cum I guess."
 
         else:  # She's suprised she even tried that.
-            the_person "Oh my god, that got, like, so crazy! When you were cumming I was {i}so suprised{/i}!"
+            the_person "Oh my god, that got, like, so crazy! When you were cumming I was {i}so surprised{/i}!"
             "She giggles happily."
             the_person "I swear I'm not normally like that [the_person.mc_title]! It was just so much fun!"
 
     else: #Nobody came.
         if the_person.effective_sluttiness() > comment_position.slut_cap: #She's sluttier than the position
             the_person "Wait, that's all? But we barely even did anything!"
-            the_person "You're such a tease [the_person.mc_title], you were getting me excited and now you're just, like, stoping!"
+            the_person "You're such a tease [the_person.mc_title], you were getting me excited and now you're just, like, stopping!"
             "She pouts, but she doesn't seem to be taking any of this very seriously."
 
         elif the_person.effective_sluttiness() > comment_position.slut_requirement: #She thought it was fun/exciting
@@ -1183,6 +1202,17 @@ label bimbo_sex_review(the_person, the_report):
             the_person "One minute we're just talking, then boom! It's all hot and heavy and all I can think of is..."
             "She giggles and nods down to your crotch."
             the_person "I just go crazy! I can't help it!"
+
+    # Gave creampie while she is not on birth control (extra dialog when she could get pregnant)
+    if the_report.get("creampies", 0) > 0 and not the_person.on_birth_control and not the_person.event_triggers_dict.get("preg_knows", False):
+        the_person "You know, I could be like, pregnant here."
+    return
+
+label bimbo_sex_take_control(the_person):
+    the_person.char "Oh no, get back here, I need to get off too, you know."
+    return
+label bimbo_sex_beg_finish(the_person):
+    the_person.char "Aww, I was just getting there, could you, like, finish me off real quick?"
     return
 
 ## Role Specific Section ##

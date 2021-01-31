@@ -2,10 +2,32 @@
 
 #Note: This only contains generic dates, if a date is specific to a role (ie. the special fuck date available to paramours) it's in their role file.
 #Note: These are only the dates themselves. How they are added (ie. what specific thing triggered them) is in whatever file is appropriate (usually chat_action.rpy, since you ask her out)
+init 2 python:
+    def lunch_date_create_topics_menu(the_person):
+        opinion_question_list = []
+
+        #Generates a list with a few (usually 4, unless there's some opinion collision, but it's not important enough to filter things out more intelligently) opinions, one of which she likes
+        for x in __builtin__.range(3):
+            possible_opinions = get_random_opinion()
+            if possible_opinions not in opinion_question_list:
+                opinion_question_list.append(possible_opinions)
+
+        key_opinion = the_person.get_random_opinion(only_positive = True)
+
+        if key_opinion is not None and key_opinion not in opinion_question_list:
+            opinion_question_list.append(key_opinion)
+
+        renpy.random.shuffle(opinion_question_list)
+
+        formatted_opinion_list = []
+        for item in opinion_question_list:
+            formatted_opinion_list.append(["Chat about " + item, item])
+        return formatted_opinion_list
+
 
 label lunch_date_label(the_person): #Could technically be included in the planning phase, but broken out to fit the structure of the other events.
     the_person.char "So, where do you want to go?"
-    $ food_types = ["chinese food","thai food","italian food","sushi","korean barbeque","pizza","sandwiches"]
+    $ food_types = ["chinese food","thai food","italian food","sushi","korean barbecue","pizza","sandwiches"]
     $ the_type = get_random_from_list(food_types)
     mc.name "I know a nice place nearby. How do you like [the_type]?"
     the_person.char "No complaints, as long as it's good!"
@@ -24,7 +46,7 @@ label lunch_date_label(the_person): #Could technically be included in the planni
         $ clear_scene()
         "[the_person.possessive_title] stands up heads for the washroom."
         menu:
-            "Add some serum to her food." if mc.inventory.get_any_serum_count() > 0:
+            "Add some serum to her food" if mc.inventory.get_any_serum_count() > 0:
                 call give_serum(the_person) from _call_give_serum_20
                 if _return:
                     "Once you're sure nobody else is watching you add a dose of serum to [the_person.title]'s food."
@@ -33,10 +55,10 @@ label lunch_date_label(the_person): #Could technically be included in the planni
                     "You think about adding a dose of serum to [the_person.title]'s food, but decide against it."
                     "Instead you lean back and relax, waiting until she returns to start eating your own food."
 
-            "Add some serum to her food.\nRequires: Serum (disabled)" if mc.inventory.get_any_serum_count() == 0:
+            "Add some serum to her food\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
                 pass
 
-            "Leave her food alone.":
+            "Leave her food alone":
                 "You lean back and relax, waiting until [the_person.title] returns to start eating."
 
         $ the_person.draw_person(position = "sitting")
@@ -44,27 +66,8 @@ label lunch_date_label(the_person): #Could technically be included in the planni
     else:
         the_person.char "Mmm, it looks delicious. Or maybe I'm just really hungry. Either way, let's eat!"
     "You dig into your food, chatting between bites about this and that. What do you talk about?"
-    $ opinion_question_list = []
-    python: #Generates a list with a few (usually 4, unless there's some opinion collision, but it's not important enough to fliter things out more intelligently) opinions, one of which she likes
-        for x in __builtin__.range(3):
-            possible_opinions = get_random_opinion()
-            if possible_opinions not in opinion_question_list:
-                opinion_question_list.append(possible_opinions)
 
-        key_opinion = the_person.get_random_opinion(only_positive = True)
-
-        if key_opinion is not None and key_opinion not in opinion_question_list:
-            opinion_question_list.append(key_opinion)
-
-        renpy.random.shuffle(opinion_question_list)
-
-    $ formatted_opinion_list = []
-    python:
-        for item in opinion_question_list:
-            formatted_opinion_list.append(["Chat about " + item, item])
-
-
-    $ conversation_choice = renpy.display_menu(formatted_opinion_list,True,"Choice")
+    $ conversation_choice = renpy.display_menu(lunch_date_create_topics_menu(the_person),True,"Choice")
     $ the_person.discover_opinion(conversation_choice)
     $ score = the_person.get_opinion_score(conversation_choice)
     $ kiss_after = False
@@ -79,6 +82,7 @@ label lunch_date_label(the_person): #Could technically be included in the planni
     else: #Negative score
         "You steer the conversation towards [conversation_choice]. It becomes quickly apparent that [the_person.title] is not interested in talking about that at all."
         $ the_person.change_love(1, max_modified_to = 35)
+    $ del conversation_choice
 
     "Before you know it you've both finished your lunch and it's time to leave. You walk [the_person.title] outside and get ready to say goodbye."
     the_person.char "This was fun [the_person.mc_title], we should do it again."
@@ -92,23 +96,24 @@ label lunch_date_label(the_person): #Could technically be included in the planni
         mc.name "Yeah, we should. I'll see you around."
 
     $ clear_scene()
+    $ mc.location.show_background() # leave restaurant and move back to original location
     call advance_time() from _call_advance_time_29
     return
 
 
 label movie_date_label(the_person):
     #The actual event produced when it's time to go on your date.
-    $ mc.business.event_triggers_dict["date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
+    $ mc.business.event_triggers_dict["movie_date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
     "You have a movie date planned with [the_person.title] right now."
 
     menu:
-        "Get ready for the date. {image=gui/heart/Time_Advance.png}" if mc.business.funds >= 50:
+        "Get ready for the date {image=gui/heart/Time_Advance.png}" if mc.business.funds >= 50:
             pass
 
-        "Get ready for the date.\nRequires: $50 (disabled)" if mc.business.funds < 50:
+        "Get ready for the date\n{color=#ff0000}{size=18}Requires: $50{/size}{/color} (disabled)" if mc.business.funds < 50:
             pass
 
-        "Cancel the date. (tooltip)She won't be happy with you canceling last minute.":
+        "Cancel the date (tooltip)She won't be happy with you canceling last minute.":
             "You get your phone out and text [the_person.title]."
             mc.name "I'm sorry, but something important came up at the last minute. We'll have to reschedule."
             $ the_person.change_love(-5)
@@ -116,13 +121,15 @@ label movie_date_label(the_person):
             the_person.char "I hope everything is okay. Maybe we can do this some other time then."
             return
 
-    if mom_date_intercept_requirement(mom, the_person) and renpy.random.randint(0,100) < (25 + mom.love):
+    if mom_date_intercept_requirement(mom, the_person) and renpy.random.randint(0,100) < (mom.love):
         call mom_date_intercept(mom, the_person) from _call_mom_date_intercept
         if _return:
             $ clear_scene()
             return "Advance Time"
 
+    $ the_person.apply_outfit(the_person.wardrobe.decide_on_outfit(the_person.sluttiness + 10))
     "You get ready and text [the_person.title] confirming the time and place. A little while later you meet her outside the theater."
+    $ downtown.show_background()
     $ the_person.draw_person()
     the_person.char "Hey, good to see you!"
     the_person.char "I'm ready to go in, what do you want to see?"
@@ -130,39 +137,36 @@ label movie_date_label(the_person):
     $ movie_type = None
     $ likes_movie = False
     menu:
-        "Watch an action movie.":
-            $ action_movie_list = ["The Revengers", "Raiders of the Found Ark", "Die Difficult", "Mission: Improbable", "Wonderful Woman", "John Wicked: Part 3", "The Destructonator", "Waterman"]
-            $ the_choice = get_random_from_list(action_movie_list)
+        "Watch an action movie":
+            $ the_choice = get_random_from_list(["The Revengers", "Raiders of the Found Ark", "Die Difficult", "Mission: Improbable", "Wonderful Woman", "John Wicked: Part 3", "The Destructonator", "Waterman"])
             $ movie_type = "action"
             if the_person.personality is wild_personality or the_person.personality.default_prefix == wild_personality.personality_type_prefix: #If it's a wild or wild derived personality type
                 $ likes_movie = True
             mc.name "Yeah, I've wanted to see [the_choice] for a while. I'll go get us tickets."
 
-        "Watch a comedic movie.":
-            $ comedy_movie_list = ["Spooky Movie", "Aaron Powers", "Dumber and Dumberest-er", "Ghostblasters", "Shaun of the Undead"]
-            $ the_choice = get_random_from_list(comedy_movie_list)
+        "Watch a comedic movie":
+            $ the_choice = get_random_from_list(["Spooky Movie", "Aaron Powers", "Dumber and Dumberest-er", "Ghostblasters", "Shaun of the Undead"])
             $ movie_type = "comedy"
             if the_person.personality is relaxed_personality or the_person.personality.default_prefix == relaxed_personality.personality_type_prefix:
                 $ likes_movie = True
             mc.name "I thought we'd both enjoy [the_choice]. I'll go get us tickets."
 
-        "Watch a romantic movie.":
-            $ romance_movie_list = ["Olympic", "Britannic","The Workbook", "East Side Tale", "Pottery Poltergeist"]
-            $ the_choice = get_random_from_list(romance_movie_list)
+        "Watch a romantic movie":
+            $ the_choice = get_random_from_list(["Olympic", "Britannic","The Workbook", "East Side Tale", "Pottery Poltergeist"])
             $ movie_type = "romantic"
             if the_person.personality is reserved_personality or the_person.personality.default_prefix == reserved_personality.personality_type_prefix:
                 $ likes_movie = True
             mc.name "I thought [the_choice] would be a good fit for us. You just wait here, I'll go get us tickets."
 
-        "Watch a foreign film.":
-            $ foreign_movie_list = ["that one in French", "that one in Italian", "that one in Russian", "that one in Japanese", "that one in Mandarin", "that one that's silent"]
-            $ the_choice = get_random_from_list(foreign_movie_list)
+        "Watch a foreign film":
+            $ the_choice = get_random_from_list(["that one in French", "that one in Italian", "that one in Russian", "that one in Japanese", "that one in Mandarin", "that one that's silent"])
             $ movie_type = "foreign"
             if the_person.personality is introvert_personality or the_person.personality.default_prefix == introvert_personality.personality_type_prefix:
                 $ likes_movie = True
             mc.name "I haven't heard much about it, but I think we should watch [the_choice]. It should be a really unique one."
             mc.name "I'll go get us tickets; be back in a moment."
 
+    $ del the_choice
     if the_person.personality is bimbo_personality and movie_type != "foreign":
         $ likes_movie = True # Bimbos like anything other than weird art pieces.
 
@@ -173,28 +177,28 @@ label movie_date_label(the_person):
     "Tickets in hand, you rejoin [the_person.title] and set off to find your theater."
     the_person.char "Did you want to get us some popcorn or anything like that?"
     menu:
-        "Stop at the concession stand. -$20" if mc.business.funds >= 20:
+        "Stop at the concession stand\n{color=#ff0000}{size=18}Costs: $20{/size}{/color}" if mc.business.funds >= 20:
             mc.name "Sure, you run ahead and I'll go get us some snacks."
             $ clear_scene()
             $ mc.business.funds += -20
             "You give [the_person.possessive_title] her ticket and split up. At the concession stand you get a pair of drinks and some popcorn to share."
             menu:
-                "Put a dose of serum in her drink." if mc.inventory.get_any_serum_count() > 0:
+                "Put a dose of serum in her drink" if mc.inventory.get_any_serum_count() > 0:
                     call give_serum(the_person) from _call_give_serum_14
 
-                "Put a dose of serum in her drink.\nRequires: Serum (disabled)" if mc.inventory.get_any_serum_count() == 0:
+                "Put a dose of serum in her drink\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
                     pass
 
-                "Leave her drink alone.":
+                "Leave her drink alone":
                     pass
 
             "Snacks in hand you return to [the_person.title]. She takes a sip from her drink as you settle into your seat beside her."
 
 
-        "Stop at the concession stand. -$20 (disabled)" if mc.business.funds < 20:
+        "Stop at the concession stand\n{color=#ff0000}{size=18}Requires: $20{/size}{/color} (disabled)" if mc.business.funds < 20:
             pass
 
-        "Just go to the movie.":
+        "Just go to the movie":
             mc.name "That stuff is always so overpriced, I hate giving them the satisfaction."
             $ the_person.change_happiness(-2)
             the_person.char "Right. Sure."
@@ -213,14 +217,14 @@ label movie_date_label(the_person):
         the_person.char "It was amazing! Let's watch something like that next time."
         $ the_person.change_love(10, max_modified_to = 80)
 
-    else: #She's bored. Bad for love gain, but good for getting her to fool around. She may start to feel you up to disctract herself.
-        "Halfway through the movie it's beocming clear that [the_person.title] isn't enthralled by it."
+    else: #She's bored. Bad for love gain, but good for getting her to fool around. She may start to feel you up to distract herself.
+        "Halfway through the movie it's becoming clear that [the_person.title] isn't enthralled by it."
         if (the_person.sluttiness - the_person.get_opinion_score("public sex") * 5) > 50 and (the_person.relationship == "Single" or the_person.get_opinion_score("cheating on men") > 0) and not the_person.has_family_taboo():
             "While you're watching you feel her rest her hand on your thigh. She squeezes it gently and slides her hand up higher and higher while whispering into your ear."
-            the_person.char "I'm bored. You don't mind if I make this a little more intresting, do you?"
+            the_person.char "I'm bored. You don't mind if I make this a little more interesting, do you?"
             "You take a quick look around. The theater you're in is mostly empty, and nobody is in the same row as you."
             menu:
-                "Go ahead.":
+                "Go ahead":
                     mc.name "I'm certainly not going to stop you."
                     "Her hand slides up to your waist and undoes the button to your pants. You get a jolt of pleasure as her fingers slide onto your hardening cock."
                     "[the_person.title] stays sitting in her seat, eyes fixed on the movie screen as she begins to fondle your dick."
@@ -235,35 +239,34 @@ label movie_date_label(the_person):
                         "She comes up for air slides up your body, whispering into your ear."
                         the_person.char "Do you want to go to the bathroom and fuck me, or do you want to finish in my mouth right here?"
                         menu:
-                            "Fuck her.":
+                            "Fuck her":
+                                $ the_person.draw_person(position = "walking_away", lighting = [0.5, 0.5, 0.5])
                                 "You zip up your pants and stand up. [the_person.title] takes your hand and you rush out of the theater."
-                                $ movie_bathroom = Room("threater bathroom", "Theather Bathroom", [], bathroom_background, [], [], [], False, [0,0], visible = False) #TODO: Decide if we need any objects in the bathroom
-                                $ movie_bathroom.show_background()
-                                $ movie_bathroom.add_object(make_wall())
-                                $ movie_bathroom.add_object(make_floor())
-                                $ mc.change_location(movie_bathroom)
+                                $ mc.change_location(work_bathroom)
+                                $ mc.location.show_background()
                                 $ the_person.change_arousal(20 + (the_person.get_opinion_score("public sex") * 10))
                                 $ mc.change_arousal(40)
-                                "You hurry into the womens bathroom and lock yourselves in an empty stall."
+                                $ the_person.draw_person()
+                                "You hurry into the women's bathroom and lock yourselves in an empty stall."
                                 call fuck_person(the_person, private = True) from _call_fuck_person_28
-                                $ the_report = _return
-                                $ the_person.call_dialogue("sex_review", the_report = the_report)
-                                $ the_person.review_outfit()
+                                $ the_person.draw_person()
+                                $ the_person.apply_outfit(the_person.planned_outfit)
                                 $ renpy.show("Theater", what = theater_background)
+                                $ the_person.draw_person(position = "sitting", lighting = [0.5,0.5,0.5])
                                 "You slip out of the bathroom as quickly as possible and return to your seats with some time pleasantly passed."
 
-                            "Cum right here.":
+                            "Cum right here":
                                 mc.name "I want you to finish me here."
                                 "She purrs in your ear and slides back down to her knees again. Her warm mouth wraps itself around your shaft and she starts to blow you again."
                                 "It doesn't take long for her to bring you to the edge of your orgasm."
-                                "You clutch at the movie seat arm rests and supress a grunt as you climax, blowing your hot load into [the_person.title]'s mouth and down her throat."
+                                "You clutch at the movie seat arm rests and suppress a grunt as you climax, blowing your hot load into [the_person.title]'s mouth and down her throat."
                                 $ the_person.cum_in_mouth()
                                 "She waits until you're finished, then pulls off your cock, wipes her lips on the back of her hand, and sits down next to you."
                                 $ the_person.change_slut_temp(3)
                                 the_person.char "Thank you, that was fun."
                                 "She takes your hand and holds it. You lean back, thoroughly spent, and zone out for the rest of the movie."
 
-                "Tell her to knock it off.":
+                "Tell her to knock it off":
                     mc.name "I just want to watch a movie together. Can you at least try and pay attention?"
                     $ the_person.change_obedience(2)
                     $ the_person.change_happiness(-5)
@@ -292,13 +295,13 @@ label movie_date_label(the_person):
         "She leans towards you and gives you a quick kiss."
         the_person.char "Let's head home then."
 
-
     else:
         if renpy.random.randint(0,100) < the_person.sluttiness + the_person.love + (mc.charisma * 10): #She invites you home with her. TODO: This, and other date things, should depend on if she's in a relationship. Break it out into a function
             "She leans towards you and gives you a quick kiss."
             $ the_person.call_dialogue("date_seduction")
             menu:
-                "Go to [the_person.title]'s place.":
+                "Go to [the_person.title]'s place":
+                    $ downtown.show_background()
                     mc.name "That sounds like a great idea. Let's get a cab."
                     if not the_person.has_role(aunt_role) and not the_person.has_role(cousin_role):
                         if not the_person.home in mc.known_home_locations:
@@ -309,29 +312,29 @@ label movie_date_label(the_person):
                     call date_take_home_her_place(the_person, date_type = "movie") from _call_date_take_home_her_place
                     $ the_person.clear_situational_slut("Romanced")
 
-                "Call it a night.":
+                "Call it a night":
                     mc.name "I'd like to call it an early night today, but maybe I'll take you up on the offer some other time."
                     "Her taxi arrives. You give her a goodbye kiss and head home yourself."
         else:
             "She leans towards you and gives you a quick kiss on the cheek before saying goodbye."
 
     $ clear_scene()
-    $ mc.change_location(hall) #Put them back at home after the event, so if they were in the bathroom they aren't any more.
+    $ mc.change_location(bedroom) #Put them back at home after the event, so if they were in the bathroom they aren't any more.
     $ mc.location.show_background()
     return "Advance Time"
 
 
 label dinner_date_label(the_person):
-    $ mc.business.event_triggers_dict["date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
+    $ mc.business.event_triggers_dict["dinner_date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
     "You have a dinner date planned with [the_person.title]."
     menu:
-        "Get ready for the date. {image=gui/heart/Time_Advance.png}" if mc.business.funds >= 50:
+        "Get ready for the date {image=gui/heart/Time_Advance.png}" if mc.business.funds >= 50:
             pass
 
-        "Get ready for the date.\nRequires: $30 (disabled)" if mc.business.funds < 50:
+        "Get ready for the date\n{color=#ff0000}{size=18}Requires: $30{/size}{/color} (disabled)" if mc.business.funds < 50:
             pass
 
-        "Cancel the date. (tooltip)She won't be happy with you canceling last minute.":
+        "Cancel the date (tooltip)She won't be happy with you canceling last minute.":
             "You get your phone out and text [the_person.title]."
             mc.name "I'm sorry, but something important came up at the last minute. We'll have to reschedule."
             $ the_person.change_love(-5)
@@ -339,43 +342,45 @@ label dinner_date_label(the_person):
             the_person.char "I hope everything is okay. Maybe we can do this some other time then."
             return
 
-
-    if mom_date_intercept_requirement(mom, the_person) and renpy.random.randint(0,100) < (25 + mom.love):
+    if mom_date_intercept_requirement(mom, the_person) and renpy.random.randint(0,100) < (mom.love):
         call mom_date_intercept(mom, the_person) from _call_mom_date_intercept_1
         if _return:
             $ clear_scene()
             return "Advance Time"
 
+    $ clear_scene()
     $ mc.change_location(downtown)
     $ downtown.show_background()
+    $ the_person.apply_outfit(the_person.wardrobe.decide_on_outfit(the_person.sluttiness + 20))
 
     "You get yourself looking as presentable as possible and head downtown."
     $ the_person.draw_person(emotion = "happy")
     "You meet up with [the_person.title] on time."
     the_person.char "So, where are we going tonight [the_person.mc_title]?"
     menu:
-        "A cheap restaurant. -$50":
+        "A cheap restaurant\n{color=#ff0000}{size=18}Costs: $50{/size}{/color}":
             $ mc.business.funds += -50
             the_person.char "It sounds cozy. Let's go, I'm starving!"
 
-        "A moderately priced restaurant. -$100" if mc.business.funds >= 100:
+        "A moderately priced restaurant\n{color=#ff0000}{size=18}Costs: $100{/size}{/color}" if mc.business.funds >= 100:
             $ mc.business.funds += -100
             $ the_person.change_love(5)
             $ the_person.change_happiness(5)
             the_person.char "It sounds nice. Come on, I'm starving and could use a drink."
 
-        "An expensive restaurant. -$300" if mc.business.funds >= 300:
+        "An expensive restaurant\n{color=#ff0000}{size=18}Costs: $300{/size}{/color}" if mc.business.funds >= 300:
             $ mc.business.funds += -300
             $ the_person.change_love(10)
             $ the_person.change_happiness(5)
             the_person.char "Oh, it sounds fancy! Well, I'm flattered [the_person.mc_title]."
 
-        "A moderately priced restaurant. -$100 (disabled)" if mc.business.funds <= 100:
+        "A moderately priced restaurant\n{color=#ff0000}{size=18}Requires: $100{/size}{/color} (disabled)" if mc.business.funds <= 100:
             pass
 
-        "An expensive restaurant. -$300 (disabled)" if mc.business.funds < 300:
+        "An expensive restaurant\n{color=#ff0000}{size=18}Requires: $300{/size}{/color} (disabled)" if mc.business.funds < 300:
             pass
 
+    $ renpy.show("restaurant", what = restaraunt_background)
     $ the_person.draw_person(emotion = "happy", position = "sitting")
     if sister_role in the_person.special_role or mother_role in the_person.special_role:
         if the_person.sluttiness >= 20:
@@ -388,24 +393,24 @@ label dinner_date_label(the_person):
         "You and [the_person.possessive_title] get to the restaurant and order your meals. You chat, flirt, and have a wonderful evening."
 
     if renpy.random.randint(0,100) < 40: #Chance to give her some serum.
-        "After dinner you decide to order desert. [the_person.title] asks for a piece of cheese cake, then stands up from the table."
+        "After dinner you decide to order dessert. [the_person.title] asks for a piece of cheese cake, then stands up from the table."
         the_person.char "I'm going to go find the little girls room. I'll be back in a moment."
         $ clear_scene()
         "She heads off, leaving you alone at the table with her half finished glass of wine."
         menu:
-            "Add a dose of serum to her drink." if mc.inventory.get_any_serum_count()>0:
+            "Add a dose of serum to her drink" if mc.inventory.get_any_serum_count()>0:
                 call give_serum(the_person) from _call_give_serum_21
                 if _return:
                     "You pour a dose of serum into her wine and give it a quick swirl, then sit back and relax."
-                    "[the_person.possessive_title] returns just as your desert arrives."
+                    "[the_person.possessive_title] returns just as your dessert arrives."
                 else:
-                    "You sit back and relax, content to just enjoy the evening. [the_person.possessive_title] returns just as your desert arrives."
+                    "You sit back and relax, content to just enjoy the evening. [the_person.possessive_title] returns just as your dessert arrives."
 
-            "Add a dose of serum to her drink.\nRequires: Serum (disabled)" if mc.inventory.get_any_serum_count() == 0:
+            "Add a dose of serum to her drink\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
                 pass
 
-            "Leave her drink alone.":
-                "You sit back and relax, content to just enjoy the evening. [the_person.possessive_title] returns just as your desert arrives."
+            "Leave her drink alone":
+                "You sit back and relax, content to just enjoy the evening. [the_person.possessive_title] returns just as your dessert arrives."
 
         $ the_person.draw_person(position = "sitting")
         the_person.char "Ah, perfect timing!"
@@ -413,12 +418,13 @@ label dinner_date_label(the_person):
         the_person.char "Mmm, so good!"
     $ the_person.change_love(mc.charisma)
     $ the_person.change_happiness(mc.charisma)
+    $ the_person.draw_person()
     if sister_role in the_person.special_role or mother_role in the_person.special_role:
         "At the end of the night you pay the bill and leave with [the_person.title]. The two of you travel home together."
         if renpy.random.randint(0,100) < the_person.sluttiness + the_person.love + (mc.charisma * 10): #She invites you back to her place.
             $ the_person.call_dialogue("date_seduction")
             menu:
-                "Go to [the_person.title]'s room.":
+                "Go to [the_person.title]'s room":
                     mc.name "I think I would. Lead the way."
                     $ mc.change_location(the_person.home)
                     $ mc.location.show_background()
@@ -426,13 +432,12 @@ label dinner_date_label(the_person):
                     #TODO: Mirror the real date stuff: ie she might get dressed up or start stripping down right away.
                     $ the_person.add_situational_slut("Romanced",25,"What a wonderful date!")
                     call fuck_person(the_person, private = True) from _call_fuck_person_16
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
                     $ the_person.clear_situational_slut("Romanced")
                     #TODO: add support for spending the night somewhere other than home.
                     "When you and [the_person.possessive_title] are finished you slip back to your own bedroom just down the hall."
 
-                "Call it a night.":
+                "Call it a night":
                     mc.name "I think we should just call it a night now. I've got to get up early tomorrow."
                     "She lets go of your hand and looks away."
                     the_person.char "Right, of course. I wasn't saying we should... I was just... Goodnight [the_person.mc_title]."
@@ -446,7 +451,8 @@ label dinner_date_label(the_person):
         if renpy.random.randint(0,100) < the_person.sluttiness + the_person.love + (mc.charisma * 10): #She invites you back to her place.
             $ the_person.call_dialogue("date_seduction") #She invites you back to her place to "spend some more time together". She's been seduced.
             menu:
-                "Go to [the_person.title]'s place.":
+                "Go to [the_person.title]'s place":
+                    $ downtown.show_background()
                     mc.name "That sounds like a great idea."
                     if not aunt_role in the_person.special_role and not cousin_role in the_person.special_role:
                         if not the_person.home in mc.known_home_locations:
@@ -457,7 +463,7 @@ label dinner_date_label(the_person):
                     call date_take_home_her_place(the_person, date_type = "dinner") from _call_date_take_home_her_place_1
                     $ the_person.clear_situational_slut("Romanced")
 
-                "Call it a night.":
+                "Call it a night":
                     mc.name "I'd like to call it an early night today, but maybe I'll take you up on the offer some other time."
                     "Her taxi arrives. You give her a goodbye kiss and head home yourself."
 
@@ -467,6 +473,8 @@ label dinner_date_label(the_person):
             "[the_person.title]'s taxi arrives and she gives you a kiss goodbye. You watch her drive away, then head home yourself."
 
     $ clear_scene()
+    $ mc.change_location(bedroom)
+    $ mc.location.show_background()
     return "Advance Time"
 
 #TODO: Add a "date_take_home_your_place" where you take her to your house.
@@ -474,35 +482,34 @@ label dinner_date_label(the_person):
 #TODO: Add a "date_take_home_family", where you take her back to your house, because she's your Mom or sister.
 
 label date_take_home_her_place(the_person, date_type = None): #Your date went well and you go back to her place. This event starts off when you enter the door.
-    #TODO: See about combinding this with the fuck_date from the paramour. That's basically a "date" where you just show up and fuck her. At the very least this should trigger some of the same thigns if they're in a relationship.
+    #TODO: See about combining this with the fuck_date from the paramour. That's basically a "date" where you just show up and fuck her. At the very least this should trigger some of the same thigns if they're in a relationship.
     #date_type can be passed through to identify what type of date it was to trigger different dialogue
-    $ mc.change_location(the_person.home)
-    $ mc.location.show_background()
-
     if the_person.has_role(affair_role):
+        $ mc.change_location(the_person.home)
+        $ mc.location.show_background()
+
         call fuck_date_event(the_person) from _call_fuck_date_event_1 #You're having an affair, leads to all of the normal affair stuff like being caught. #TODO: Make sure the date seduction dialogue leads into this properly.
+        $ the_person.draw_person(position = "missionary") # drop on the bed to rest
+        "When you and [the_person.possessive_title] are finished you give her a goodbye kiss and head home yourself.."
 
         #TODO: Refactor this huge conditional. It's hard to read
     elif (the_person.effective_sluttiness(["vaginal_sex", "sucking_cock"]) >= 70 and the_person.relationship == "Single") or (the_person.effective_sluttiness(["vaginal_sex", "sucking_cock"]) >= 70-(10*the_person.get_opinion_score("cheating on men")) and the_person.relationship != "Single"): #TODO: Figure out what triggers we want for this
         "You're barely in the door before [the_person.title] has her hands all over you."
-        $ her_hallway = Room(the_person.name +"'s front hall", the_person.name +"'s front hall", standard_house_backgrounds[:],[],[],[],False,[3,3], visible = False, lighting_conditions = standard_indoor_lighting)
-        $ her_hallway.add_object(Object("Front Door", ["Lean"], sluttiness_modifier = 10, obedience_modifier = 5))
-        $ her_hallway.add_object(Object("Front Hall Carpet", ["Kneel", "Lay"], sluttiness_modifier = 5, obedience_modifier = 10))
-        $ her_hallway.add_object(Object("Stairs", ["Sit", "Low"], sluttiness_modifier = 5, obedience_modifier = 10))
         $ mc.change_location(her_hallway)
+        $ mc.location.show_background()
         the_person "Fuck, I can't wait any longer [the_person.mc_title]! I've been thinking about this all night long!"
         "She puts her arms around you and kisses your neck, grinding her body against you."
         mc.name "Don't you want to go to your bedroom first?"
         the_person "I can't wait! I want you right here, right now!"
         menu:
-            "Fuck her in the front hall.":
+            "Fuck her in the front hall":
                 "You return the kiss. A moment later [the_person.possessive_title] has her hand down your pants, fondling your cock."
                 the_person "It's already hard! Oh my god... Come on, how do you want me?"
                 call fuck_person(the_person, private = True) from _call_fuck_person_103
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                "When you and [the_person.title] are finished you get dressed and say goodnight."
 
-            "Turn her down.":
+            "Turn her down":
                 "You push her back firmly. She seems confused and tries to kiss you again, but you don't let her."
                 mc.name "Slow down, this is going way too fast for me. You need to get yourself under control."
                 the_person "What? But don't you want this too? Don't you want me?"
@@ -525,6 +532,9 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
                     "[the_person.title] watches you leave, then sulks back inside of her house."
 
     elif (the_person.effective_sluttiness(["underwear_nudity", "bare_tits", "bare_pussy"]) + (5 * the_person.get_opinion_score("not wearing anything")) + (5 * the_person.get_opinion_score("lingerie")) > 45) or the_person.has_role(girlfriend_role):
+        $ mc.change_location(the_person.home)
+        $ mc.location.show_background()
+
         the_person "Let me get you a drink and show you around."
         "She pours you a drink and leads you around her place. The tour ends in the living room."
         the_person "Have a seat and enjoy your drink, I'll be back in a moment."
@@ -549,14 +559,13 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
         $ the_person.draw_person()
         "She stands up and steps closer to you, leaning in for a kiss."
         menu:
-            "Kiss her.":
+            "Kiss her":
                 "You put your arm around her waist and pull her against your body. She kisses you passionately, and you return the gesture in full."
                 call fuck_person(the_person, private = True, start_position = kissing) from _call_fuck_person_17
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
                 "When you and [the_person.title] are finished you get dressed and say goodnight."
 
-            "Turn her down.":
+            "Turn her down":
                 mc.name "[the_person.title], we shouldn't do this..."
                 the_person "What? You're not interested in me?"
                 $ the_person.change_happiness(-20)
@@ -571,6 +580,8 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
                 "You say goodnight and leave, heading back to your place."
 
     else:
+        $ mc.change_location(the_person.home)
+        $ mc.location.show_background()
         #Normal date-turned-fuck session.
         the_person "Let me get you a drink and show you around."
         "She pours you a drink and leads you around her place. The tour ends with the two of you sitting on the couch in the living room."
@@ -578,7 +589,7 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
         the_person "Well, what would you like to do now?"
         "[the_person.possessive_title] leans closer to you and puts her hand on your thigh. It's obvious what she wants, but she's waiting for you to make the first move."
         menu:
-            "Kiss her.":
+            "Kiss her":
                 "You put your drink aside, then put one hand on the back of [the_person.possessive_title]'s neck and pull her into a kiss."
                 if the_person.relationship == "Single" or the_person.get_opinion_score("cheating on men") > 0:
                     "She returns the kiss eagerly."
@@ -590,12 +601,11 @@ label date_take_home_her_place(the_person, date_type = None): #Your date went we
                 "After a long moment spent making out [the_person.title] pulls away."
                 the_person "I think we'd be more comfortable in the bedroom, don't you think?"
                 call fuck_person(the_person, private = True, start_position = kissing) from _call_fuck_person_104
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
                 #TODO: add support for spending the night somewhere other than home.
                 "When you and [the_person.title] are finished you get dressed and say goodnight."
 
-            "Go home.":
+            "Go home":
                 mc.name "It's been a fun evening, but I need to be going soon. I hope we can do this again some time though."
                 $ the_person.change_happiness(-5)
                 "[the_person.possessive_title] seems a little disappointed, but she smiles politely."

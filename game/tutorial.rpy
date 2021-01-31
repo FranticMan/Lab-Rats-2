@@ -23,7 +23,7 @@ label research_tutorial_intro():
     stephanie.title "I'll need some more time to check it all out, but it all looks like it works. Holy crap [stephanie.mc_title], I can't believe you're giving me my own lab."
     mc.name "I need you [stephanie.title]. You've got the expertise and talent to get this place off the ground."
     stephanie.title "I'll try not to let you down. So, let's talk about how this R&D is going to work."
-    stephanie.title "I have a different ideas I can explore right now. With some time I should be able to figure out some new fundamental property."
+    stephanie.title "I have a few different ideas I can explore right now. With some time I should be able to figure out some new fundamental property."
     stephanie.title "When you want to produce an actual product we will need to create a new serum design."
     stephanie.title "It will take some more research work to figure out how we can actually produce the design."
     stephanie.title "Right now I think we'll struggle to get a single property to express itself properly in our serums, but with some experience we can combined a bunch."

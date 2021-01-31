@@ -22,16 +22,19 @@
     def mom_work_promotion_one_before_requirement(start_day):
         if day < start_day:
             return False
-        elif mc.business.is_weekend(): #TODO: we really need to stop using the buisness to define what the weekend is.
+        elif mc.business.is_weekend(): #TODO: we really need to stop using the business to define what the weekend is.
             return False #No interview on the weekend
+        elif mom.has_limited_time_event("sleeping_walk_in_label"):
+            return False #she is sleeping in
         else:
             return True
 
     def mom_work_promotion_one_report_requirement(the_person, start_day):
-        if time_of_day <= 2 and day == start_day:
-            return False #Too early in the day for the interview to have happened
-        else:
-            return True
+        if not the_person in kitchen.people + mom_bedroom.people: # only talk at home
+            return False
+        if day == start_day and time_of_day <= 2:   # same day too early for interview to have happened
+            return False
+        return True
 
     def mom_work_promotion_two_intro_requirement(start_day):
         if day < start_day:
@@ -54,6 +57,8 @@
             return False
         elif mc.business.is_weekend():
             return False
+        elif mom.has_limited_time_event("sleeping_walk_in_label"):
+            return False #she is sleeping in
         else:
             return True
 
@@ -76,6 +81,41 @@
         else:
             return True
 
+    def add_mom_weekly_pay_action():
+        mom_weekly_pay_action = Action("mom weekly pay", mom_weekly_pay_requirement, "mom_weekly_pay_label", args=mom, requirement_args =[mom]) # Reload the event for next week.
+        mc.business.mandatory_morning_crises_list.append(mom_weekly_pay_action)
+        return
+
+    def add_mom_work_promotion_one_before_crisis():
+        mom_work_promotion_one_before_crisis = Action("mom work promotion one before", mom_work_promotion_one_before_requirement, "mom_work_promotion_one_before", args = the_person, requirement_args = renpy.random.randint(day+3, day+8))
+        mc.business.mandatory_morning_crises_list.append(mom_work_promotion_one_before_crisis)
+        return
+
+    def add_mom_work_promotion_one_report_crisis(person):
+        mom_work_promotion_one_report_crisis = Action("mom work promotion one report", mom_work_promotion_one_report_requirement, "mom_work_promotion_one_report", requirement_args = day)
+        person.on_room_enter_event_list.append(mom_work_promotion_one_report_crisis)
+        return
+
+    def add_mom_work_promotion_two_intro_crisis():
+        mom_work_promotion_two_intro_crisis = Action("mom work promotion two intro crisis", mom_work_promotion_two_intro_requirement, "mom_work_promotion_two_intro", args = the_person, requirement_args = renpy.random.randint(day+2, day+4))
+        mc.business.mandatory_crises_list.append(mom_work_promotion_two_intro_crisis)
+        return
+
+    def add_mom_work_promotion_two_crisis():
+        mom_work_promotion_two_crisis = Action("mom_work_promotion_two_crisis", mom_work_promotion_two_requirement, "mom_work_promotion_two", args = the_person, requirement_args = renpy.random.randint(day+6,day+9))
+        mc.business.mandatory_morning_crises_list.append(mom_work_promotion_two_crisis)
+        return
+
+    def add_mom_work_promotion_two_report_crisis(person):
+        mom_work_promotion_two_report_crisis = Action("mom work promotion two report", mom_work_promotion_two_report_requirement, "mom_work_promotion_two_report")
+        person.on_room_enter_event_list.append(mom_work_promotion_two_report_crisis)
+        return
+
+    def add_sister_instapic_discover_crisis():
+        sister_instapic_discover_crisis = Action("sister insta mom reveal", sister_instapic_discover_requirement, "sister_instathot_mom_discover", args = lily, requirement_args = lily)
+        mc.business.mandatory_crises_list.append(sister_instapic_discover_crisis)
+        return
+
 ### MOM ACTION LABELS ###
 
 label mom_weekly_pay_label(the_person):
@@ -88,12 +128,12 @@ label mom_weekly_pay_label(the_person):
     $ the_person.draw_person(position = "sitting")
     "[the_person.title] is sitting at the kitchen table, a collection of bills laid out in front of her."
 
-    if the_person.effective_sluttiness() < 20:
-        the_person.char "This new morgage on the house is really stressing our finances. It would really help if you could chip in."
+    if the_person.effective_sluttiness() < 40:
+        the_person.char "This new mortgage on the house is really stressing our finances. It would really help if you could chip in."
         call mom_low_sluttiness_weekly_pay(the_person) from _call_mom_low_sluttiness_weekly_pay #The menu is separated out to make looping easier.
     else:
         if mc.business.event_triggers_dict.get("Mom_Payment_Level",0) >= 1: #We've been through this song and dance already.
-            if the_person.event_triggers_dict.get("Mom_forced_off_bc", False):
+            if the_person.event_triggers_dict.get("Mom_forced_off_bc", False) and not pregnant_role in the_person.special_role:
                 if the_person.on_birth_control:
                     the_person.char "The budget is still really tight [the_person.mc_title], so I was wondering if you wanted to buy any sort of favour from me?"
                     $ the_person.event_triggers_dict["Mom_forced_off_bc"] = False
@@ -101,19 +141,19 @@ label mom_weekly_pay_label(the_person):
                     the_person.char "The budget is still really tight [the_person.mc_title]. I was hoping you could help out, for a favour, of course."
                     the_person.char "I haven't taken my birth control all week. If you're able to pay me I won't start again."
                     menu:
-                        "Keep her off her birth control. -$150" if mc.business.funds >= 150:
+                        "Keep her off her birth control\n{color=#ff0000}{size=18}Costs: $150{/size}{/color}" if mc.business.funds >= 150:
                             mc.name "I think we can keep this deal going."
                             "You pull out the cash and hand it over. She places them alongside the bills."
                             $ mc.business.funds += -150
                             the_person.char "Thank you so much. Is there anything else I could do for a little more help?"
 
-                        "Keep her off her birth control. -$150 (disabled)" if mc.business.funds < 150:
+                        "Keep her off her birth control{color=#ff0000}{size=18}Requires: $150{/size}{/color} (disabled)" if mc.business.funds < 150:
                             pass
 
-                        "Let her start taking her birth control.":
+                        "Let her start taking her birth control":
                             mc.name "I'm sorry, the budget at work has been a little tight lately."
                             the_person.char "I understand. Is there anything else I can do for then?"
-                            call manage_bc(the_person, start = True) from _call_manage_bc
+                            $ manage_bc(the_person, start = True)
                             $ the_person.event_triggers_dict["Mom_forced_off_bc"] = False
             else:
                 the_person.char "The budget is still really tight [the_person.mc_title], so I was wondering if you wanted to buy any sort of favour from me?"
@@ -138,25 +178,23 @@ label mom_weekly_pay_label(the_person):
             $ mc.business.event_triggers_dict["Mom_Payment_Level"] = 1
         call mom_high_sluttiness_weekly_pay(the_person) from _call_mom_high_sluttiness_weekly_pay
 
-
-    $ mom_weekly_pay_action = Action("mom weekly pay", mom_weekly_pay_requirement, "mom_weekly_pay_label", args=mom, requirement_args =[mom]) # Reload the event for next week.
-    $ mc.business.mandatory_morning_crises_list.append(mom_weekly_pay_action)
+    $ add_mom_weekly_pay_action()
     return
 
 label mom_low_sluttiness_weekly_pay(the_person):
     menu:
-        "Give her nothing.":
+        "Give her nothing":
             mc.name "Sorry Mom, I'm just not turning a profit right now. Hopefully we will be soon though. I'll help out as soon as I can."
             $ the_person.change_happiness(-5)
             $ the_person.change_love(-1)
             $ the_person.draw_person(position = "sitting", emotion = "sad")
-            the_person.char "Okay swetheart, I understand. I'll talk with Lily and let her know that we have to cut back on non essentials."
+            the_person.char "Okay [the_person.mc_title], I understand. I'll talk with Lily and let her know that we have to cut back on non essentials."
 
-        "Help out.\n{size=22}-$100{/size}" if mc.business.funds >= 100:
+        "Help out\n{color=#ff0000}{size=18}Costs: $100{/size}{/color}" if mc.business.funds >= 100:
             "You pull out your wallet and count out some cash, but hesitate before you hand it over."
             $ mc.business.funds += -100
             menu:
-                "Ask for a kiss.":
+                "Ask for a kiss":
                     mc.name "I'd like a kiss for it though."
                     if the_person.has_taboo("kissing"):
                         the_person.char "A kiss?"
@@ -185,7 +223,7 @@ label mom_low_sluttiness_weekly_pay(the_person):
                     "You hold out the cash for her and she takes it."
                     the_person.char "Thank you so much, every little bit helps."
 
-                "Make her say please.":
+                "Make her say please":
                     mc.name "What are the magic words?"
                     the_person.char "Abracadabra?"
                     mc.name "No, the words we say when we want help?"
@@ -201,15 +239,15 @@ label mom_low_sluttiness_weekly_pay(the_person):
             $ the_person.change_happiness(5)
             $ the_person.change_love(3)
             $ the_person.draw_person(position = "sitting", emotion = "happy")
-            "She gives you a hug and turns her attention back to organising the bills."
+            "She gives you a hug and turns her attention back to organizing the bills."
 
-        "Help out.\n{size=22}-$100{/size} (disabled)" if mc.business.funds < 100:
+        "Help out\n{color=#ff0000}{size=18}Requires: $100{/size}{/color} (disabled)" if mc.business.funds < 100:
             pass
     return
 
 label mom_high_sluttiness_weekly_pay(the_person):
     menu:
-        "Strip for me. -$100" if mc.business.funds >= 100:
+        "Strip for me\n{color=#ff0000}{size=18}Costs: $100{/size}{/color}" if mc.business.funds >= 100:
             if mc.business.event_triggers_dict.get("Mom_Strip", 0) >= 1:
                 mc.name "I want you to show off yourself off to me, how does that sound?"
                 the_person.char "Fair is fair, but I'll need a little extra if you want to see anything... inappropriate."
@@ -225,10 +263,10 @@ label mom_high_sluttiness_weekly_pay(the_person):
 
             call pay_strip_scene(the_person) from _call_pay_strip_scene_2
 
-        "Strip for me. -$100 (disabled)" if mc.business.funds <100:
+        "Strip for me\n{color=#ff0000}{size=18}Requires: $100{/size}{/color} (disabled)" if mc.business.funds <100:
             pass
 
-        "Test some serum. -$100" if mc.business.funds >= 100:
+        "Test some serum\n{color=#ff0000}{size=18}Costs: $100{/size}{/color}" if mc.business.funds >= 100:
             if mc.business.event_triggers_dict.get("Mom_Serum_Test",0) >= 1:
                 mc.name "I've got some more serum I'd like you to test Mom."
                 call give_serum(the_person) from _call_give_serum_10
@@ -237,14 +275,14 @@ label mom_high_sluttiness_weekly_pay(the_person):
                     "You hand the serum to [the_person.possessive_title], followed by the cash."
                     the_person.char "Okay, so that's all for now?"
                     mc.name "That's all. I'll just be keeping an eye on you in the future, but you don't need to worry about that."
-                    the_person.char "Well thank you sweetheart, this money will really make a difference. I'm so proud of you!"
+                    the_person.char "Well thank you [the_person.mc_title], this money will really make a difference. I'm so proud of you!"
                 else:
                     mc.name "Actually, I don't have anything right now. Maybe next wek though, okay?"
-                    the_person.char "Okay sweetheart, thanks for at least thinking about it."
+                    the_person.char "Okay [the_person.mc_title], thanks for at least thinking about it."
             else:
                 $ mc.business.event_triggers_dict["Mom_Serum_Test"] = 1
                 mc.name "I have something you could help me with Mom."
-                the_person.char "What is it sweetheart? I'll do whatever I can for you."
+                the_person.char "What is it [the_person.mc_title]? I'll do whatever I can for you."
                 mc.name "We have a little bit of a research bottleneck at work. I have something I'd like you to test for me."
                 the_person.char "Oh, okay. If it helps I can be your for hire test subject!"
                 mc.name "Excellent, let me just see if I have anything with me right now..."
@@ -254,10 +292,10 @@ label mom_high_sluttiness_weekly_pay(the_person):
                     "You hand the serum to [the_person.possessive_title], followed by the cash."
                     the_person.char "Okay, so that's all for now?"
                     mc.name "That's all. I'll just be keeping an eye on you in the future, but you don't need to worry about that."
-                    the_person.char "Well thank you sweetheart, this money will really make a difference. I'm so proud of you!"
+                    the_person.char "Well thank you [the_person.mc_title], this money will really make a difference. I'm so proud of you!"
                 else:
                     mc.name "Actually, I don't have anything right now. Maybe next wek though, okay?"
-                    the_person.char "Okay sweetheart, thanks for at least thinking about it."
+                    the_person.char "Okay [the_person.mc_title], thanks for at least thinking about it."
 
         # "I want to make some changes around here." if the_person.obedience >= 120:
         #     #TODO: Requires obedience, but unlocks a bunch of other options, like having your Mom bring you breakfast every morning, not wearing anything at home, etc.
@@ -271,7 +309,7 @@ label mom_high_sluttiness_weekly_pay(the_person):
 
         #TODO: "I want to breed Lily" option, once you've got Mom at high sluttiness, obedience, and Love. She gives you the go-ahead to knock up your sister.
 
-        "Suck me off. -$300" if mc.business.funds >= 300 and the_person.effective_sluttiness("sucking_cock") >= 30:
+        "Suck me off\n{color=#ff0000}{size=18}Costs: $300{/size}{/color}" if mc.business.funds >= 300 and the_person.effective_sluttiness("sucking_cock") >= 30:
             mc.name "Alright, I'll pay you to give me a blowjob."
             if (not the_person.has_taboo("sucking_cock")) or the_person.effective_sluttiness("sucking_cock") >= 60:
                 the_person.char "If that's what you need."
@@ -294,7 +332,7 @@ label mom_high_sluttiness_weekly_pay(the_person):
                 $ the_person.draw_person(position = "blowjob")
                 "She sighs and kneels down in front of you. You unzip your pants and pull your cock out for your mother."
                 mc.name "Don't worry, it won't bite."
-                the_person.char "This isn't my exactly my first blowjob sweety, I'm not worried."
+                the_person.char "This isn't my exactly my first blowjob [the_person.mc_title], I'm not worried."
                 $ the_person.break_taboo("sucking_cock")
 
             "With that she opens her mouth and slides the tip of your hard cock inside. Her tongue swirls around the tip, sending a jolt of pleasure up your spine."
@@ -307,14 +345,14 @@ label mom_high_sluttiness_weekly_pay(the_person):
                 mc.name "I didn't know you were going to enjoy that so much. Maybe you should be paying me next time."
                 the_person.char "Ah... I hope we can come to some sort of deal... Ah... In the future..."
             else:
-                "You pull your pants up while [the_person.possessive_title] gets off of her kness and cleans herself up."
+                "You pull your pants up while [the_person.possessive_title] gets off of her knees and cleans herself up."
             $ the_person.review_outfit()
             $ the_person.change_obedience(4)
 
-        "Suck me off. -$300 (disabled)" if mc.business.funds < 300 and the_person.effective_sluttiness("sucking_cock") >= 30:
+        "Suck me off\n{color=#ff0000}{size=18}Requires: $300{/size}{/color} (disabled)" if mc.business.funds < 300 and the_person.effective_sluttiness("sucking_cock") >= 30:
             pass
 
-        "Stop your birth control. -$150" if mc.business.funds >= 150 and the_person.effective_sluttiness() >= 30 and persistent.pregnancy_pref > 0 and not the_person.event_triggers_dict.get("Mom_forced_off_bc", False):
+        "Stop your birth control\n{color=#ff0000}{size=18}Costs: $150{/size}{/color}" if mc.business.funds >= 150 and the_person.effective_sluttiness() >= 30 and persistent.pregnancy_pref > 0 and not the_person.event_triggers_dict.get("Mom_forced_off_bc", False) and not pregnant_role in the_person.special_role:
             mc.name "I have something I'd like you to do. I want you to stop taking your birth control."
             if the_person.on_birth_control:
                 if the_person.has_taboo("vaginal_sex"):
@@ -332,11 +370,11 @@ label mom_high_sluttiness_weekly_pay(the_person):
                 the_person.char "Here are my pills for the week, so you know I'm not lying. I've already taken one for today, but starting tomorrow I won't have any."
                 mc.name "Thank you [the_person.title]."
                 $ the_person.event_triggers_dict["Mom_forced_off_bc"] = True
-                call manage_bc(the_person, start = False) from _call_manage_bc_1
+                $ manage_bc(the_person, start = False)
             else:
                 the_person.char "I'm sorry, I can't take your money for that [the_person.mc_title]."
                 mc.name "Sure you can [the_person.title], it's..."
-                "[the_person.possessive_title] shakes her head and interupts you."
+                "[the_person.possessive_title] shakes her head and interrupts you."
                 the_person.char "No, I mean I can't take your money because I'm not taking any birth control right now."
                 if the_person.has_taboo("vaginal_sex"):
                     the_person.char "It's been a while since I needed it, so I don't bother."
@@ -347,15 +385,14 @@ label mom_high_sluttiness_weekly_pay(the_person):
                 call mom_high_sluttiness_weekly_pay(the_person) from _call_mom_high_sluttiness_weekly_pay_1
 
 
-        "Stop your birth control. -$150 (disabled)" if mc.business.funds < 150 and the_person.effective_sluttiness() >= 30 and persistent.pregnancy_pref > 0  and not the_person.event_triggers_dict.get("Mom_forced_off_bc", False):
+        "Stop your birth control\n{color=#ff0000}{size=18}Costs: $150{/size}{/color} (disabled)" if mc.business.funds < 150 and the_person.effective_sluttiness() >= 30 and persistent.pregnancy_pref > 0  and not the_person.event_triggers_dict.get("Mom_forced_off_bc", False) and not pregnant_role in the_person.special_role:
             pass
 
 
-        "Nothing this week.":
+        "Nothing this week":
             mc.name "Sorry Mom, but I'm tight on cash right now as well. Maybe next week, okay?"
             "[the_person.possessive_title] nods and turns back to her bills."
-            the_person.char "I understand sweetheart. Now don't let me keep you, I'm sure you were up to something important."
-            pass
+            the_person.char "I understand [the_person.mc_title]. Now don't let me keep you, I'm sure you were up to something important."
 
         #TODO: pay her to fuck you.
         #TODO: pay her to change her wardrobe
@@ -420,7 +457,7 @@ label mom_make_house_changes(the_person):
 
 label mom_offer_make_dinner_label(the_person):
     #TODO you offer to make dinner. It takes up time, but you can slip serum to your mom and sister.
-    mc.name "You've been working youself so hard lately Mom, how about you let me make dinner tonight?"
+    mc.name "You've been working yourself so hard lately Mom, how about you let me make dinner tonight?"
     the_person.char "Oh [the_person.mc_title], that's such a sweet thing for you to offer!"
     $ the_person.change_happiness(5)
     $ the_person.change_obedience(-1)
@@ -434,33 +471,32 @@ label mom_offer_make_dinner_label(the_person):
     "You head to the kitchen and get to work. The cooking isn't hard, but it takes up most of your evening."
     "As you're plating out dinner you have a perfect opportunity to give your mother or sister some serum in secret."
     menu:
-        "Add serum to Mom's food.":
+        "Add serum to Mom's food":
             call give_serum(mom) from _call_give_serum_8
 
-        "Leave Mom's food alone.":
+        "Leave Mom's food alone":
             pass
 
     menu:
-        "Add serum to [lily.name]'s food.":
+        "Add serum to [lily.name]'s food":
             call give_serum(lily) from _call_give_serum_9
 
-        "Leave [lily.name]'s food alone.":
+        "Leave [lily.name]'s food alone":
             pass
 
     if hall.has_person(aunt):
         menu:
-            "Add serum to [aunt.name]'s food.":
+            "Add serum to [aunt.name]'s food":
                 call give_serum(aunt) from _call_give_serum_32
 
-            "Leave [aunt.name]'s food alone.":
+            "Leave [aunt.name]'s food alone":
                 pass
 
-    if hall.has_person(cousin) or lily_bedroom.has_person(cousin):
         menu:
-            "Add serum to [cousin.name]'s food.":
+            "Add serum to [cousin.name]'s food":
                 call give_serum(cousin) from _call_give_serum_33
 
-            "Leave [cousin.name]'s food alone.":
+            "Leave [cousin.name]'s food alone":
                 pass
 
     "You bring the food out and have a nice family dinner together."
@@ -527,7 +563,7 @@ label mom_work_promotion_one(the_person): #Mom is up for a promotion and asks yo
     the_person.char "You're so sweet. I'm just worried that I'm the only woman up for the promotion. The senior positions seem like a boys-only club."
     "You nod and think for a moment."
     menu:
-        "Take advantage of your womanly charms.":
+        "Take advantage of your womanly charms":
             mc.name "Well they've made this easy for you then. You've got something none of those men have [the_person.title]."
             the_person.char "What do you mean?"
             mc.name "If you're the only woman then you're the only person who can bring a womans perspective, and a womans charm."
@@ -539,14 +575,14 @@ label mom_work_promotion_one(the_person): #Mom is up for a promotion and asks yo
             the_person.char "Would you help me pick out my interview outfit? You can tell me how a man thinks about it."
             $ the_person.change_slut_temp(2)
             menu:
-                "Help her pick out an outfit.":
+                "Help her pick out an outfit":
                     mc.name "Sure thing [the_person.title]. Come on, let's go see what we can find in your closet."
                     the_person.char "Thank you sweetheart. You're such a good boy, helping me out like this."
                     $ mom_bedroom.show_background()
                     "You follow her to her bedroom and start digging around in her wardrobe."
                     call mom_work_promotion_outfit_create(the_person) from _call_mom_work_promotion_outfit_create
 
-                "Let her pick out her own outfit.":
+                "Let her pick out her own outfit":
                     mc.name "Sorry [the_person.title], but I don't have the time right now."
                     the_person.char "Of course, you're a busy boy these days. I'm sure I can figure something out myself."
 
@@ -555,13 +591,12 @@ label mom_work_promotion_one(the_person): #Mom is up for a promotion and asks yo
             the_person.char "There are two rounds of interviews, hopefully this will get me through to the next round."
             $ the_person.event_triggers_dict["mom_work_promotion_outfit_slutty"] = True #Even if you don't make something special for her she'll try and pick something slutty for herself.
 
-        "You've earned this.":
+        "You've earned this":
             mc.name "You don't need to worry [the_person.title]. I know how skilled and dedicated you are, I'm sure your bosses will see it too."
             mc.name "They won't have any choice but to give you the promotion."
             the_person.char "Thank you for your confidence [the_person.mc_title]. There are two interview stages, I'm just hoping to get through to the next round."
 
-    $ mom_work_promotion_one_before_crisis = Action("mom work promotion one before", mom_work_promotion_one_before_requirement, "mom_work_promotion_one_before", args = the_person, requirement_args = renpy.random.randint(day+3, day+8))
-    $ mc.business.mandatory_morning_crises_list.append(mom_work_promotion_one_before_crisis)
+    $ add_mom_work_promotion_one_before_crisis()
     $ the_person.apply_outfit() # If you've been trying out an outfit she changes back into it.
     # Leads to a line of events where she basically sleeps her way to a better job.
     # Could we have an alternative line where you find her boss and either A) Sleep with her or B) Fuck his wife?
@@ -579,8 +614,8 @@ label mom_work_promotion_outfit_create(the_person):
         mc.name "Let's see how you look in this."
         the_person.char "Okay, just give me one moment..."
         "[the_person.title] starts to strip down."
-        $ strip_list = the_person.outfit.get_full_strip_list()
-        $ generalised_strip_description(the_person, strip_list)
+
+        $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
         if the_person.update_outfit_taboos():
             "As she gets naked she tries to cover herself up with her hands, turning her body away from you."
@@ -602,7 +637,7 @@ label mom_work_promotion_outfit_create(the_person):
             the_person.char "I couldn't wear this [the_person.mc_title], my breasts are..."
             mc.name "Maybe that'll get you the promotion!"
             "She rolls her eyes."
-            the_person.char "I don't think the office dress code will ever be that formal."
+            the_person.char "I don't think the office dress code will ever be that informal."
             the_person.char "You've had your fun, now let's be serious about this, okay?"
 
         elif the_person.judge_outfit(interview_outfit): # It's not really pushing the limit
@@ -632,20 +667,20 @@ label mom_work_promotion_outfit_create(the_person):
 
 
         menu:
-            "Go with it." if acceptable:
+            "Go with it" if acceptable:
                 mc.name "I think we've nailed it. You're going to get this promotion [the_person.title]."
                 $ the_person.event_triggers_dict["mom_work_promotion_outfit"] = interview_outfit
                 $ the_person.wardrobe.add_outfit(interview_outfit.get_copy()) #Add it to her wardrobe so she'll wear it after too.
 
-            "Try something else." if acceptable:
+            "Try something else" if acceptable:
                 mc.name "Let's try something else before we commit. You've only got one shot at this, we want to get it right."
                 call mom_work_promotion_outfit_create(the_person) from _call_mom_work_promotion_outfit_create_1
 
-            "Try something else." if not acceptable:
+            "Try something else" if not acceptable:
                 mc.name "Okay, let's try something different and see how it looks."
                 call mom_work_promotion_outfit_create(the_person) from _call_mom_work_promotion_outfit_create_2
 
-            "Out of ideas.":
+            "Out of ideas":
                 mc.name "Sorry [the_person.title], but I'm all out of ideas."
                 the_person.char "That's okay, you've given me something to think about. I'm sure I can put something together now."
 
@@ -674,24 +709,29 @@ label mom_work_promotion_one_before(the_person): # She tells you in the morning 
     $ the_person.planned_outfit = interview_outfit
     $ the_person.apply_outfit(interview_outfit)
     $ the_person.draw_person()
+    $ interview_outfit = None
     the_person.char "I've got my first interview for my promotion today, so I'm heading to the office early."
     the_person.char "How do I look? Is it okay?"
+    $ the_person.draw_person(position = "back_peek")
     "She gives you a quick turn left and right."
+    $ the_person.draw_person()
     mc.name "You look great [the_person.title], you're going to blow them away."
     the_person.char "Aw, thank you [the_person.mc_title]. Come on, give me a kiss for good luck"
     if the_person.effective_sluttiness("kissing") > 30:
+        $ the_person.draw_person(position = "kissing")
         "[the_person.possessive_title] steps close to you and leans towards you."
-        "You kiss her on the lips. She closes her eyes and kisses you back, mainting it for a few long seconds before stepping back."
+        "You kiss her on the lips. She closes her eyes and kisses you back, maintaining it for a few long seconds before stepping back."
+        $ the_person.draw_person()
     else:
         "She leans in and turns her head, letting you give her a peck on the cheek."
 
     mc.name "Good luck [the_person.title]."
     the_person.char "I'll let you know how it goes when I see you later today. Have a good time at work."
+    $ the_person.draw_person(position = "walking_away")
     "She steps out of your room, blowing you a kiss as she closes the door behind her."
     $ clear_scene()
     $ mom_bedroom.move_person(the_person, downtown)
-    $ mom_work_promotion_one_report_crisis = Action("mom work promotion one report", mom_work_promotion_one_report_requirement, "mom_work_promotion_one_report", requirement_args = day)
-    $ the_person.on_room_enter_event_list.append(mom_work_promotion_one_report_crisis)
+    $ add_mom_work_promotion_one_report_crisis(the_person)
     return
 
 label mom_work_promotion_one_report(the_person): # She tells you how her interview went.
@@ -702,15 +742,17 @@ label mom_work_promotion_one_report(the_person): # She tells you how her intervi
         mc.name "That's great news!"
         the_person.char "I think you were right about my outfit. I was getting comments on it all day!"
         the_person.char "The interview board seems very receptive to my points about bringing a womans viewpoint onto the team, too!"
+        $ the_person.draw_person(position = "kissing", emotion = "happy")
         "She gives you a tight hug."
         $ the_person.change_love(3)
+        $ the_person.draw_person(emotion = "happy")
         the_person.char "Thank you for all of the help and encouragement. You're such a sweetheart."
         mc.name "I'm just happy to see you happy [the_person.title]."
         the_person.char "The next stage of interviews is next week. I'm having a one-on-one lunch with the man who would be my boss."
         the_person.char "I'll worry about that later though, right now I'm just going to have a drink and be happy!"
         # She was using her slutty outfit, things went well
     else:
-        $ the_person.draw_person()
+        $ the_person.draw_person(emotion = "sad")
         the_person.char "Oh, hi [the_person.mc_title]."
         mc.name "Hey [the_person.title]. Did you have your interview today?"
         the_person.char "I did. It went... Fine, I suppose."
@@ -723,11 +765,13 @@ label mom_work_promotion_one_report(the_person): # She tells you how her intervi
         # She was using a conservative outfit, it went poorly
 
     $ clear_scene()
-    $ mom_work_promotion_two_intro_crisis = Action("mom work promotion two intro crisis", mom_work_promotion_two_intro_requirement, "mom_work_promotion_two_intro", args = the_person, requirement_args = renpy.random.randint(day+2, day+4))
-    $ mc.business.mandatory_crises_list.append(mom_work_promotion_two_intro_crisis)
+    $ add_mom_work_promotion_two_intro_crisis()
     return
 
 label mom_work_promotion_two_intro(the_person): # She asks you to help her prepare for her one-on-one interview.
+    $ mc.change_location(bedroom)
+    $ mc.location.show_background()
+
     "There's a soft knock at your door as you are getting ready for bed."
     the_person.char "It's me, can I come in?"
     mc.name "Come on on [the_person.title]."
@@ -743,9 +787,7 @@ label mom_work_promotion_two_intro(the_person): # She asks you to help her prepa
     "She blows you a kiss and closes the door."
     $ clear_scene()
     $ the_person.event_triggers_dict["mom_work_promotion_two_prep_enabled"] = True
-
-    $ mom_work_promotion_two_crisis = Action("mom_work_promotion_two_crisis", mom_work_promotion_two_requirement, "mom_work_promotion_two", args = the_person, requirement_args = renpy.random.randint(day+6,day+9))
-    $ mc.business.mandatory_morning_crises_list.append(mom_work_promotion_two_crisis)
+    $ add_mom_work_promotion_two_crisis()
     return
 
 label mom_work_promotion_two_prep(the_person):
@@ -770,8 +812,7 @@ label mom_work_promotion_two_prep(the_person):
     $ the_person.draw_person(position = "walking_away")
     "[the_person.possessive_title] stands up and turns towards her wardrobe as she starts stripping down."
 
-    $ strip_list = the_person.outfit.get_full_strip_list()
-    $ generalised_strip_description(the_person, strip_list, position = "walking_away")
+    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list(), position = "walking_away")
 
     $ interview_uniform = the_person.event_triggers_dict.get("mom_work_promotion_outfit", None)
     "Once she's naked she starts to dig around in her wardrobe."
@@ -786,7 +827,6 @@ label mom_work_promotion_two_prep(the_person):
         $ the_person.draw_person(emotion = "happy")
         the_person.char "Does it still look good?"
         mc.name "It looks great [the_person.title]. I can't take my eyes off of you."
-
     else:
         # She was dressed conservatively.
 
@@ -794,7 +834,7 @@ label mom_work_promotion_two_prep(the_person):
         $ the_person.draw_person(position = "back_peek")
         the_person.char "I was. Why?"
         menu:
-            "Suggest something sexier.":
+            "Suggest something sexier":
                 mc.name "It was a little... severe. If this is a one-on-one you want something a little more friend and eye-catching."
                 mc.name "Something that will show off your womanly assets."
                 the_person.char "Do you think so? I suppose I did have trouble in the first round holding their attention..."
@@ -809,7 +849,7 @@ label mom_work_promotion_two_prep(the_person):
                 the_person.char "What do you think about this? It's a little bolder, but I don't think I would get in any trouble for wearing it."
                 mc.name "I think it's a big improvement. I can't take my eyes off of you now."
 
-            "That outfit is fine.":
+            "That outfit is fine":
                 mc.name "No reason, I was just curious."
                 "She smiles and turns back to the wardrobe. After a moment she pulls out a hanger with the outfit on it."
                 $ interview_uniform = the_person.event_triggers_dict.get("mom_work_promotion_outfit") # This is guaranteed to exist by the step 1 before event.
@@ -818,13 +858,15 @@ label mom_work_promotion_two_prep(the_person):
                 $ the_person.draw_person(emotion = "happy")
                 the_person.char "There, now I'm feeling professional."
 
+    $ interview_uniform = None
+
     $ the_person.draw_person(position = "sitting")
     "[the_person.possessive_title] sits back down on the bed and crosses her legs."
 
     mc.name "Now let's talk about your attitude. You're going to want to show your potential boss that you're a good fit."
     the_person.char "Oh, just thinking about this is making me nervous. How do you think I should act?"
     menu:
-        "Be slutty.": #She gets promoted to be her bosses "secretary"
+        "Be slutty": #She gets promoted to be her bosses "secretary"
             mc.name "You need to grab his attention, and you can rely on men to think with their dicks."
             the_person.char "Uh, what do you mean [the_person.mc_title]."
             mc.name "You need to get him excited, [the_person.title]. He's way more likely to enjoy your time together if he's turned on."
@@ -842,13 +884,13 @@ label mom_work_promotion_two_prep(the_person):
             mc.name "If you think you're losing him try dropping a fork, and then get on your knees to get it."
             mc.name "Let him get a good look at your butt when he thinks you won't notice."
             the_person.char "What if he doesn't look?"
-            mc.name "Trust me, he'll look. Give it a try, we can roleplay it a little bit."
+            mc.name "Trust me, he'll look. Give it a try, we can role play it a little bit."
             "[the_person.possessive_title] takes a pen from her bed stand and drops it on the floor in front of her."
             the_person.char "Oops. One moment..."
             $ the_person.draw_person(position = "doggy")
             "She gets off the bed and onto her knees, reaching slowly for the pen."
             menu:
-                "Slap her ass.":
+                "Slap her ass":
                     "You sit forward and slap your hand across [the_person.possessive_title]'s butt. She gasps and turns around on the floor."
                     $ the_person.draw_person(position = "kneeling1")
                     the_person.char "[the_person.mc_title], try and take this seriously."
@@ -869,7 +911,7 @@ label mom_work_promotion_two_prep(the_person):
                     "You reposition to make your growing erection more comfortable."
                     mc.name "Yeah, I think you got it too [the_person.title]. He won't be able to say no to you if you can do something like that."
 
-                "Just watch.":
+                "Just watch":
                     "You enjoy the view as she stretches forward and retrieves the pen."
                     $ the_person.draw_person(position = "sitting")
                     "She stands up, brushes off her knees, and sits back down on the bed beside you."
@@ -879,13 +921,15 @@ label mom_work_promotion_two_prep(the_person):
                     the_person.char "Okay, I think I can do all of that. Once I have his attention I can make sure to talk about all my qualifications."
                     mc.name "Yeah, I'm sure he'll want to hear about that too."
 
+            $ the_person.draw_person(position = "kissing")
             "[the_person.possessive_title] gives you a warm hug."
             the_person.char "Thank you for the help [the_person.mc_title]. I couldn't have done this without you."
+            $ the_person.draw_person()
             mc.name "It was my pleasure [the_person.title]. Let me know how it goes, okay?"
             $ the_person.event_triggers_dict["mom_work_promotion_two_tactic"] = "slutty"
 
 
-        "Be friendly.": #She gets promoted to be her bosses "secretary" if she's dressed sluttily
+        "Be friendly": #She gets promoted to be her bosses "secretary" if she's dressed sluttily
             mc.name "You need to be friendly with him. Catch his attention and try and make a connection right away."
             the_person.char "Okay, but how do I do that?"
             mc.name "Start by being physical with him. Kiss him on the cheek when you meet, touch his arm when you talk, lean close to him when you can."
@@ -899,23 +943,26 @@ label mom_work_promotion_two_prep(the_person):
             the_person.char "Shall we sit down and talk?"
             mc.name "That's perfect [the_person.title]. Keep that up for the whole interview and I think you'll do well."
             the_person.char "Thank you sweetheart, I'm going to do my best."
+            $ the_person.draw_person(position = "kissing")
             "She pulls you into a real hug for a few seconds."
+            $ the_person.draw_person()
             mc.name "Let me know how it goes, okay?"
             $ the_person.event_triggers_dict["mom_work_promotion_two_tactic"] = "friendly"
 
-        "Be professional.": #She doesn't get any sort of promotion
+        "Be professional": #She doesn't get any sort of promotion
             mc.name "Keep it professional. Focus on your qualifications and your training."
             "She nods."
             the_person.char "Okay, I think I can do that. I have some notes written down for things I want to tell him about."
             mc.name "Good, let's go through that list now."
             "[the_person.possessive_title] grabs a note pad from her bed stand and starts reading through it."
-            "You help her organise her notes and prepare for the interview."
+            "You help her organize her notes and prepare for the interview."
             the_person.char "I think I'm ready, now I just have to wait and try not to worry too much."
             the_person.char "Thank you for the help sweetheart."
+            $ the_person.draw_person(position = "kissing")
             "She leans over and gives you a hug, followed by a kiss on the cheek."
+            $ the_person.draw_person()
             mc.name "No problem [the_person.title]. Let me know how it goes, okay?"
             $ the_person.event_triggers_dict["mom_work_promotion_two_tactic"] = "professional"
-
 
     the_person.char "I'll tell you as soon as I find out."
     $ clear_scene()
@@ -931,8 +978,7 @@ label mom_work_promotion_two(the_person): # Based on what you tell her to do the
     else:
         $ the_person.event_triggers_dict["mom_work_secretary_promotion"] = False
 
-    $ mom_work_promotion_two_report_crisis = Action("mom work promotion two report", mom_work_promotion_two_report_requirement, "mom_work_promotion_two_report")
-    $ the_person.on_room_enter_event_list.append(mom_work_promotion_two_report_crisis)
+    $ add_mom_work_promotion_two_report_crisis(the_person)
     return
 
 label mom_work_promotion_two_report(the_person): #TODO: Hook this up as an on_room or maybe a mandatory event
@@ -957,8 +1003,10 @@ label mom_work_promotion_two_report(the_person): #TODO: Hook this up as an on_ro
             $ the_person.change_slut_temp(2) # She gets a little sluttier after using her looks to get promoted.
             the_person.char "I almost think he gave me the job just so he could spend more time looking at me."
 
+        $ the_person.draw_person(position = "kissing")
         "[the_person.possessive_title] gives you a tight hug."
         the_person.char "Thank you so much for all of your help sweetheart. You're the best son in the whole world."
+        $ the_person.draw_person()
         "You hug her back. When she steps away she's still smiling ear to ear."
 
     else: #No promotion
@@ -969,15 +1017,24 @@ label mom_work_promotion_two_report(the_person): #TODO: Hook this up as an on_ro
         mc.name "Hey [the_person.title]. Is something wrong?"
         the_person.char "I had my second round interview today, and I was told I'm not getting the position."
         mc.name "Oh, I'm sorry."
+        $ the_person.draw_person(position = "kissing")
         "You give [the_person.possessive_title] a gentle hug."
         the_person.char "Thank you. I'll be okay."
         mc.name "I know you will [the_person.title]. They're idiots for not believing in you."
+        $ the_person.draw_person()
         "She let's you hold her for a few moments, then she steps back and smiles. It seems a little more sincere this time."
 
-    $ clear_scene()
+    python:
+        clear_scene()
+        # delete the interview outfit
+        if "mom_work_promotion_outfit" in the_person.event_triggers_dict:
+            del the_person.event_triggers_dict["mom_work_promotion_outfit"]
     return
 
 label mom_weekly_pay_lily_question(the_person):
+    $ mc.change_location(bedroom)
+    $ mc.location.show_background()
+
     if the_person.event_triggers_dict.get("mom_instathot_questioned", False):
         the_person.char "Before we talk about that, do can I ask you a question?"
         mc.name "Sure, what do you want to know?"
@@ -993,7 +1050,7 @@ label mom_weekly_pay_lily_question(the_person):
         $ the_person.event_triggers_dict["mom_instathot_questioned"] = True
 
     menu:
-        "Cover for [lily.title].":
+        "Cover for [lily.title]":
             if the_person.event_triggers_dict.get("mom_instathot_questioned", False):
                 mc.name "She's working on campus, so I guess she's working between classes."
                 the_person.char "I just wish she would trust me."
@@ -1006,7 +1063,7 @@ label mom_weekly_pay_lily_question(the_person):
                 mc.name "I don't know, maybe she didn't want you to think she's doing it just because we need money."
                 the_person.char "Well, I'll let her tell me when she's ready. I'm just happy to know it's nothing to worry about."
 
-        "Tell her about Insta-pic.":
+        "Tell her about Insta-pic":
             mc.name "Well, I think she's picked up a part time job."
             the_person.char "Oh, why haven't I heard about this?"
             mc.name "It's not exactly a traditional job. She's been putting picture up on Insta-pic."
@@ -1021,8 +1078,7 @@ label mom_weekly_pay_lily_question(the_person):
             mc.name "You should absolutely ask [lily.title] to take some pictures with you. I think you'd be surprised."
             the_person.char "Aww, you're too sweet."
             $ lily.event_triggers_dict["sister_instathot_mom_knows"] = True
-            $ sister_instapic_discover_crisis = Action("sister insta mom reveal", sister_instapic_discover_requirement, "sister_instathot_mom_discover", args = lily, requirement_args = lily)
-            $ mc.business.mandatory_crises_list.append(sister_instapic_discover_crisis)
+            $ add_sister_instapic_discover_crisis()
     return
 
 label mom_stress_relief_offer(the_person): #TODO: Write and hook this up.
@@ -1030,9 +1086,12 @@ label mom_stress_relief_offer(the_person): #TODO: Write and hook this up.
     #TODO: What she offers to do depends on her sluttiness.
     return
 
-label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awareness to Mom so she can coment on you dating multiple girls, ect.
+label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awareness to Mom so she can comment on you dating multiple girls, ect.
     #Triggers when you've got a date planned with a girl, but Mom has high Love.
     #TODO: Write a Mom specific movie date. Maybe mirror the LR1 event and have Lily join in sometimes.
+
+    $ mc.change_location(bedroom)
+    $ mc.location.show_background()
 
     "You're getting ready for your date with [the_date.title] when you hear a knock at your door."
     the_mom "Knock knock. Are you in there [the_mom.mc_title]?"
@@ -1054,12 +1113,14 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 $ the_mom.draw_animated_removal(first_item)
                 "[the_mom.possessive_title] grabs her [first_item.display_name] and pulls it off."
                 $ strip_list.remove(first_item)
+                $ del first_item
             else:
                 "[the_mom.possessive_title] spreads her legs, displaying her naked body for you."
 
             mc.name "[the_mom.title], what are you doing?"
             the_mom "Convincing you to stay home tonight."
             $ generalised_strip_description(the_mom, strip_list)
+            $ del strip_list
 
         else:
             the_mom "You are? I... Don't go anywhere, okay? I'll be right back."
@@ -1077,13 +1138,13 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
         "She steps close to you and cups your crotch, rubbing your already-hard cock through your pants."
         the_mom "Let me take care of you. Stay home tonight."
         menu:
-            "Cancel your date with [the_date.title].":
+            "Cancel your date with [the_date.title]":
                 mc.name "[the_mom.title]... You know you're the most important woman in my life. I'll call [the_date.title] and cancel."
                 $ the_mom.change_happiness(10)
                 $ the_mom.change_love(2)
                 $ the_mom.change_slut_temp(2)
                 "[the_mom.possessive_title]'s face lights up."
-                the_mom "Thank you [the_mom.mc_title], you're making the right decision. We're going to have such a wonderful time togther."
+                the_mom "Thank you [the_mom.mc_title], you're making the right decision. We're going to have such a wonderful time together."
                 mc.name "Just give me a moment, okay? She's probably not going to be happy about this."
                 $ skip_intro = False
                 $ start_position = None
@@ -1097,19 +1158,25 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                     "You call [the_date.title] as [the_mom.possessive_title] starts to lick at your shaft."
                     $ the_mom.draw_person(position = "blowjob", special_modifier = "blowjob", the_animation = blowjob_bob, animation_effect_strength = 0.3)
                     the_date "Hello?"
-                    mc.name "Hey [the_date.title], it's [the_date.mc_title]."
+                    if the_date.is_family():
+                        mc.name "Hey Sweety, it's me."
+                    else:
+                        mc.name "Hey [the_date.title], it's [the_date.mc_title]."
                     the_date "Hey [the_date.mc_title], I was just about to head out the door. Is everything okay?"
                     mc.name "Well, I hate to tell you this so late, but..."
                     "[the_mom.possessive_title] looks up at you from her knees, your cock bulging out one cheek."
                     mc.name "Something important has come up, and it needs to be taken care of. I won't be able to go out tonight."
                     $ the_mom.change_love(4)
                     $ the_mom.change_slut_temp(3)
-                    "[the_mom.title]'s eyes light up, and she bobs her head up and down on your shaft happily. You have to stiffle a moan."
+                    "[the_mom.title]'s eyes light up, and she bobs her head up and down on your shaft happily. You have to stifle a moan."
                     the_date "Oh no, is everyone okay?"
                     $ the_date.change_happiness(-20)
                     $ the_date.change_love(-3)
                     "[the_date.possessive_title]'s disappointment is clear, even over the phone."
-                    mc.name "It's a family situation, I'm sorry that I can't say any more."
+                    if the_date.is_family():
+                        mc.name "Something urgent came up at work, that has to be taken care of."
+                    else:
+                        mc.name "It's a family situation, I'm sorry that I can't say any more."
                     "[the_mom.possessive_title] sucks gently on the tip of your cock."
                     the_date "Okay, well... I hope you get that resolved. Let's try and reschedule, okay?"
                     mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
@@ -1123,15 +1190,16 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 else:
                     the_mom "I'll just be over here, ready for you..."
                     "[the_mom.title] climbs onto your bed, face down and ass up, while she waits for you."
-                    mc.name "Hey [the_date.title], it's [the_date.mc_title]."
+                    if the_date.is_family():
+                        mc.name "Hey Sweety, it's me."
+                    else:
+                        mc.name "Hey [the_date.title], it's [the_date.mc_title]."
                     the_date "Hey [the_date.mc_title], I was just about to head out the door. Is everything okay?"
                     if not the_mom.outfit.vagina_available():
-                        $ strip_list = the_mom.outfit.get_half_off_to_vagina_list()
-                        if strip_list:
-                            $ generalised_strip_description(the_mom, strip_list, position = "doggy", half_off_instead = True)
+                        if the_mom.outfit.can_half_off_to_vagina():
+                            $ generalised_strip_description(the_mom, the_mom.outfit.get_half_off_to_vagina_list(), position = "doggy", half_off_instead = True)
                         else:
-                            $ strip_list = the_mom.outfit.get_full_strip_list()
-                            $ generalised_strip_description(the_mom, strip_list, position = "doggy")
+                            $ generalised_strip_description(the_mom, the_mom.outfit.get_full_strip_list(), position = "doggy")
                     "You're distracted as [the_mom.possessive_title] reaches back and jiggles her butt for you."
                     the_date "[the_date.mc_title]? Are you there?"
                     mc.name "Uh, yeah. Sorry, I hate to tell you this so late, but something important has come out."
@@ -1141,15 +1209,21 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                     $ the_date.change_love(-3)
                     "[the_mom.title] grabs one ass cheek and pulls it to the side, giving you a clear view of her pretty pink pussy."
                     menu:
-                        "Fuck [the_mom.title]'s pussy right away.":
-                            "You unzip your pants and step clsoer to [the_mom.possessive_title]."
-                            mc.name "It's my Mom, she really needs me close right now."
+                        "Fuck [the_mom.title]'s pussy right away":
+                            "You unzip your pants and step closer to [the_mom.possessive_title]."
+                            if the_date.is_family():
+                                mc.name "Something urgent came up at work and requires my full attention."
+                            else:
+                                mc.name "It's my Mom, she really needs me close right now."
                             "You grab [the_mom.title]'s hips with your free hand and hold her steady as you slide your cock into her wet pussy. You fuck her slowly while you talk."
                             $ the_mom.draw_person(position = "doggy", the_animation = blowjob_bob, animation_effect_strength = 0.3)
                             mc.name "I can't really say any more than that right now. I'm sorry."
-                            the_date "I understand, I hope everything works out. Let's try and resechedule some time soon, okay?"
+                            the_date "I understand, I hope everything works out. Let's try and reschedule some time soon, okay?"
                             "[the_mom.possessive_title] grabs one of your pillows to muffle her moans with."
-                            mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
+                            if the_date.is_family():
+                                mc.name "Yeah, I'll be in touch. Thanks for understanding sweety. Bye."
+                            else:
+                                mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
                             the_date "Bye..."
                             if the_mom.has_taboo("condomless_sex"):
                                 the_mom "[the_mom.mc_title], did you put on a condom?"
@@ -1164,19 +1238,25 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                             $ skip_condom = True
 
 
-                        "Wait until you're off the phone.":
+                        "Wait until you're off the phone":
                             "You place a hand on [the_mom.possessive_title]'s butt and squeeze it idly as you talk."
-                            mc.name "It's my Mom, she really needs me close right now."
+                            if the_date.is_family():
+                                mc.name "Something urgent came up at work and requires my full attention."
+                            else:
+                                mc.name "It's my Mom, she really needs me close right now."
                             mc.name "I can't really say any more than that right now. I'm sorry."
-                            the_date "I understand, I hope everything works out. Let's try and resechedule some time soon, okay?"
+                            the_date "I understand, I hope everything works out. Let's try and reschedule some time soon, okay?"
                             "[the_mom.possessive_title] puts a hand between her legs and starts to massage her clit while you're talking."
-                            mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
+                            if the_date.is_family():
+                                mc.name "Yeah, I'll be in touch. Thanks for understanding sweety. Bye."
+                            else:
+                                mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
                             the_date "Bye..."
 
 
                 $ the_mom.add_situational_slut("Eager", 10, "I'll show that skank how a {i}real{/i} woman should treat him!")
-                call fuck_person(the_mom, private = True, skip_intro = skip_intro, start_position = start_position, skip_condom = skip_condom) from _call_fuck_person_36
-                $ report = _return
+                call fuck_person(the_mom, private = True, skip_intro = skip_intro, start_position = start_position, asked_for_condom = skip_condom) from _call_fuck_person_36
+                $ the_report = _return
                 $ the_mom.clear_situational_slut("Eager")
                 if the_report.get("guy orgasms", 0) > 0:
                     the_mom "Ah... Well, wasn't that better than anything that girl would have done?"
@@ -1195,23 +1275,23 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 "You spend the rest of the evening with [the_mom.possessive_title], sitting on the couch, watching TV, and chatting."
                 #TODO: Add a proper Mom date that this leads into
 
-            "Tell her no.":
+            "Tell her no":
                 mc.name "Sorry [the_mom.title], but I just can't cancel my plans this suddenly."
                 mc.name "I need to get going."
                 if the_mom.love > 80:
                     "You hurry to the door, but [the_mom.possessive_title] grabs your arm."
-                    the_mom "Wait! How about about just a quicky? You can tell her you're running late."
+                    the_mom "Wait! How about about just a quickie? You can tell her you're running late."
                     the_mom "I want to take all of your cum, so she doesn't get any. Can you give me that, at least?"
                     menu:
-                        "Fuck [the_mom.title] before your date.":
+                        "Fuck [the_mom.title] before your date":
                             "You sigh, then nod."
                             mc.name "Fine, but we need to make it quick."
                             $ the_mom.change_love(1)
                             $ the_mom.change_slut_temp(1)
-                            "She nods happly."
+                            "She nods happily."
                             $ the_mom.add_situational_slut("Eager", 20, "I need to drain those balls before that skank touches him!")
                             call fuck_person(the_mom, private = True) from _call_fuck_person_40
-                            $ report = _return
+                            $ the_report = _return
                             $ the_mom.clear_situational_slut("Eager")
                             if the_report.get("guy orgasms", 0) > 0:
                                 the_mom "Mmm, that was great [the_mom.mc_title]. Whatever happens I'll always be the first woman you come to, right?"
@@ -1223,10 +1303,15 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                                 the_mom "Maybe you do need this other girl... You should find someone who can take care of you properly."
                                 $ the_mom.change_happiness(-5)
 
-                            "You're interupted by a phone call. It's [the_date.title]."
-                            mc.name "Hey [the_date.title]..."
-                            the_date "[the_date.mc_title], are you on your way?"
-                            mc.name "I'm just heading out the door. Something important came up, but it's taken care of. Family related."
+                            "You're interrupted by a phone call. It's [the_date.title]."
+                            if the_date.is_family():
+                                mc.name "Hey Sweety...."
+                                the_date "[the_date.mc_title], are you on your way?"
+                                mc.name "I'm just heading out the door. Something important came up at work, but it's taken care of."
+                            else:
+                                mc.name "Hey [the_date.title]..."
+                                the_date "[the_date.mc_title], are you on your way?"
+                                mc.name "I'm just heading out the door. Something important came up, but it's taken care of. Family related."
                             $ the_date.change_happiness(-5)
                             $ the_date.change_love(-1)
                             the_date "Okay, well I'm waiting here."
@@ -1235,7 +1320,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                             the_mom "Have a good date [the_mom.mc_title]. Give me a kiss before you go."
                             "You kiss [the_mom.possessive_title], then hurry out of your room."
 
-                        "Tell her no again.":
+                        "Tell her no again":
                             mc.name "I don't have time [the_mom.title]. I'm sorry, but I really need to go."
                             mc.name "We can spend time together later, okay?"
                             $ the_mom.change_happiness(-10)
@@ -1273,7 +1358,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
             the_mom "Doesn't that sound so much nicer than trying to impress some skank you just met? You've known me your whole life already."
 
         menu:
-            "Cancel your date with [the_date.title].":
+            "Cancel your date with [the_date.title]":
                 "[the_mom.possessive_title] cups your crotch and massages it gently while you think about it."
                 mc.name "Fine, but she's really not going to be happy about this."
                 the_mom "Don't worry about her, I'm the only woman you need in your life right now. You can worry about finding a wife when you're older."
@@ -1285,19 +1370,25 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                     "You call [the_date.title] as [the_mom.possessive_title] starts to lick at your shaft."
                     $ the_mom.draw_person(position = "blowjob", special_modifier = "blowjob", the_animation = blowjob_bob, animation_effect_strength = 0.3)
                     the_date "Hello?"
-                    mc.name "Hey [the_date.title], it's [the_date.mc_title]."
+                    if the_date.is_family():
+                        mc.name "Hey Sweety, it's me."
+                    else:
+                        mc.name "Hey [the_date.title], it's [the_date.mc_title]."
                     the_date "Hey [the_date.mc_title], I was just about to head out the door. Is everything okay?"
                     mc.name "Well, I hate to tell you this so late, but..."
                     "[the_mom.possessive_title] looks up at you from her knees, your cock bulging out one cheek."
                     mc.name "Something important has come up, and it needs to be taken care of. I won't be able to go out tonight."
                     $ the_mom.change_love(4)
                     $ the_mom.change_slut_temp(3)
-                    "[the_mom.title]'s eyes light up, and she bobs her head up and down on your shaft happily. You have to stiffle a moan."
+                    "[the_mom.title]'s eyes light up, and she bobs her head up and down on your shaft happily. You have to stifle a moan."
                     the_date "Oh no, is everyone okay?"
                     $ the_date.change_happiness(-20)
                     $ the_date.change_love(-3)
                     "[the_date.possessive_title]'s disappointment is clear, even over the phone."
-                    mc.name "It's a family situation, I'm sorry that I can't say any more."
+                    if the_date.is_family():
+                        mc.name "Something urgent came up at work and requires my full attention."
+                    else:
+                        mc.name "It's a family situation, I'm sorry that I can't say any more."
                     "[the_mom.possessive_title] sucks gently on the tip of your cock."
                     the_date "Okay, well... I hope you get that resolved. Let's try and reschedule, okay?"
                     mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
@@ -1309,7 +1400,10 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 else:
                     "[the_mom.title] nods and waits, still on her knees, while you get your phone out and call [the_date.title]."
                     the_date "Hello?"
-                    mc.name "Hey [the_date.title], it's [the_date.mc_title]."
+                    if the_date.is_family():
+                        mc.name "Hey Sweety, it's me."
+                    else:
+                        mc.name "Hey [the_date.title], it's [the_date.mc_title]."
                     the_date "Hey [the_date.mc_title], I was just about to head out the door. Is everything okay?"
                     mc.name "Well, I hate to tell you this so late, but..."
                     mc.name "Something important has come up, and it needs to be taken care of. I won't be able to go out tonight."
@@ -1320,9 +1414,15 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                     $ the_date.change_happiness(-20)
                     $ the_date.change_love(-3)
                     "[the_date.possessive_title]'s disappointment is clear, even over the phone."
-                    mc.name "It's a family situation, I'm sorry that I can't say any more."
+                    if the_date.is_family():
+                        mc.name "Something urgent came up at work and requires my full attention."
+                    else:
+                        mc.name "It's a family situation, I'm sorry that I can't say any more."
                     the_date "Okay, well... I hope you get that resolved. Let's try and reschedule, okay?"
-                    mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
+                    if the_date.is_family():
+                        mc.name "Yeah, I'll contact you soon, thanks for understanding. Bye."
+                    else:
+                        mc.name "Yeah, I'll be in touch. Thanks for understanding [the_date.title]. Bye."
                     the_date "Bye..."
                     the_mom "Thank you [the_mom.mc_title]. Now, should I take care of this?"
                     "She unzips your pants and pulls them down. Your hard cock springs free, bouncing in front of her face."
@@ -1336,33 +1436,34 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
 
                 if not the_mom.outfit.vagina_visible() or not the_mom.outfit.tits_visible():
                     menu:
-                        "Order her to strip." if the_mom.obedience >= 140:
-                            mc.name "You should be dressed for the occassion first. Strip."
+                        "Order her to strip" if the_mom.obedience >= 140:
+                            mc.name "You should be dressed for the occasion first. Strip."
                             the_mom "Of course, right away [the_mom.mc_title]."
                             $ the_mom.draw_person()
                             "She stands up to get undressed."
                             $ remove_shoes = False
-                            $ feet_ordered = the_mom.outfit.get_feet_ordered()
-                            if feet_ordered:
-                                $ top_feet = feet_ordered[-1]
-                                the_mom "Do you want me to keep my [top_feet.display_name] on?"
+                            $ item = the_mom.outfit.get_feet_top_layer()
+                            if item:
+                                the_mom "Do you want me to keep my [item.display_name] on?"
                                 menu:
-                                    "Strip it all off.":
+                                    "Strip it all off":
                                         mc.name "Take it all off, I don't want you to be wearing anything."
                                         the_mom "Yes [the_mc.title]. I'll get completely naked for you."
                                         $ remove_shoes = True
 
-                                    "Leave them on.":
+                                    "Leave them on":
                                         mc.name "You can leave them on."
+                            $ del item
 
-                            call naked_strip_description(the_mom, remove_shoes = remove_shoes) from _call_naked_strip_description_1
+                            $ generalised_strip_description(the_mom, the_mom.outfit.get_full_strip_list(strip_feet = remove_shoes))
+
                             the_mom "There, now you can properly enjoy the view. Shall I get to it, then?"
                             mc.name "Go ahead."
 
-                        "Order her to strip.\n{size=16}{color=#FF0000}Requires: 140 Obedience{/color}{/size} (disabled)" if the_mom.obedience < 140:
+                        "Order her to strip\n{size=16}{color=#FF0000}Requires: 140 Obedience{/color}{/size} (disabled)" if the_mom.obedience < 140:
                             pass
 
-                        "Enjoy your blowjob.":
+                        "Enjoy your blowjob":
                             pass
 
                 $ the_mom.draw_person(position = "blowjob", special_modifier = "blowjob", the_animation = blowjob_bob, animation_effect_strength = 0.3)
@@ -1390,7 +1491,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 return True
 
 
-            "Tell her no.":
+            "Tell her no":
                 mc.name "I can't do that [the_mom.title]! I'm sorry, but I really do have to get going."
                 "You leave her on her knees and hurry out of your room."
                 $ the_mom.change_happiness(-5)
@@ -1421,7 +1522,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
             the_mom "You'll feel better, and I promise she'll notice how much more respectful you are."
 
         menu:
-            "Let her \"help\" you.":
+            "Let her \"help\" you":
                 if the_mom.has_taboo("touching_penis"):
                     mc.name "That sounds like a really good idea [the_mom.title]."
                     "She breathes a sigh of relief."
@@ -1450,15 +1551,13 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                         the_mom "Of course, you probably want to see mommy's tits. Let me get those out for you to look at."
                     "She lets go of your cock and steps back."
                     if the_mom.outfit.can_half_off_to_tits():
-                        $ strip_list = the_mom.outfit.get_half_off_to_tits_list()
-                        $ generalised_strip_description(the_mom, strip_list, half_off_instead = True)
+                        $ generalised_strip_description(the_mom, the_mom.outfit.get_half_off_to_tits_list(), half_off_instead = True)
                     else:
-                        $ strip_list = the_mom.outfit.get_tit_strip_list()
-                        $ generalised_strip_description(the_mom, strip_list)
-                    the_mom "There, now you have something to oggle while I get you off."
+                        $ generalised_strip_description(the_mom, the_mom.outfit.get_tit_strip_list())
+                    the_mom "There, now you have something to ogle while I get you off."
                     if not the_mom.outfit.vagina_visible():
                         menu:
-                            "Order her to strip completely." if the_mom.obedience >= 140:
+                            "Order her to strip completely" if the_mom.obedience >= 140:
                                 mc.name "That's not enough for me. Get naked for me [the_mom.title]."
                                 if the_person.has_taboo("bare_pussy"):
                                     the_mom "[the_mom.mc_title], I can't... I shouldn't do that."
@@ -1471,29 +1570,28 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                                     $ the_mom.change_obedience(1 + the_mom.get_opinion_score("being submissive"))
                                     the_mom "Of course [the_mom.mc_title]. Whatever you need me to do to make you cum I'll do it."
                                 $ remove_shoes = False
-                                $ feet_ordered = the_mom.outfit.get_feet_ordered()
-                                if feet_ordered:
-                                    $ top_feet = feet_ordered[-1]
-                                    the_mom "Do you want me to keep my [top_feet.display_name] on?"
+                                $ item = the_mom.outfit.get_feet_top_layer()
+                                if item:
+                                    the_mom "Do you want me to keep my [item.display_name] on?"
                                     menu:
-                                        "Strip it all off.":
+                                        "Strip it all off":
                                             mc.name "Take it all off, I don't want you to be wearing anything."
                                             $ remove_shoes = True
 
-                                        "Leave them on.":
+                                        "Leave them on":
                                             mc.name "You can leave them on."
+                                $ del item
 
-
-                                call naked_strip_description(the_mom, remove_shoes = remove_shoes) from _call_naked_strip_description_2
+                                $ generalised_strip_description(the_mom, the_mom.outfit.get_full_strip_list(strip_feet = remove_shoes))
                                 if the_mom.break_taboo("bare_pussy"):
                                     the_mom "There. I guess this isn't so strange, really. Now, where were we..."
                                 else:
                                     the_mom "There you go [the_mom.mc_title], now enjoy my naked body while I stroke you off."
 
-                            "Order her to strip completely.\n{size=16}{color=#FF0000}Requires: 140 Obedience{/color}{/size} (disabled)" if the_mom.obedience < 140:
+                            "Order her to strip completely\n{size=16}{color=#FF0000}Requires: 140 Obedience{/color}{/size} (disabled)" if the_mom.obedience < 140:
                                 pass
 
-                            "Oggle her tits.":
+                            "Ogle her tits":
                                 pass
                     "She wraps her fingers around your shaft again and starts to stroke it."
 
@@ -1518,7 +1616,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
 
                 else:
                     the_mom "I'm sorry [the_mom.mc_title], I just don't have the energy to finish you off. I need more practice I guess."
-                    "She seems rather disapointed in herself."
+                    "She seems rather disappointed in herself."
                     $ the_mom.change_slut_temp(1)
                     mc.name "We can work on that. Thanks for trying [the_mom.title], it was still nice."
                     "[the_mom.possessive_title] gives you a weak smile."
@@ -1530,7 +1628,7 @@ label mom_date_intercept(the_mom, the_date): #TODO: Add some relationship awaren
                 $ clear_scene()
                 return False
 
-            "Tell her no.":
+            "Tell her no":
                 mc.name "Sorry [the_mom.title], but I'm going to pass."
                 if the_mom.has_taboo("touching_penis"):
                     the_mom "Of course! It's not right, I'm your mother and I shouldn't... How could I even suggest that!"

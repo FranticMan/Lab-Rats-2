@@ -19,13 +19,13 @@ label grope_shoulder(the_person):
             "[the_person.possessive_title] doesn't seem to mind at all as you start to gently massage her shoulder."
 
         menu:
-            "Move your hand to her waist.\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >=5:
+            "Move your hand to her waist\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >=5:
                 return True
 
-            "Move your hand to her waist.\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
+            "Move your hand to her waist\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
                 pass
 
-            "Stop touching her.":
+            "Stop touching her":
                 return False
 
 label grope_waist(the_person):
@@ -51,13 +51,13 @@ label grope_waist(the_person):
             "[the_person.title] keeps talking as if nothing is wrong. She even smiles when you squeeze her soft hips."
 
         menu:
-            "Slide your hand onto her ass.\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >=5:
+            "Slide your hand onto her ass\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >=5:
                 return True
 
-            "Slide your hand onto her ass.\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
+            "Slide your hand onto her ass\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
                 pass
 
-            "Stop touching her.":
+            "Stop touching her":
                 return False
 
     else: #Sluttiness 80 or higher, wants to fuck right away.
@@ -71,7 +71,7 @@ label grope_waist(the_person):
                 "[the_person.possessive_title] pulls her [strip_description] out of the way and spreads her legs."
                 the_person.char "Come on, do you want to fuck me?"
             else:
-                "She spreads her legs, emphasising the easy availability of her pussy."
+                "She spreads her legs, emphasizing the easy availability of her pussy."
                 the_person.char "Do you want to fuck me?"
 
             $ strip_list = None #Clear the list to save memory
@@ -81,14 +81,13 @@ label grope_waist(the_person):
             the_person.char "We both know where this is going, what are we waiting for?"
 
         menu:
-            "Skip the foreplay.":
+            "Skip the foreplay":
                 call fuck_person(the_person) from _call_fuck_person
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
                 $ the_person.review_outfit()
                 return False
 
-            "Stop touching her.":
+            "Stop touching her":
                 "You give her hips a final squeeze, then push her back."
                 mc.name "Maybe later, I just wanted a feel."
                 "She pouts and sighs unhappily."
@@ -118,7 +117,7 @@ label grope_ass(the_person):
             the_person.char "Uh... [the_person.mc_title]. Do you mind?"
             mc.name "Is something wrong?"
             "You grab a handful of her ass and squeeze, making her yelp quietly."
-            the_person.char "Ah! You're hand is on my..."
+            the_person.char "Ah! Your hand is on my..."
             $ the_person.change_arousal(5 + mc.sex_skills["Foreplay"])
             $ the_person.change_slut_temp(2)
             $ the_person.change_love(-1)
@@ -134,13 +133,13 @@ label grope_ass(the_person):
             "She starts talking again, unbothered by your butt massage."
 
         menu:
-            "Grope her tits.\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >= 5:
+            "Grope her tits\n-5 {image=gui/extra_images/energy_token.png}" if the_person.energy >= 5:
                 return True
 
-            "Grope her tits.\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
+            "Grope her tits\n-5 {image=gui/extra_images/energy_token.png} (disabled)" if the_person.energy < 5:
                 pass
 
-            "Stop touching her.":
+            "Stop touching her":
                 return False
 
 
@@ -193,17 +192,17 @@ label grope_tits(the_person):
                 $ the_person.change_arousal(5 + mc.sex_skills["Foreplay"])
                 the_person.char "Sorry, you're making it really hard to concentrate right now."
             menu:
-                "Keep going.":
+                "Keep going":
                     mc.name "We can keep talking later, I think there's something more important to take care of."
                     if the_person.effective_sluttiness() < 40:
                         "She nods and steps closer to you, pressing her body against yours eagerly."
                         "You slide behind her, cradling a breast in one hand and rubbing her inner thigh with your other."
                     else:
                         "You step closer to [the_person.title]. She seems nervous, but lets you step behind her and wrap your arms around her."
-                        "You cradle a breast in one hand and slide your other down between her legs to caress her inner thing."
+                        "You cradle a breast in one hand and slide your other down between her legs to caress her inner thigh."
                     return True #Note: If this returns True it leads into the generic sex system starting with a standing massage position.
 
-                "Stop touching her.":
+                "Stop touching her":
                     return False
 
 label quick_fuck(the_person):

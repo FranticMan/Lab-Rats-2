@@ -2,8 +2,8 @@ init:
     python:
         doggy_anal = Position(name = "Anal Doggy", slut_requirement = 70, slut_cap = 90, requires_hard = True, requires_large_tits = False,
             position_tag = "doggy", requires_location = "Lay", requires_clothing = "Vagina", skill_tag = "Anal",
-            girl_arousal = 11, girl_energy = 11,
-            guy_arousal = 14, guy_energy = 11,
+            girl_arousal = 11, girl_energy = 6,
+            guy_arousal = 14, guy_energy = 6,
             connections = [],
             intro = "intro_doggy_anal",
             scenes = ["scene_doggy_anal_1","scene_doggy_anal_2"],
@@ -12,6 +12,7 @@ init:
             strip_description = "strip_doggy_anal", strip_ask_description = "strip_ask_doggy_anal",
             orgasm_description = "orgasm_doggy_anal",
             taboo_break_description = "taboo_break_doggy_anal",
+            verb = "ass fuck",
             opinion_tags = ["doggy style sex","anal sex"], record_class = "Anal Sex",
             default_animation = blowjob_bob,
             associated_taboo = "anal_sex")
@@ -46,7 +47,7 @@ label intro_doggy_anal(the_girl, the_location, the_object):
     else:
         the_girl.char "No, but I don't know if I ever will be. Let's try it."
     "You hold onto her hips and push yourself in. She gasps as the tip of your cock slips into her ass."
-    "[the_girl.title] grunts and gasps as you slowy fit your whole dick inside of her. When you bottom out you hold still, giving her time to adjust to your size."
+    "[the_girl.title] grunts and gasps as you slowly fit your whole dick inside of her. When you bottom out you hold still, giving her time to adjust to your size."
     "After a long moment it seems like she's ready and you start to move, slowly at first then picking up speed."
     return
 
@@ -90,7 +91,7 @@ label taboo_break_doggy_anal(the_girl, the_location, the_object):
         "You spit onto your cock and try again. This time making better progress, sliding the tip of your dick into [the_girl.title]'s ass."
         the_girl.char "Oh god... Fuck!"
     "Inch by inch you slide your entire length into [the_girl.possessive_title]. She grunts and gasps the whole way down."
-    "When stop when you've bottomed out, to give your cock time to properly stretch her out."
+    "You stop when you've bottomed out, to give your cock time to properly stretch her out."
     the_girl.char "I think... I'm ready for you to move some more..."
     "You pull back a little bit and give her a few testing strokes. When she can handle those you speed up, until you're thrusting your entire length."
     return
@@ -127,7 +128,7 @@ label outro_doggy_anal(the_girl, the_location, the_object):
     mc.name "Fuck, here I cum!"
 
     menu:
-        "Cum inside of her.":
+        "Cum inside of her":
             "You push yourself balls deep into [the_girl.title]'s ass and dump your load."
             #This is where the "cum in me" section would go instead
             #the_girl.char "Ah! Ah!"
@@ -138,7 +139,7 @@ label outro_doggy_anal(the_girl, the_location, the_object):
             if the_girl.get_opinion_score("anal creampies") > 0:
                 # If she's into both...
                 $ the_girl.discover_opinion("anal creampies")
-                the_girl.char "Oh fuck... I'm so full cum. Put it back in me."
+                the_girl.char "Oh fuck... I'm so full of cum. Put it back in me."
                 mc.name "What?"
                 the_girl.char "Your cock, put it back in me... Just a little bit more, please!"
                 "She lowers her shoulders to the [the_object.name] and wiggles ass at you. You slide the tip of your still-hard dick into her asshole."
@@ -153,7 +154,7 @@ label outro_doggy_anal(the_girl, the_location, the_object):
                 the_girl.char "Wow, that was intense. I hope you didn't stretch me out too badly."
 
 
-        "Cum on her ass.":
+        "Cum on her ass":
             "You pull out of [the_girl.possessive_title]'s asshole, leaving it gaping while you stroke yourself to completion."
             if the_girl.sex_skills["Anal"] > 2:
                 "She sighs in relief as you pull out."
@@ -181,7 +182,7 @@ label transition_doggy_anal_doggy(the_girl, the_location, the_object):
         $ wants_condom = True
 
     menu:
-        "Put on a condom.":
+        "Put on a condom":
             "You pull your dick back and find a condom in your wallet. It takes you a moment to spread it over your cock, then you line yourself up again."
 
         "Ram it home!":
@@ -201,29 +202,29 @@ label transition_default_doggy_anal(the_girl, the_location, the_object):
     mc.name "Ready?"
     the_girl.char "I... I think so."
     "You hold onto her hips and push forward, spreading her ass with your large cock. She gasps and balls her fists, until finally you've buried your shaft in her."
-    "After giving her a second to acclimatise you start to thrust in and out, slowly at first but picking up speed."
+    "After giving her a second to acclimatize you start to thrust in and out, slowly at first but picking up speed."
     return
 
 label strip_doggy_anal(the_girl, the_clothing, the_location, the_object):
 
-    "[the_girl.title] leans foward, pulling your cock out of her."
+    "[the_girl.title] leans forward, pulling your cock out of her."
     $ the_girl.call_dialogue("sex_strip")
     $ the_girl.draw_animated_removal(the_clothing, position = doggy.position_tag)
     "[the_girl.possessive_title] struggles out of her [the_clothing.name] and throws it to the side."
-    "You line your cock back up with her ass and slide back in, a little easier than the first itme now that it's been stretched out."
+    "You line your cock back up with her ass and slide back in, a little easier than the first time now that it's been stretched out."
     return
 
 label strip_ask_doggy_anal(the_girl, the_clothing, the_location, the_object):
     the_girl.char "[the_girl.mc_title], what do you think of me taking off my [the_clothing.name]?"
     "[the_girl.title] pants as you fuck her ass from behind."
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = doggy.position_tag)
             "She leans forward and pops off your dick. [the_girl.possessive_title] struggles out of her [the_clothing.name] and throws it to the side."
-            "When she's ready you line your cock back up with her asshole and slide back in, a little easier than the first itme now that it's been stretched out."
+            "When she's ready you line your cock back up with her asshole and slide back in, a little easier than the first time now that it's been stretched out."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I want you to keep it on."
             if the_girl.sluttiness < 80:
                 the_girl.char "Do I look sexy in it? Does it turn you on?"

@@ -72,9 +72,9 @@ init -2 python:
         elif __builtin__.len(lily_bedroom.people) > 1:
             return False
         elif time_of_day == 4:
-            return "Too late to take pictures."
+            return "Too late to take pictures"
         elif time_of_day == 1:
-            return "Too early to take pictures."
+            return "Too early to take pictures"
         else:
             return True
 
@@ -92,6 +92,11 @@ init -2 python:
         else:
             return True
 
+    def add_sister_instahot_action():
+        sister_instahot_action = Action("Help her take Insta-pics {image=gui/heart/Time_Advance.png}",instathot_requirement, "sister_instathot_label", menu_tooltip = "Help your sister grow her Insta-pic account by taking some pictures of her.")
+        sister_role.actions.append(sister_instahot_action)
+        return
+
     def sister_instathot_mom_report_requirement(the_person, start_day):
         if day <= start_day:
             return False #Wait at least a day
@@ -102,11 +107,24 @@ init -2 python:
         else:
             return True
 
+    def add_sister_instathot_mom_report_action(person):
+        sister_instathot_mom_report_crisis = Action("Sister instathot mom report crisis", sister_instathot_mom_report_requirement, "sister_instathot_mom_report", requirement_args = day)
+        person.on_talk_event_list.append(sister_instathot_mom_report_crisis)
+        return
+
+    def sister_instahot_special_pictures_strip(person):
+        for clothing in person.outfit.get_tit_strip_list(): #TODO: Have a way of figuring out if pieces of clothing can be moved half off to get to her tits
+            person.draw_animated_removal(clothing)
+            if person.outfit.tits_visible():
+                renpy.say("","Her perky breasts are set free as she pulls her " + clothing.display_name + " off and drops it beside her bed.")
+            else:
+                renpy.say("","")
+        return
 
 #SISTER ACTION LABELS#
 
 label sister_intro_crisis_label(the_person):
-    #This is a mantatory crisis, so we assume that our requirements are tight enough to always trigger correctly. If you want to do crisis requirement checks here you need to re-add the crisis to the mandatory list!
+    #This is a mandatory crisis, so we assume that our requirements are tight enough to always trigger correctly. If you want to do crisis requirement checks here you need to re-add the crisis to the mandatory list!
     $ bedroom.show_background()
     "There's a knock at your bedroom door."
     mc.name "Come in."
@@ -115,19 +133,19 @@ label sister_intro_crisis_label(the_person):
     mc.name "Sure, what's up?"
     "[the_person.possessive_title] steps into your room and closes the door behind her."
     the_person.char "I wanted to say I'm really impressed with how your business is going. It must be really exciting to be your own boss now."
-    mc.name "It's certainly been challanging, that's for sure."
+    mc.name "It's certainly been challenging, that's for sure."
     the_person.char "And... Well, I've been so busy with school that I haven't had a chance to get a job like Mom's been wanting..."
     mc.name "Oh no, I can see where this is going."
     the_person.char "If you could just give me a {i}tiny{/i} bit of cash I could show Mom I can take care of myself."
-    mc.name "But you can't, apparantly."
+    mc.name "But you can't, apparently."
     the_person.char "Please? Please please please, [the_person.mc_title]? Maybe there's some extra work I could do? I could..."
     "She gives up and shrugs."
     the_person.char "Help you science all that science stuff?"
     mc.name "I don't think that's really where I need help. But..."
     menu:
-        "Ask [the_person.title] to test serum for you.":
+        "Ask [the_person.title] to test serum for you":
             the_person.char "But...? Come on [the_person.mc_title], I really need your help."
-            mc.name "Well, at the lab we've been running some experiements, but we need some test subjects."
+            mc.name "Well, at the lab we've been running some experiments, but we need some test subjects."
             mc.name "I can bring home some of the stuff we're working on and if you let me test it on you I can pay you for it."
             the_person.char "It's not going to turn me into a lizard or something, right?"
             mc.name "Obviously not. It's just a liquid that you'd need to drink, then I'll watch to see how it affects you over the next few hours."
@@ -136,7 +154,7 @@ label sister_intro_crisis_label(the_person):
             $ the_person.draw_person(emotion = "happy")
             "[the_person.possessive_title] thinks about it for a moment, then nods."
             the_person.char "Okay, but I want $50 each time."
-            mc.name "You drive a hard bargin sis. You've got a deal."
+            mc.name "You drive a hard bargain sis. You've got a deal."
             "You shake on it."
             $ the_person.change_obedience(5)
             the_person.char "Thank you so much [the_person.mc_title]. Uh, if Mom asks just say I got a part time job."
@@ -144,7 +162,7 @@ label sister_intro_crisis_label(the_person):
             "[the_person.title] gives you one last smile then leaves your room, shutting the door behind her."
             $ mc.business.event_triggers_dict["sister_serum_test"] = True
 
-        "Ask [the_person.title] to leave you alone.":
+        "Ask [the_person.title] to leave you alone":
             the_person.char "But...?"
             mc.name "But I was just about to head to bed, so if you could let me get some sleep that would be a huge help."
             $ the_person.draw_person(emotion = "sad")
@@ -160,7 +178,7 @@ label sister_reintro_label(the_person):
     mc.name "So [the_person.title], are you still looking for some work to do?"
     $ the_person.draw_person(emotion = "happy")
     the_person.char "Oh my god yes! Do you have something for me to do?"
-    mc.name "Well, at the lab we've been running some experiements, but we need some test subjects."
+    mc.name "Well, at the lab we've been running some experiments, but we need some test subjects."
     mc.name "I can bring home some of the stuff we're working on and if you let me test it on you I can pay you for it."
     the_person.char "It's not going to turn me into a lizard or something, right?"
     mc.name "Obviously not. It's just a liquid that you'd need to drink, then I'll watch to see how it affects you over the next few hours."
@@ -169,7 +187,7 @@ label sister_reintro_label(the_person):
     $ the_person.draw_person(emotion = "happy")
     "[the_person.possessive_title] thinks about it for a moment, then nods."
     the_person.char "Okay, but I want $50 each time."
-    mc.name "You drive a hard bargin sis. You've got a deal."
+    mc.name "You drive a hard bargain sis. You've got a deal."
     "You shake on it."
     $ the_person.change_obedience(5)
     the_person.char "Thank you so much [the_person.mc_title]. Uh, if Mom asks just say I got a part time job."
@@ -216,11 +234,11 @@ label sister_strip_intro_label(the_person):
     the_person.char "Oh come on [the_person.mc_title], don't you have anything I could do? I really need the money now."
     "[the_person.possessive_title] puts her arms behind her back and pouts at you."
     menu:
-        "Pay her to strip for you.":
+        "Pay her to strip for you":
             call strip_explanation(the_person) from _call_strip_explanation
 
 
-        "Tell her to leave.":
+        "Tell her to leave":
             mc.name "I just don't have anything to give you [the_person.title]. I promise if I think of anything I'll come to you right away."
             the_person.char "Ugh... fine."
             "She turns and leaves your room, disappointed."
@@ -258,16 +276,18 @@ label strip_explanation(the_person):
     "[the_person.title] nods. There's a long silence before she speaks again."
     the_person.char "So... do you want me to do it for you now?"
     menu:
-        "Ask her to strip for you." if mc.business.funds >= 100:
+        "Ask her to strip for you" if mc.business.funds >= 100:
             mc.name "I don't see why not."
             $ mc.business.funds += -100
             "You pull a hundred dollars out of your wallet and hand it over to [the_person.possessive_title]. She tucks it away and gets ready."
             call pay_strip_scene(the_person) from _call_pay_strip_scene
 
-        "Ask her to strip for you.\n{size=22}Requires: $100{/size} (disabled)" if mc.business.funds < 100:
+            $ the_person.review_outfit()    # make sure she puts on outfit after stripping
+
+        "Ask her to strip for you\n{color=#ff0000}{size=18}Requires: $100{/size}{/color} (disabled)" if mc.business.funds < 100:
             pass
 
-        "Not right now.":
+        "Not right now":
             mc.name "Not right now. I'll come find you if I'm interested, okay?"
             the_person.char "Okay. Thanks for helping me out [the_person.mc_title], you're a life saver."
             "[the_person.title] leaves your room and closes the door behind her."
@@ -285,6 +305,8 @@ label sister_strip_label(the_person):
     "You nod and sit down on [the_person.possessive_title]'s bed. She holds her hand out and you hand over her money."
     "She tucks the money away and gets ready in front of you."
     call pay_strip_scene(the_person) from _call_pay_strip_scene_1
+
+    $ the_person.review_outfit()    # make sure she puts on outfit after stripping
     return
 
 label sister_instathot_intro_label(the_person):
@@ -314,7 +336,7 @@ label sister_instathot_intro_label(the_person):
     "Looking at her outfit it seems like she has the right idea."
     the_person.char "Since you're here, could you use my phone and take some pictures? It's hard doing it all myself."
     menu:
-        "Help her.":
+        "Help her":
             mc.name "Fine, give it here."
             $ the_person.change_happiness(5)
             the_person.char "Yay, thank you [the_person.mc_title]!"
@@ -332,16 +354,14 @@ label sister_instathot_intro_label(the_person):
             mc.name "Alright, I'll keep that in mind. Glad to help."
 
 
-        "Refuse and leave.":
+        "Refuse and leave":
             mc.name "I'm busy right now, I was just stopping by to say hi."
             $ the_person.change_happiness(-5)
             $ the_person.draw_person(emotion = "sad")
             the_person.char "Oh... Alright. If you ever have some spare time I could use a hand though. There are a ton of angles I can't get by myself."
 
-    #TODO: Add the "help take pictures" action to her role, either by addint a static action and a flag or adding it here.
-
-    $ sister_instathot_action = Action("Help her take Insta-pics.{image=gui/heart/Time_Advance.png}",instathot_requirement, "sister_instathot_label", menu_tooltip = "Help your sister grow her Insta-pic account by taking some pictures of her.")
-    $ sister_role.actions.append(sister_instathot_action)
+    #TODO: Add the "help take pictures" action to her role, either by adding a static action and a flag or adding it here.
+    $ add_sister_instahot_action()
     $ clear_scene()
     return
 
@@ -361,10 +381,10 @@ label sister_instathot_label(the_person):
             "[the_person.possessive_title] smiles and nods excitedly."
             the_person.char "Yeah! Hey, do you think [mom.title] would want to join again? Our last shots together did really well."
             menu:
-                "Ask [mom.title] to join.":
+                "Ask [mom.title] to join":
                     mc.name "I'll go check."
                     call sister_instathot_label_mom(the_person, mom) from _call_sister_instathot_label_mom_1
-                "Just Lily.":
+                "Just Lily":
                     mc.name "I think she's busy right now."
                     "[the_person.title] shrugs."
                     the_person.char "Alright, maybe next time. Come on, I got a cute new outfit I want to show off!"
@@ -385,8 +405,7 @@ label sister_instathot_label_solo(the_person):
     "She hands you her phone and starts stripping down."
     the_person.char "Just give me a moment to get changed. It'll just be a sec!"
 
-    $ strip_list = the_person.outfit.get_full_strip_list()
-    $ generalised_strip_description(the_person, strip_list)
+    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
     $ the_person.draw_person(position = "doggy")
     "She gets onto her knees and pulls a shopping bag from the mall out from under her bed."
@@ -394,6 +413,7 @@ label sister_instathot_label_solo(the_person):
     $ the_person.draw_person(emotion = "happy")
     "[the_person.title] gets dressed in her new outfit and turns to you, smiling."
     $ the_person.apply_outfit(insta_outfit, update_taboo = True)
+    $ del insta_outfit
     $ the_person.draw_person(emotion = "happy")
     the_person.char "Well, do you think they'll like it?"
     menu:
@@ -402,7 +422,7 @@ label sister_instathot_label_solo(the_person):
             $ the_person.change_slut_temp(1)
             $ the_person.change_happiness(3)
 
-        "I don't think so.":
+        "I don't think so":
             mc.name "I'm not so sure. They might be looking for something... More."
             if the_person.effective_sluttiness() >= 30:
                 the_person.char "Yeah, I think so too. Too bad Insta-pic is run by a bunch of prudes. I wish there was somewhere I could show more..."
@@ -444,8 +464,7 @@ label sister_instathot_label_solo(the_person):
             else:
                 the_person.char "Oh, that would look really cute! Okay, I'll try it on!"
 
-                $ strip_list = the_person.outfit.get_full_strip_list()
-                $ generalised_strip_description(the_person, strip_list)
+                $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
                 "Once she's stripped down she puts on the outfit you've suggested."
                 $ the_person.apply_outfit(the_suggested_outfit, update_taboo = True)
@@ -460,6 +479,7 @@ label sister_instathot_label_solo(the_person):
                 else:
                     the_person.char "Alright, there we go! It's perfect, just the right amount of sexy! Let's take some pics now!"
                     $ insta_wardrobe.add_outfit(the_suggested_outfit) #If she wouldn't wear it normally it's added to the list of insta-appropriate outfits instead
+            $ the_suggested_outfit = None
 
     $ the_person.draw_person(emotion = "happy", position = "kneeling1")
     "She jumps up onto her bed and gives the camera her sluttiest pout."
@@ -470,14 +490,14 @@ label sister_instathot_label_solo(the_person):
     $ the_person.change_slut_temp(3)
     the_person.char "I guess I should pay you, huh? Since you're doing all this work for me."
     menu:
-        "Take the money. +$100":
+        "Take the money\n{color=#00ff00}{size=18}Income: $100{/size}{/color}":
             mc.name "I'm not going to say no."
             "She rolls her eyes and direct transfers you some cash."
             $ mc.business.funds += 100
             the_person.char "No, I didn't think you would mr.\"I own a business\"."
 
 
-        "Let her keep it.":
+        "Let her keep it":
             mc.name "Don't worry about it, I'm just happy to see you doing something cool."
             $ the_person.change_love(1)
             the_person.char "Aww, you're the best!"
@@ -496,7 +516,7 @@ label sister_instathot_label_solo(the_person):
                         "She smiles eagerly and hands her phone back to you."
                         call sister_instathot_special_pictures(the_person) from _call_sister_instathot_special_pictures
 
-                    "Ignore the offer.":
+                    "Ignore the offer":
                         mc.name "I told you before, I don't think it's a good idea."
                         the_person.char "Right, sorry I even mentioned it. I'll just delete all those messages and won't bother you about it again."
                         $ the_person.event_triggers_dict["sister_insta_special_ignore"] = True #If you turn her down both times she stops asking. #TODO: Remember to keep this storyline non-critical since you can disable it.
@@ -509,7 +529,7 @@ label sister_instathot_label_solo(the_person):
                         "[the_person.possessive_title] smiles and hands her phone back over to you."
                         call sister_instathot_special_pictures(the_person) from _call_sister_instathot_special_pictures_1
 
-                    "Not right now.":
+                    "Not right now":
                         mc.name "I've got something else to get to. Sorry [the_person.title]."
                         the_person.char "Oh, that's fine. I'll just go take it in the bathroom mirror I guess."
 
@@ -534,36 +554,30 @@ label sister_instathot_special_intro(the_person): #TODO: On talk event in her ro
     the_person.char "[mom.title] has been so worried about money, I feel kind of selfish saying no to something so easy."
     the_person.char "What do you think I should do?"
     menu:
-        "Take the picture.":
+        "Take the picture":
             mc.name "I think the answer is pretty clear. We can take the shot right now, then you can give [mom.title] a cut, to help with the bills."
             mc.name "Give me your phone and we can take the shot right now."
             "She hesitates for a moment, then nods and hands her phone back to you."
             the_person.char "Yeah, you're right. Let's get a few pictures, I'll send him the best one."
             call sister_instathot_special_pictures(the_person) from _call_sister_instathot_special_pictures_2
 
-        "Ignore them.":
+        "Ignore them":
             mc.name "You know what they say [the_person.title]. Once it's on the internet it's there forever."
             mc.name "I think it would be a bad idea to be giving nudes to anyone, even if they're paying you a lot of money."
             "She seems a little disappointed, but nods anyways."
-            the_person.char "Yeah, you're probably right. I would die of embarassement if [mom.title] found them."
+            the_person.char "Yeah, you're probably right. I would die of embarrassment if [mom.title] found them."
     return
 
 label sister_instathot_special_pictures(the_person):
     if the_person.has_taboo("bare_tits"):
         the_person.char "I guess that means you're going to have to see my tits... Are you okay with that?"
-        mc.name "Yeah, it's no problem. I'm just glad you can trust me with this and not some sleezy photographer."
+        mc.name "Yeah, it's no problem. I'm just glad you can trust me with this and not some sleazy photographer."
         "She smiles and nods."
         the_person.char "I'm so lucky to have you around [the_person.mc_title]."
 
     "[the_person.title] starts to pull her clothes off."
 
-    python:
-        for clothing in the_person.outfit.get_tit_strip_list(): #TODO: Have a way of figuring out if pieces of clothing can be moved half off to get to her tits
-            the_person.draw_animated_removal(clothing)
-            if the_person.outfit.tits_visible():
-                renpy.say("","Her perky breasts are set free as she pulls her " + clothing.display_name + " off and drops it beside her bed.")
-            else:
-                renpy.say("","")
+    $ sister_instahot_special_pictures_strip(the_person)
 
     $ the_person.update_outfit_taboos()
     "She gets onto her bed, onto her knees, and looks at you and the camera."
@@ -587,6 +601,8 @@ label sister_instathot_special_pictures(the_person):
     return
 
 label sister_instathot_mom_discover(the_person): # TODO: Hook this up as a night time crisis triggered if you tell Mom about Lily's Insta job
+    $ mc.change_location(bedroom)
+    $ mc.location.show_background()
     $ the_person.change_happiness(-15, add_to_log = False)
     "You're getting ready for bed when your door is opened suddenly."
     $ the_person.draw_person(emotion = "angry")
@@ -612,7 +628,7 @@ label sister_instathot_mom_discover(the_person): # TODO: Hook this up as a night
             the_person.char "Oh my god, could you imagine? There's no way she would do it."
             mc.name "She wants a reason to spend time with you, I think she'd give it a try."
             the_person.char "You really think so? But she's still my mom, isn't that a little weird."
-            mc.name "It's just to keep your followers hooked. I bet a a bunch of them would be into an older woman."
+            mc.name "It's just to keep your followers hooked. I bet that a bunch of them would be into an older woman."
             the_person.char "Eww, gross. Still..."
             $ the_person.change_slut_temp(2)
             the_person.char "Alright, I'll think about it. At least I don't have to worry about her catching me anymore."
@@ -637,12 +653,11 @@ label sister_instathot_mom_discover(the_person): # TODO: Hook this up as a night
 label sister_instathot_label_mom(the_sister, the_mom):
     $ clear_scene()
     "You leave [the_sister.title] in her room and go to find [the_mom.possessive_title]."
-    $ first_time = the_mom.event_triggers_dict.get("mom_instathot_pic_count",0) == 0
     $ kitchen.show_background()
     $ the_mom.draw_person(position = "back_peek")
     "You find her in the kitchen, standing in front of the open fridge."
     the_mom.char "Oh, hi sweetheart. I'm just thinking about what to make for dinner. Do you need anything?"
-    if first_time:
+    if the_mom.event_triggers_dict.get("mom_instathot_pic_count",0) == 0:
         mc.name "[the_sister.title] is getting ready to take some pictures for her Insta-pic account."
         mc.name "She wanted to know if you wanted to join in."
         $ the_mom.draw_person(emotion = "happy")
@@ -662,7 +677,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
     $ the_group = GroupDisplayManager([the_sister, the_mom], primary_speaker = the_sister)
     $ the_group.draw_group()
 
-    if first_time:
+    if the_mom.event_triggers_dict.get("mom_instathot_pic_count",0) == 0:
         the_sister.char "Hey [the_mom.title], come on in."
         $ the_group.draw_person(the_mom)
         the_mom.char "Thank you for inviting me, I just hope I'm not going to get in your way."
@@ -697,7 +712,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
     else:
         the_sister.char "Hey [the_mom.title], come on in!"
         $ the_group.draw_person(the_mom)
-        the_mom.char "Hi sweety, thanks for having me back. So, do you have something for us to wear today?"
+        the_mom.char "Hi [the_mom.mc_title], thanks for having me back. So, do you have something for us to wear today?"
         $ the_group.draw_person(the_sister)
         the_sister.char "I've got some really cute outfits I think we'll look amazing in. Come on, let's get changed."
 
@@ -706,7 +721,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
         the_mom.char "[the_mom.mc_title], you don't mind, do you? I can go back to my room if this..."
         mc.name "Don't worry [the_mom.title], I don't mind at all. Go ahead and get changed and we can take some pics."
         the_mom.char "Right, nothing to worry about then..."
-        "She seems uncomfortable undressing in front of you, but get's over it quickly as [the_sister.title] starts stripping down without comment."
+        "She seems uncomfortable undressing in front of you, but gets over it quickly as [the_sister.title] starts stripping down without comment."
         $ the_mom.break_taboo("bare_tits")
         $ the_mom.break_taboo("bare_pussy")
     else: #No problems here, strip away!
@@ -714,11 +729,11 @@ label sister_instathot_label_mom(the_sister, the_mom):
 
     $ stripper = the_sister # Pick which girl you want to make the primary for this event.
     menu:
-        "Watch [the_sister.title] strip.":
+        "Watch [the_sister.title] strip":
             $ stripper = the_sister
             $ not_stripper = the_mom
 
-        "Watch [the_mom.title] strip.":
+        "Watch [the_mom.title] strip":
             $ stripper = the_mom
             $ not_stripper = the_sister
 
@@ -737,12 +752,10 @@ label sister_instathot_label_mom(the_sister, the_mom):
     $ insta_outfit_mom = insta_wardrobe.pick_random_outfit()
     $ insta_outfit_sister = insta_wardrobe.pick_random_outfit()
 
-
     if insta_outfit_mom.name == insta_outfit_sister.name:
         $ the_group.draw_person(the_sister)
         the_sister.char "I got us matching outfits, because I thought it would really show off the family resemblance."
         the_sister.char "It should make for a really cute shoot! Maybe [the_sister.mc_title] can tell us who wears it best."
-
 
     $ the_mom.apply_outfit(insta_outfit_mom)
     $ the_sister.apply_outfit(insta_outfit_sister)
@@ -770,13 +783,13 @@ label sister_instathot_label_mom(the_sister, the_mom):
     mc.name "That's looking good you two, now look at me and smile."
     "You take a few pictures of them, moving around the bed to get a few different angles."
     menu:
-        "Get a little friendlier." if not first_time:
+        "Get a little friendlier" if not the_mom.event_triggers_dict.get("mom_instathot_pic_count",0) == 0:
             mc.name "Squeeze together you two, I need to get you both in the shot."
             "[the_mom.title] slides closer to [the_sister.title] on the bed."
             the_mom.char "Like this?"
             mc.name "A little more. Try putting your arms around her."
             "[the_mom.possessive_title] slips behind [the_sister.possessive_title] and pulls her into a hug"
-            the_mom.char "I haven't played ith you like this since you were a kid [the_sister.title]!"
+            the_mom.char "I haven't played with you like this since you were a kid [the_sister.title]!"
             $ the_group.draw_person(the_sister, position = "kneeling1", emotion = "happy")
             the_sister.char "Oh my god, you're so embarrassing [the_mom.title]!"
             $ the_group.draw_person(the_mom, position = "kneeling1", emotion = "happy")
@@ -789,7 +802,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
 
 
         # TODO: Add some extra variations for this as sluttiness and Obedience rises.
-        "All done.":
+        "All done":
             pass
 
     mc.name "Alright, I think we've got all the shots we need."
@@ -800,12 +813,12 @@ label sister_instathot_label_mom(the_sister, the_mom):
     the_sister.char "It was! Oh, I should give [the_sister.mc_title] his cut for being our photographer."
 
     menu:
-        "Take the money. +$100":
+        "Take the money\n{color=#00ff00}{size=18}Income: $100{/size}{/color}":
             $ the_group.draw_person(the_mom)
             the_mom.char "It's so nice to see you two working well together."
             $ mc.business.funds += 100
 
-        "Let her keep it.":
+        "Let her keep it":
             mc.name "Don't worry about it, I'm just happy to see you doing something cool."
             $ the_sister.change_love(1)
             the_sister.char "Aww, you're the best!"
@@ -814,7 +827,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
             $ the_mom.change_love(1)
             the_mom.char "You're such a good brother [the_mom.mc_title]."
 
-        "Let [the_mom.title] have it.":
+        "Let [the_mom.title] have it":
             mc.name "[the_mom.title], you can have what [the_sister.title] normally gives me."
             mc.name "I hope that helps with the bills."
             $ the_group.draw_person(the_mom)
@@ -843,8 +856,7 @@ label sister_instathot_label_mom(the_sister, the_mom):
 
     if the_mom.event_triggers_dict.get("mom_instathot_pic_count", 0) == 0:
         $ the_mom.event_triggers_dict["mom_instathot_pic_count"] = 1
-        $ sister_instathot_mom_report_crisis = Action("Sister instathot mom report crisis", sister_instathot_mom_report_requirement, "sister_instathot_mom_report", requirement_args = day)
-        $ the_sister.on_talk_event_list.append(sister_instathot_mom_report_crisis)
+        $ add_sister_instathot_mom_report_action(the_sister)
     else:
         $ the_mom.event_triggers_dict["mom_instathot_pic_count"] += 1
 
@@ -853,6 +865,10 @@ label sister_instathot_label_mom(the_sister, the_mom):
     else:
         $ the_sister.event_triggers_dict["sister_instathot_pic_count"] += 1
 
+    python:
+        insta_outfit_mom = None
+        insta_outfit_sister = None
+        the_group = None
     return
 
 label sister_instathot_mom_report(the_person): #Lily tells you that her shots with Mom were super popular and that you want to do more

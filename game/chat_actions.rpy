@@ -24,16 +24,18 @@ init -2 python:
         else:
             return True
 
-    def date_option_requirement(the_person): #TODO Decide if there's any reason this option shouldn't always be enabled.
+    def date_option_requirement(the_person):
+        if the_person.love < 20:
+            return "Requires: 20 Love"
         return True
 
     def lunch_date_requirement(the_person):
         love_requirement = 20
 
         if time_of_day < 2:
-            return "Too early to go for lunch."
+            return "Too early to go for lunch"
         elif time_of_day > 2:
-            return "Too late to go for lunch."
+            return "Too late to go for lunch"
         elif the_person.love < love_requirement:
             return "Requires: " + str(love_requirement) + " Love"
         else:
@@ -53,8 +55,8 @@ init -2 python:
 
         if the_person.love < love_requirement:
             return "Requires: " + str(love_requirement) + " Love"
-        elif mc.business.event_triggers_dict.get("date_scheduled", False):
-            return "You already have a date planned!"
+        elif mc.business.event_triggers_dict.get("movie_date_scheduled", False):
+            return "Already planned movie date!"
         else:
             return True
 
@@ -73,13 +75,13 @@ init -2 python:
 
         if the_person.love < love_requirement:
             return "Requires: " + str(love_requirement) + " Love"
-        elif mc.business.event_triggers_dict.get("date_scheduled", False):
-            return "You already have a date planned!"
+        elif mc.business.event_triggers_dict.get("dinner_date_scheduled", False):
+            return "Already planned dinner date!"
         else:
             return True
 
     def evening_date_trigger(day_of_week): #Used for a mandatory crisis that triggers on the next Friday in time chunk 3.
-        if time_of_day == 3 and day%7 == day_of_week: #Day of week is a nubmer from 0 to 6, where 0 is Monday.
+        if time_of_day == 3 and day%7 == day_of_week: #Day of week is a number from 0 to 6, where 0 is Monday.
             return True
         return False
 
@@ -101,15 +103,15 @@ init -2 python:
         if the_person.sluttiness < 5:
             return False #Don't show the option at all at minimal sluttiness.
         elif the_person.event_triggers_dict.get("last_groped", (-1,-1)) == (day, time_of_day):
-            return "Just groped her."
+            return "Just groped her"
         elif mc.energy < 5:
             return "Not enough {image=gui/extra_images/energy_token.png}"
         else:
             return True
 
     def command_requirement(the_person):
-        if the_person.obedience < 100:
-            return "Requires: 100 Obedience"
+        if the_person.obedience < 105:
+            return "Requires: 105 Obedience"
         elif mc.energy < 10:
             return "Not enough {image=gui/extra_images/energy_token.png}"
         else:
@@ -150,6 +152,8 @@ init -2 python:
             return False
         elif the_person.effective_sluttiness() < 20 and the_person.love < 20:
             return False
+        elif pregnant_role in the_person.special_role: # don't talk about bc when she is pregnant
+            return False
         else:
             return True
 
@@ -169,10 +173,9 @@ init -2 python:
 
 
     def demand_strip_requirement(the_person):
-        if not (demand_strip_tits_requirement(the_person) or demand_strip_underwear_requirement(the_person) or demand_strip_naked_requirement(the_person)):
-            return False
-        else:
+        if demand_strip_tits_requirement(the_person) == True or demand_strip_underwear_requirement(the_person) == True or demand_strip_naked_requirement(the_person) == True:
             return True
+        return False
 
     def demand_bc_requirement(the_person):
         if persistent.pregnancy_pref == 0: #Don't talk about pregnancy if we don't want any of it.
@@ -184,65 +187,86 @@ init -2 python:
         else:
             return True
 
+    def build_person_introduction_titles():
+        title_tuple = []
+        for title in get_player_titles(the_person):
+            title_tuple.append([title,title])
+        return title_tuple
+
+    def get_date_plan_actions(the_person):
+        lunch_date_action = Action("Ask her out to lunch {image=gui/heart/Time_Advance.png}", lunch_date_requirement, "lunch_date_plan_label", args=the_person, requirement_args=the_person,
+            menu_tooltip = "Take her out on casual date out to lunch. Gives you the opportunity to impress her and further improve your relationship.")
+        movie_date_action = Action("Ask her out to the movies", movie_date_requirement, "movie_date_plan_label", args=the_person, requirement_args=the_person,
+            menu_tooltip = "Plan a more serious date to the movies. Another step to improving your relationship, and who knows what you might get up to in the dark!")
+        dinner_date_action = Action("Ask her out to a romantic dinner", dinner_date_requirement, "dinner_date_plan_label", args=the_person, requirement_args=the_person,
+            menu_tooltip = "Plan a romantic, expensive dinner with her. Impress her and you might find yourself in a more intimate setting.")
+        return ["Select Date", lunch_date_action, movie_date_action, dinner_date_action, ["Never mind", "Return"]]
+
+    def create_movie_date_action(the_person):
+        movie_action = Action("Movie date", evening_date_trigger, "movie_date_label", args=the_person, requirement_args=1) #it happens on a tuesday.
+        mc.business.mandatory_crises_list.append(movie_action)
+        mc.business.event_triggers_dict["movie_date_scheduled"] = True
+        return
+
+    def create_dinner_date_action(the_person):
+        dinner_action = Action("Dinner date", evening_date_trigger, "dinner_date_label", args=the_person, requirement_args=4) #it happens on a friday, so day%7 == 4
+        mc.business.mandatory_crises_list.append(dinner_action)
+        mc.business.event_triggers_dict["dinner_date_scheduled"] = True
+        return
+
+    def new_title_menu(the_person):
+        title_tuple = []
+        title_choice = None
+        for title in get_titles(the_person):
+            title_tuple.append([title,title])
+        title_tuple.append(["Do not change her title","Back"])
+        title_choice = renpy.display_menu(title_tuple,True,"Choice")
+        return title_choice
+
+    def new_mc_title_menu(the_person):
+        title_tuple = []
+        title_choice = None
+        for title in get_player_titles(the_person):
+            title_tuple.append([title,title])
+        title_tuple.append(["Do not change your title","Back"])
+        title_choice = renpy.display_menu(title_tuple,True,"Choice")
+        return title_choice
+
+    def new_possessive_title_menu(the_person):
+        title_tuple = []
+        title_choice = None
+        for title in get_possessive_titles(the_person):
+            title_tuple.append([title,title])
+        title_tuple.append(["Do not change your title","Back"])
+        title_choice = renpy.display_menu(title_tuple,True,"Choice")
+        return title_choice
+
+    def get_two_titles_for_person(title_func, person):
+        title_one = get_random_from_list(title_func(person))
+        title_two = get_random_from_list(list( set(title_func(person)) - set([title_one]) ))
+        return (title_one, title_two)
 
 label person_introduction(the_person, girl_introduction = True):
     if girl_introduction:
         $ the_person.call_dialogue("introduction")
 
     #She's given us her name, now she asks for yours.
-    $ title_tuple = []
-    $ title_choice = None
-    python:
-        for title in get_player_titles(the_person):
-            title_tuple.append([title,title])
-
-    $ title_choice = renpy.display_menu(title_tuple,True,"Choice")
+    $ title_choice = renpy.display_menu(build_person_introduction_titles(),True,"Choice")
     mc.name "[title_choice], it's a pleasure to meet you."
     $ the_person.set_mc_title(title_choice)
     return
 
-label new_title_menu(the_person):
-    $ title_tuple = []
-    $ title_choice = None
-    python:
-        for title in get_titles(the_person):
-            title_tuple.append([title,title])
-        title_tuple.append(["Do not change her title.","Back"])
-        title_choice = renpy.display_menu(title_tuple,True,"Choice")
-    return title_choice
-
-label new_mc_title_menu(the_person):
-    $ title_tuple = []
-    $ title_choice = None
-    python:
-        for title in get_player_titles(the_person):
-            title_tuple.append([title,title])
-        title_tuple.append(["Do not change your title.","Back"])
-        title_choice = renpy.display_menu(title_tuple,True,"Choice")
-    return title_choice
-
-label new_possessive_title_menu(the_person):
-    $ title_tuple = []
-    $ title_choice = None
-    python:
-        for title in get_possessive_titles(the_person):
-            title_tuple.append([title,title])
-        title_tuple.append(["Do not change your title.","Back"])
-        title_choice = renpy.display_menu(title_tuple,True,"Choice")
-    return title_choice
-
 label person_new_title(the_person): #She wants a new title or to give you a new title.
     if __builtin__.len(get_titles(the_person)) <= 1: #There's only the one title available to them. Don't bother asking to change
         return
-    $ randomised_obedience = the_person.obedience + renpy.random.randint(0,30) - 15 #Randomize their effective obedience a little so they sometimes ask, sometimes demand
+    $ ran_num = the_person.obedience + renpy.random.randint(-20, 20) #Randomize their effective obedience a little so they sometimes ask, sometimes demand
 
-    if randomised_obedience > 120: #She just asks you for something "fresh". Her obedience is high enough that we already have control over this.
+    if ran_num > 120: #She just asks you for something "fresh". Her obedience is high enough that we already have control over this.
         the_person.char "[the_person.mc_title], do you think [the_person.title] is getting a little old? I think something new might be fun!"
         menu:
             "Change what you call her":
                 #TODO: present the player with a list. TODO: Refactor the event above to be a generic way of presenting a list, w/ the dialogue separated.
-                call new_title_menu(the_person) from _call_new_title_menu_1
-                $ title_choice = _return
+                $ title_choice = new_title_menu(the_person)
                 if not (title_choice == "Back" or the_person.create_formatted_title(title_choice) == the_person.title):
                     mc.name "I think [title_choice] would really suit you."
                     $ the_person.set_title(title_choice)
@@ -251,56 +275,55 @@ label person_new_title(the_person): #She wants a new title or to give you a new 
                     mc.name "On second thought, I think [the_person.title] suits you just fine."
                     the_person.char "If you think so [the_person.mc_title]."
 
-            "Don't change her title.":
+            "Don't change her title":
                 mc.name "I think [the_person.title] suits you just fine."
                 the_person.char "If you think so [the_person.mc_title]."
 
-    elif randomised_obedience > 95: #She picks a couple of choices and asks you to decide.
-
-        $ title_one = get_random_from_list(get_titles(the_person))
-        $ title_two = get_random_from_list(get_titles(the_person))
-        python: #Quick hack to make sure they're always different.
-            while title_one == title_two:
-                title_two = get_random_from_list(get_titles(the_person))
+    elif ran_num > 95: #She picks a couple of choices and asks you to decide.
+        $ (title_one, title_two) = get_two_titles_for_person(get_titles, the_person)
         if the_person.title == the_person.create_formatted_title(title_one) or the_person.title == the_person.create_formatted_title(title_two):  #If we picked the one we're currently using we have a slightly different dialogue setup.
             if the_person.title == the_person.create_formatted_title(title_two):
                 $ placeholder = title_two #Swap them around so title_one is always the current title she has
                 $ title_two = title_one
                 $ title_one = placeholder
+                $ placeholder = None
             $ formatted_title_one = the_person.title
             $ formatted_title_two = the_person.create_formatted_title(title_two)
             the_person.char "Hey [the_person.mc_title], do you like calling me [formatted_title_one] or do you think [formatted_title_two] sounds better?"
             menu:
-                "Keep calling her [formatted_title_one].":
+                "Keep calling her [formatted_title_one]":
                     mc.name "I think [the_person.title] suits you perfectly, you should keep using it."
                     "She nods in agreement."
                     the_person.char "Yeah, I think you're right."
-                "Change her title to [formatted_title_two].":
+                "Change her title to [formatted_title_two]":
                     mc.name "[formatted_title_two] does have a nice ring to it. You should start using that."
                     $ the_person.set_title(title_two)
                     the_person.char "I think you're right. Thanks for the input!"
-
         else: #Both are new!
             $ formatted_title_one = the_person.create_formatted_title(title_one)
             $ formatted_title_two = the_person.create_formatted_title(title_two)
             the_person.char "So [the_person.mc_title], I'm thinking of changing things up a bit. Do you think [formatted_title_one] or [formatted_title_two] sounds best?"
             menu:
-                "Change her title to [formatted_title_one].":
+                "Change her title to [formatted_title_one]":
                     mc.name "I think [formatted_title_one] is the best of the two."
                     $ the_person.set_title(title_one)
                     the_person.char "Yeah, I think you're right. I'm going to have people call me that from now on."
 
-                "Change her title to [formatted_title_two].":
+                "Change her title to [formatted_title_two]":
                     mc.name "I think [formatted_title_two] is the best of the two."
                     $ the_person.set_title(title_two)
                     the_person.char "Yeah, I think you're right. I'm going to have people call me that from now on."
 
-                "Refuse to change her title.\n-5 Happiness.":
+                "Refuse to change her title\n{color=#ff0000}{size=18}-5 Happiness{/size}{/color}":
                     mc.name "I don't think either of those sound better than [the_person.title]. You should really just stick with that."
                     "[the_person.title] rolls her eyes."
                     $ the_person.change_happiness(-5)
                     the_person.char "Well that isn't very helpful [the_person.mc_title]. Fine, I guess [the_person.title] will do."
 
+        $ formatted_title_one = None
+        $ formatted_title_two = None
+        $ title_one = None
+        $ title_two = None
     else: #She doesn't listen to you, so she just picks one and demands that you use it, or becomes unhappy.
         $ new_title = get_random_from_list(get_titles(the_person))
         python:
@@ -308,30 +331,32 @@ label person_new_title(the_person): #She wants a new title or to give you a new 
                 new_title = get_random_from_list(get_titles(the_person))
 
         $ formatted_new_title = the_person.create_formatted_title(new_title)
-        the_person.char "By the way [the_person.mc_title], I want you to start refering to me as [formatted_new_title] from now on. I think it suits me better."
+        the_person.char "By the way [the_person.mc_title], I want you to start referring to me as [formatted_new_title] from now on. I think it suits me better."
         menu:
-            "Change her title to [formatted_new_title].":
+            "Change her title to [formatted_new_title]":
                 mc.name "I think you're right, [formatted_new_title] sounds good."
                 $ the_person.set_title(new_title)
 
-            "Refuse to change her title.\n-10 Happiness.":
+            "Refuse to change her title\n{color=#ff0000}{size=18}-10 Happiness{/size}{/color}":
                 mc.name "I think that sounds silly, I'm just going to keep calling you [the_person.title]."
                 "[the_person.title] scoffs and rolls her eyes."
                 $ the_person.change_happiness(-10)
                 the_person.char "Whatever. It's not like I can force you to do anything."
+
+        $ new_title = None
+        $ formatted_new_title = None
     return
 
 label person_new_mc_title(the_person):
     if __builtin__.len(get_player_titles(the_person)) <= 1: #There's only the one title available to them. Don't bother asking to change
         return
-    $ randomised_obedience = the_person.obedience + renpy.random.randint(0,30) - 15 #Randomize their effective obedience a little so they sometimes ask, sometimes demand
-    if randomised_obedience > 120: #She just asks you for something "fresh". Her obedience is high enough that we already have control over this.
+    $ ran_num = the_person.obedience + renpy.random.randint(-20, 20)
+    if ran_num > 120: #She just asks you for something "fresh". Her obedience is high enough that we already have control over this.
         the_person.char "I was just thinking that I've called you [the_person.mc_title] for a pretty long time. If you're getting tired of it I could call you something else."
         menu:
-            "Change what she calls you.":
+            "Change what she calls you":
                 #TODO: present the player with a list. TODO: Refactor the event above to be a generic way of presenting a list, w/ the dialogue separated.
-                call new_mc_title_menu(the_person) from _call_new_mc_title_menu_1
-                $ title_choice = _return
+                $ title_choice = new_mc_title_menu(the_person)
                 if not (title_choice == "Back" or title_choice == the_person.mc_title):
                     mc.name "I think you should call me [title_choice] from now on."
                     $ the_person.set_mc_title(title_choice)
@@ -340,29 +365,26 @@ label person_new_mc_title(the_person):
                     mc.name "On second thought, I think [the_person.mc_title] is fine for now."
                     the_person.char "If you think so [the_person.mc_title]."
 
-            "Don't change her title for you.":
+            "Don't change her title for you":
                 mc.name "I think [the_person.mc_title] is fine for now."
                 the_person.char "Okay, if you say so!"
 
-    elif randomised_obedience > 95: #She picks a couple of choices and asks you to decide.
-        $ title_one = get_random_from_list(get_player_titles(the_person))
-        $ title_two = get_random_from_list(get_player_titles(the_person))
-        python: #Quick hack to make sure they're always different.
-            while title_one == title_two:
-                title_two = get_random_from_list(get_player_titles(the_person))
+    elif ran_num > 95: #She picks a couple of choices and asks you to decide.
+        $ (title_one, title_two) = get_two_titles_for_person(get_player_titles, the_person)
         if the_person.mc_title == title_one or the_person.mc_title == title_two:  #If we picked the one we're currently using we have a slightly different dialogue setup.
             if the_person.mc_title == title_two:
                 $ placeholder = title_two #Swap them around so title_one is always the current title she has
                 $ title_two = title_one
                 $ title_one = placeholder
+                $ placeholder = None
 
             the_person.char "Hey [the_person.mc_title], would you rather I called you [title_two]?"
             menu:
-                "Have her keep calling you [title_one].":
+                "Have her keep calling you [title_one]":
                     mc.name "I think I like [title_one], but thanks for asking."
                     "She shrugs."
                     the_person.char "Sure, whatever you like [the_person.mc_title]."
-                "Have her call you [title_two] instead.":
+                "Have her call you [title_two] instead":
                     mc.name "[title_two] does have a nice ring to it. You should start using that."
                     $ the_person.set_mc_title(title_two)
                     the_person.char "Alright, you got it [the_person.mc_title]!"
@@ -370,22 +392,23 @@ label person_new_mc_title(the_person):
         else: #Both are new!
             the_person.char "You know, I really think [title_one] or [title_two] would fit you a lot better than [the_person.mc_title]. Which one do you think is better?"
             menu:
-                "Have her call you [title_one].":
+                "Have her call you [title_one]":
                     mc.name "I think [title_one] is the best of the two."
                     $ the_person.set_mc_title(title_one)
                     the_person.char "Yeah, you're right. I think I'll start calling you that from now on."
 
-                "Have her call you [title_two].":
+                "Have her call you [title_two]":
                     mc.name "I think [title_two] is the best of the two."
                     $ the_person.set_mc_title(title_two)
                     the_person.char "Yeah, you're right. I think I'll start calling you that from now on."
 
-                "Refuse to change your title.\n-5 Happiness.":
+                "Refuse to change your title\n{color=#ff0000}{size=18}-5 Happiness{/size}{/color}":
                     mc.name "I don't think either of those sound better than [the_person.mc_title]. Let's stick with that for now."
                     "[the_person.title] rolls her eyes."
                     $ the_person.change_happiness(-5)
-                    the_person.char "Fine, if you don't like chnage I can't make you."
-
+                    the_person.char "Fine, if you don't like change I can't make you."
+        $ title_one = None
+        $ title_two = None
     else: #She doesn't listen to you, so she just picks one and demands that you use it, or becomes unhappy.
         $ new_title = get_random_from_list(get_player_titles(the_person))
         python:
@@ -394,16 +417,16 @@ label person_new_mc_title(the_person):
 
         the_person.char "You know, I think [new_title] fits you better than [the_person.mc_title]. I'm going to start using that."
         menu:
-            "Let her call you [new_title].":
+            "Let her call you [new_title]":
                 mc.name "Alright, if you think that's better."
                 $ the_person.set_mc_title(new_title)
 
-            "Demand she keeps calling you [the_person.mc_title].\n-10 Happiness.":
+            "Demand she keeps calling you [the_person.mc_title]\n{color=#ff0000}{size=18}-10 Happiness{/size}{/color}":
                 mc.name "I think that sounds silly, I want you to keep calling me [the_person.mc_title]."
                 "[the_person.title] scoffs and rolls her eyes."
                 $ the_person.change_happiness(-10)
                 the_person.char "Whatever. If it's so important to you then I guess I'll just do it."
-
+        $ new_title = None
     return
 
 label small_talk_person(the_person, apply_energy_cost = True): #Tier 0. Useful for discovering a character's opinions and the first step to building up love.
@@ -413,11 +436,9 @@ label small_talk_person(the_person, apply_energy_cost = True): #Tier 0. Useful f
     mc.name "So [the_person.title], what's been on your mind recently?"
     $ the_person.discover_opinion("small talk")
     $ successful_smalltalk = 60 + (smalltalk_opinion * 20) + (mc.charisma * 5)
-    $ smalltalk_chance = renpy.random.randint(0,100)
+    $ ran_num = renpy.random.randint(0,100)
     # TODO: Add a chance that she wants to talk about someone she knows.
-
-
-    if smalltalk_chance < successful_smalltalk:
+    if ran_num < successful_smalltalk:
         if smalltalk_opinion >= 0:
             $ the_person.draw_person(emotion = "happy")
             "She seems glad to have a chance to take a break and make small talk with you."
@@ -437,27 +458,27 @@ label small_talk_person(the_person, apply_energy_cost = True): #Tier 0. Useful f
             $ love_gain = 4
             $ prediction = 0
             menu:
-                "I love [opinion_learned].":
+                "I love [opinion_learned]":
                     $ prediction = 2
                     mc.name "Me? I love [opinion_learned]. Absolutely love it."
 
-                "I like [opinion_learned].":
+                "I like [opinion_learned]":
                     $ prediction = 1
                     mc.name "I really like [opinion_learned]."
 
-                "I don't have any opinion about [opinion_learned].":
+                "I don't have any opinion about [opinion_learned]":
                     $ prediction = 0
                     mc.name "I don't really have any thoughts on it, I guess I just don't think it's a big deal."
 
-                "I don't like [opinion_learned].":
+                "I don't like [opinion_learned]":
                     $ prediction = -1
                     mc.name "I'm not a fan, that's for sure."
 
-                "I hate [opinion_learned].":
+                "I hate [opinion_learned]":
                     $ prediction = -2
                     mc.name "I'll be honest, I absolutely hate [opinion_learned]. I just can't stand it."
 
-            $ prediction_difference = math.fabs(prediction - opinion_state[0])
+            $ prediction_difference = abs(prediction - opinion_state[0])
             if prediction_difference == 4: #as wrong as possible
                 the_person.char "Really? Wow, we really don't agree about [opinion_learned], that's for sure."
             elif prediction_difference == 3:
@@ -538,8 +559,6 @@ label flirt_person(the_person): #Tier 1. Raises a character's sluttiness up to a
         mc.name "[the_person.title], your outfit is driving me crazy. What are my chances of getting you out of it?"
         $ the_person.call_dialogue("flirt_response_high")
 
-    $ the_person.review_outfit() #In case we had sex, she sorts out her outfit.
-
     # mc.name "Hey [the_person.title], you're looking particularly good today. I wish I got to see a little bit more of that fabulous body."
     $ mc.listener_system.fire_event("player_flirt", the_person = the_person)
     $ change_amount = mc.charisma + 1 + the_person.get_opinion_score("flirting") #We still cap out at 20, but we get there a little faster or slower depending on if they like flirting
@@ -557,31 +576,20 @@ label flirt_person(the_person): #Tier 1. Raises a character's sluttiness up to a
 
     return
 
-
-
 label date_person(the_person): #You invite them out on a proper date
-    $ lunch_date_action = Action("Ask her out to lunch. {image=gui/heart/Time_Advance.png}", lunch_date_requirement, "lunch_date_plan_label", args=the_person, requirement_args=the_person,
-        menu_tooltip = "Take her out on casual date out to lunch. Gives you the opportunity to impress her and further improve your relationship.")
-    $ movie_date_action = Action("Ask her out to the movies.", movie_date_requirement, "movie_date_plan_label", args=the_person, requirement_args=the_person,
-        menu_tooltip = "Plan a more serious date to the movies. Another step to improving your relationship, and who knows what you might get up to in the dark!")
-    $ dinner_date_action = Action("Ask her out to a romantic dinner.", dinner_date_requirement, "dinner_date_plan_label", args=the_person, requirement_args=the_person,
-        menu_tooltip = "Plan a romantic, expensive dinner with her. Impress her and you might find yourself in a more intimate setting.")
-
-    $ date_list = [lunch_date_action, movie_date_action, dinner_date_action, "Never mind."]
-    $ return_value = call_formated_action_choice(date_list)
-    if return_value == "Never mind.":
-        return
-    else: #It's an action, so it's one of the date actions (and must have been enabled).
-        $ the_date = return_value
-        $ the_date.call_action() #This is where you're asked to plan out the date, or whatever.
-
+    if "action_mod_list" in globals():
+        call screen enhanced_main_choice_display(build_menu_items([get_date_plan_actions(the_person)]))
+    else:
+        call screen main_choice_display([get_date_plan_actions(the_person)])
+    if _return != "Return":
+        $ _return.call_action() #This is where you're asked to plan out the date, or whatever.
     return
 
 label lunch_date_plan_label(the_person):
     # Take her out to lunch, raises love to a max of 50 if you pick the correct chat options
     if sister_role in the_person.special_role:
         mc.name "I was thinking about getting some lunch, do you want to come with me and hang out?"
-        the_person.char "Hey, that sounds nice! You're always out of the house, I wish we got to spend more time to gether like we did when we were younger."
+        the_person.char "Hey, that sounds nice! You're always out of the house, I wish we got to spend more time together like we did when we were younger."
 
     elif mother_role in the_person.special_role:
         mc.name "I'm going to go out for lunch. You've been busy lately, would you like to take a break and join me?"
@@ -595,6 +603,18 @@ label lunch_date_plan_label(the_person):
         mc.name "I'm going to get some lunch, would you like to come along with me?"
         the_person.char "You want me to be seen in public with you? You're really pushing it [the_person.mc_title], but sure."
 
+    elif affair_role in the_person.special_role:
+        mc.name "[the_person.title], I was going to get some lunch, would you like to join me?"
+        the_person.char "That sounds nice, [the_person.mc_title]."
+        "She pauses and seems to consider something for a moment."
+        the_person.char "Are you sure my husband won't find out?"
+        if the_person == christina:
+            mc.name "You could always say you had to go over something, with [emily.name] her tutor."
+            the_person.char "You are right, let's go!"
+        else:
+            mc.name "Can't you go and grab lunch with an acquaintance?"
+            the_person.char "Of course I can, let's get going!"
+
     elif not (the_person.relationship == "Single" or the_person.get_opinion_score("cheating on men") > 0): #IF she likes cheating she doesn't even mention she's in a relationship
         mc.name "[the_person.title], I was going to get some lunch, would you like to join me? Maybe just grab a coffee and hang out for a while?"
         $ so_title = SO_relationship_to_title(the_person.relationship)
@@ -605,11 +625,11 @@ label lunch_date_plan_label(the_person):
         the_person.char "Okay, let's go then!"
 
     else:
-        mc.name "Would you like to go get a coffee, maybe a little lunch, and just chat for a while? I fel like I want to get to know you better."
+        mc.name "Would you like to go get a coffee, maybe a little lunch, and just chat for a while? I feel like I want to get to know you better."
         the_person.char "That sounds nice, I think I'd like to get to know you better too."
         the_person.char "If you're ready to go right now I suppose I am too. Let's go!"
 
-    call lunch_date_label(the_person) from _call_lunch_date_label #There's no need to schedule anything because this happens right awya.
+    call lunch_date_label(the_person) from _call_lunch_date_label #There's no need to schedule anything because this happens right away.
     return
 
 label movie_date_plan_label(the_person):
@@ -633,7 +653,7 @@ label movie_date_plan_label(the_person):
 
     elif mother_role in the_person.special_role:
         mc.name "Hey [the_person.title], would you like to come to the movies with me? I want to spend some more time together, mother and son."
-        the_person.char "Aww, you're precious sweetheart. I would love to go to the movies with you."
+        the_person.char "Aww, you're precious [the_person.mc_title]. I would love to go to the movies with you."
         the_person.char "Remember how me and you use to watch movies together every weekend? I felt like our relationship was so close because of that."
         "She seems distracted by the memory for a moment, then snaps back to the conversation."
         if is_tuesday:
@@ -693,46 +713,65 @@ label movie_date_plan_label(the_person):
         mc.name "So [the_person.title], I was wondering if you'd like to come see a movie with me some time this week."
         mc.name "It would give us a chance to spend some time together and get to know each other better."
         if is_tuesday:
-            the_person.char "Oh, a movie sounds fun! I don't have anything going on tnight, would that work for you?"
+            the_person.char "Oh, a movie sounds fun! I don't have anything going on tonight, would that work for you?"
         else:
             the_person.char "Oh, a movie sounds fun! I don't have anything going on Tuesday night, would that work for you?"
 
     menu:
-        "Plan a date for Tuesday night.":
+        "Plan a date for tonight" if is_tuesday:
+            mc.name "Tonight would be perfect, I'll will see you later."
+            the_person.char "See you!"
+            $ create_movie_date_action(the_person)
+
+        "Plan a date for Tuesday night" if not is_tuesday:
             mc.name "Tuesday would be perfect, I'm already looking forward to it."
             the_person.char "Me too!"
+            $ create_movie_date_action(the_person)
 
-            $ movie_action = Action("Movie date", evening_date_trigger, "movie_date_label", args=the_person, requirement_args=1) #it happens on a tuesday.
-            $ mc.business.mandatory_crises_list.append(movie_action)
-            $ mc.business.event_triggers_dict["date_scheduled"] = True
-
-        "Maybe some other time.":
-            mc.name "I'm busy on Friday unfortunately."
+        "Maybe some other time":
+            mc.name "I'm busy on Tuesday unfortunately."
             the_person.char "Well maybe next week then. Let me know, okay?"
             "She gives you a warm smile."
 
-    return "Advance time"
+    return "Advance Time"
 
 label dinner_date_plan_label(the_person):
+    if day%7 == 4 and time_of_day < 3:
+        $ is_friday = True #It's already Tuesday and early enough that the date would be right about now.
+    else:
+        $ is_friday = False
+
     if sister_role in the_person.special_role:
         mc.name "[the_person.title], I was wondering if you'd like to go out for a dinner date together. Some brother sister bonding time."
-        the_person.char "That sounds great [the_person.mc_title]. Would Friday be good?"
+        if is_friday:
+            the_person.char "That sounds great [the_person.mc_title]. Would tonight work for you?"
+        else:
+            the_person.char "That sounds great [the_person.mc_title]. Would Friday be good?"
 
     elif mother_role in the_person.special_role:
         mc.name "Mom, I was wondering if I could take you out to dinner, just the two of us. I'd enjoy some mother son bonding time."
-        the_person.char "Aww, that's so sweet. How about Friday, after we're both finished with work."
+        if is_friday:
+            the_person.char "Aww, that's so sweet. How about tonight, after we're both finished with work."
+        else:
+            the_person.char "Aww, that's so sweet. How about Friday, after we're both finished with work."
 
     elif aunt_role in the_person.special_role:
         mc.name "[the_person.title], would you like to go out on a dinner date with me? I think it would be a nice treat for you."
         the_person.char "That sounds like it would be amazing. It's been tough, just me and [cousin.title]. I don't get out much any more."
         "She smiles and gives you a quick hug."
-        the_person.char "How about Friday night?"
+        if is_friday:
+            the_person.char "How about tonight?"
+        else:
+            the_person.char "How about Friday night?"
 
     elif cousin_role in the_person.special_role:
         mc.name "Hey, I want to take you out to dinner."
         the_person.char "Jesus, at least buy me dinner first. Wait a moment..."
         "She laughs at her own joke."
-        the_person.char "Fine, how about Friday?"
+        if is_friday:
+            the_person.char "Fine, how about tonight?"
+        else:
+            the_person.char "Fine, how about Friday?"
 
     elif not the_person.relationship == "Single":
         mc.name "[the_person.title], I'd love to spend some time together, just the two of us. Would you let me take you out for dinner?"
@@ -740,32 +779,43 @@ label dinner_date_plan_label(the_person):
         the_person.char "[the_person.mc_title], you know I've got a [SO_title], right? Well..."
         if the_person.get_opinion_score("cheating on men") > 0:
             "She doesn't take very long to make up her mind."
-            the_person.char "He won't know about it, right? What he doesn't know can't hurt him. Are you free Friday?"
+            if is_friday:
+                the_person.char "He's out with friends tonight and what he doesn't know can't hurt him. Shall we go tonight?"
+            else:
+                the_person.char "He won't know about it, right? What he doesn't know can't hurt him. Are you free Friday?"
         else:
             "She thinks about it for a long moment."
-            the_person.char "Just this once, and we have to make sure my [SO_title] never finds out. Are you free Friday?"
+            if is_friday:
+                the_person.char "Just this once, and we have to make sure my [SO_title] never finds out. Shall we go tonight?"
+            else:
+                the_person.char "Just this once, and we have to make sure my [SO_title] never finds out. Are you free Friday?"
 
     else:
         mc.name "[the_person.title], I'd love to get to know you better. Would you let me take you out for dinner?"
-        the_person.char "That sounds delightful [the_person.mc_title]. I'm free Friday night, if you would be available."
-
+        if is_friday:
+            the_person.char "That sounds delightful [the_person.mc_title]. I'm free tonight, if you are available."
+        else:
+            the_person.char "That sounds delightful [the_person.mc_title]. I'm free Friday night, if you would be available."
 
     menu:
-        "Plan a date for Friday night.":
+        "Plan a date for tonight" if is_friday:
+            mc.name "It's a date. I'll see you tonight."
+            the_person.char "See you!"
+            $ create_dinner_date_action(the_person)
+
+        "Plan a date for Friday night" if not is_friday:
             mc.name "It's a date. I'm already looking forward to it."
             the_person.char "Me too!"
-            $ dinner_action = Action("Dinner date", evening_date_trigger, "dinner_date_label", args=the_person, requirement_args=4) #it happens on a friday, so day%7 == 4
-            $ mc.business.mandatory_crises_list.append(dinner_action)
-            $ mc.business.event_triggers_dict["date_scheduled"] = True
+            $ create_dinner_date_action(the_person)
 
-        "Maybe some other time.":
+        "Maybe some other time":
             mc.name "I'm busy on Friday unfortunately."
             the_person.char "Well maybe next week then. Let me know, okay?"
             "She gives you a warm smile."
     return
 
 label serum_give_label(the_person):
-    $ sneak_serum_chance = 70 + (mc.int*5) - (the_person.focus*5)  #% chance that you will successfully give serum to someone sneaklily. Less focused people are easier to fool.
+    $ sneak_serum_chance = 70 + (mc.int*5) - (the_person.focus*5)  #% chance that you will successfully give serum to someone sneakily. Less focused people are easier to fool.
     $ ask_serum_chance = 10*mc.charisma + 5*the_person.int #The more charismatic you are and the more intellectually curious they are the better the chance of success
     $ demand_serum_chance = mc.charisma * (the_person.obedience - 90) #The more charismatic you are and the more obedient they are the more likely this is to succeed.
 
@@ -787,12 +837,12 @@ label serum_give_label(the_person):
         $ demand_serum_chance = 100
 
     $ pay_serum_cost = the_person.salary * 5
-    $ rand_chance = renpy.random.randint(0,100)
+    $ ran_num = renpy.random.randint(0,100)
 
     menu:
-        "Give it to her stealthily.\n{size=22}Success Chance: [sneak_serum_chance]%%{/size}": #TODO: Have this modified by something so there are interesting gameplay decisions
+        "Give it to her stealthily\n{color=#ff0000}{size=18}Success Chance: [sneak_serum_chance]%%{/size}{/color}": #TODO: Have this modified by something so there are interesting gameplay decisions
             "You chat with [the_person.title] for a couple of minutes. Waiting to find a chance to deliver a dose of serum."
-            if rand_chance < sneak_serum_chance:
+            if ran_num < sneak_serum_chance:
                 #Success
                 "You're able to distract [the_person.title] and have a chance to give her a dose of serum."
                 call give_serum(the_person) from _call_give_serum
@@ -802,8 +852,8 @@ label serum_give_label(the_person):
                 "You finally distract [the_person.title] and have a chance to give her a dose of serum."
                 the_person.char "Hey, what's that?"
                 "You nearly jump as [the_person.title] points down at the small vial of serum you have clutched in your hand."
-                $ avoid_chance = renpy.random.randint(0,10)
-                if avoid_chance < mc.charisma:
+                $ ran_num = renpy.random.randint(0,10)
+                if ran_num < mc.charisma:
                     if mc.business.get_employee_title(the_person) == "None":
                         mc.name "This? Oh, it's just something we're working on at the lab that I thought you might be interested in."
                         "You dive into a technical description of your work, hoping to distract [the_person.title] from your real intentions."
@@ -821,21 +871,21 @@ label serum_give_label(the_person):
                     $ the_person.change_love(-5)
                     the_person.char "Were you about to put that in my drink? Oh my god [the_person.mc_title]!"
                     mc.name "Me? Never!"
-                    "[the_person.title] shakes her head and storms off. You can only hope this doesn't turn into soemthing more serious."
+                    "[the_person.title] shakes her head and storms off. You can only hope this doesn't turn into something more serious."
                     $ clear_scene()
                     return
 
-        "Ask her to take it.\n{size=22}Success Chance: [ask_serum_chance]%%{/size}" if not mandatory_unpaid_serum_testing_policy.is_active() or mc.business.get_employee_title(the_person) == "None":
+        "Ask her to take it\n{color=#ff0000}{size=18}Success Chance: [ask_serum_chance]%%{/size}{/color}" if not mandatory_unpaid_serum_testing_policy.is_active() or mc.business.get_employee_title(the_person) == "None":
             if mc.business.get_employee_title(the_person) == "None":
                 mc.name "[the_person.title], I've got a project going on at work that could really use a test subject. Would you be interested in helping me out?"
 
             else:
                 mc.name "[the_person.title], there's a serum design that is in need of a test subject. Would you be interested in helping out with a quick field study?"
 
-            if rand_chance < ask_serum_chance:
+            if ran_num < ask_serum_chance:
                 #Success
                 if mc.business.get_employee_title(the_person) == "None":
-                    if the_person.personality is nora_personality:
+                    if the_person.personality.personality_type_prefix == "nora":
                         the_person.char "I'd be happy to help. I've seen your work, I have complete confidence you've tested this design thoroughly."
                     else:
                         the_person.char "I'd be happy to help, as long as you promise it's not dangerous of course. I've always wanted to be a proper scientist!"
@@ -850,44 +900,44 @@ label serum_give_label(the_person):
                 the_person.char "I'm... I don't think I would be comfortable with that. Is that okay?"
                 mc.name "Of course it is, that's why I'm asking in the first place."
 
-        "Ask her to take it.\n{size=22}Success Chance: Required by Policy{/size}" if mandatory_unpaid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None":
+        "Ask her to take it\n{color=#ff0000}{size=18}Success Chance: Required by Policy{/size}{/color}" if mandatory_unpaid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None":
             #Auto success
             mc.name "[the_person.title], we're running field trials and you're one of the test subjects. I'm going to need you to take this."
             call give_serum(the_person) from _call_give_serum_3
 
-        "Demand she takes it.\n{size=22}Success Chance: [demand_serum_chance]%%{/size}": #They must work for you to demand it.
+        "Demand she takes it\n{color=#ff0000}{size=18}Success Chance: [demand_serum_chance]%%{/size}{/color}": #They must work for you to demand it.
             mc.name "[the_person.title], you're going to drink this for me."
             "You pull out a vial of serum and present it to [the_person.title]."
             the_person.char "What is it for, is it important?"
             mc.name "Of course it is, I wouldn't ask you to if it wasn't."
-            if rand_chance < demand_serum_chance:
+            if ran_num < demand_serum_chance:
                 #Success
                 the_person.char "Okay, if that's what you need me to do..."
                 call give_serum(the_person) from _call_give_serum_4
             else:
-                #Refues
+                #Refuse
                 $ the_person.draw_person(emotion = "angry")
                 $ the_person.change_obedience(-2)
                 $ the_person.change_happiness(-2)
                 $ the_person.change_love(-2)
                 the_person.char "You expect me to just drink random shit you hand to me? I'm sorry, but that's just ridiculous."
 
-        "Pay her to take it.\n{size=22}Costs: $[pay_serum_cost]{/size}" if mandatory_paid_serum_testing_policy.is_active() and not mandatory_unpaid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None": #This becomes redundent when they take it for free.
+        "Pay her to take it\n{color=#ff0000}{size=18}Costs: $[pay_serum_cost]{/size}{/color}" if mandatory_paid_serum_testing_policy.is_active() and not mandatory_unpaid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None": #This becomes redundent when they take it for free.
             #Pay cost and proceed
             $ mc.business.funds += -pay_serum_cost
             mc.name "[the_person.title], we're running field trials and you're one of the test subjects. I'm going to need you to take this, a bonus will be added onto your paycheck."
             call give_serum(the_person) from _call_give_serum_5
 
 
-        "Pay her to take it.\n{size=22}Requires: Mandatory Paid Serum Testing{/size} (disabled)" if not mandatory_unpaid_serum_testing_policy.is_active() and not mandatory_paid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None":
+        "Pay her to take it\n{color=#ff0000}{size=18}Requires: Mandatory Paid Serum Testing{/size}{/color} (disabled)" if not mandatory_unpaid_serum_testing_policy.is_active() and not mandatory_paid_serum_testing_policy.is_active() and not mc.business.get_employee_title(the_person) == "None":
             pass
 
-        "Do nothing.":
+        "Do nothing":
             pass
     return
 
 label grope_person(the_person):
-    # Note: the descirptions of the actual stages are stored in grope_descriptions.rpy to keep things organised.
+    # Note: the descriptors of the actual stages are stored in grope_descriptions.rpy to keep things organized.
     $ mc.change_energy(-5)
     #TODO: Have arousal be more permanent than it is right now. ie. more events should impact it.
     $ the_person.event_triggers_dict["last_groped"] = (day, time_of_day)
@@ -909,82 +959,97 @@ label grope_person(the_person):
                             "[the_person.possessive_title] glances around at the people nearby."
                             the_person.char "I don't want other people to watch. Let's find someplace we can be alone."
                             menu:
-                                "Find somewhere quiet.\n{size=22}No interuptions{/size}":
+                                "Find somewhere quiet\n{color=#ff0000}{size=18}No interruptions{/size}{/color}":
                                     mc.name "Alright, come with me."
                                     "You take [the_person.title] by her wrist and lead her away."
                                     #TODO: have each location have a unique "find someplace quiet" descriptor with a default fallback option
                                     "After a couple of minutes searching you find a quiet space with just the two of you."
                                     "You don't waste any time getting back to what you were doing, fondling [the_person.possessive_title]'s tits and ass."
 
-                                "Stay where you are.\n{size=22}[extra_people_count] watching{/size}":
+                                "Stay where you are\n{color=#ff0000}{size=18}[extra_people_count] watching{/size}{/color}":
                                     $ should_be_private = False
 
                         else:
                             # She doesn't care, but you can find someplace private.
                             "[the_person.possessive_title] either doesn't notice or doesn't care, but there are other people around."
                             menu:
-                                "Find somewhere quiet.\n{size=22}No interuptions{/size}":
+                                "Find somewhere quiet\n{color=#ff0000}{size=18}No interruptions{/size}{/color}":
                                     mc.name "Come with me, I don't want to be interrupted."
                                     "You take [the_person.title] by the wrist and lead her away. She follows eagerly."
                                     "After searching for a couple of minutes you find a quiet space with just the two of you."
                                     #TODO: have each location have a unique "find someplace quiet" descriptor with a default fallback option
-                                    "After a couple of minutes searching you find a quiet space with just the two of you."
-                                    "You don't waste any time getting back to what you were doing, fondling [the_person.possessive_title]'s tits and ass."
 
-                                "Stay where you are.\n{size=22}[extra_people_count] watching{/size}":
+                                "Stay where you are\n{color=#ff0000}{size=18}[extra_people_count] watching{/size}{/color}":
                                     $ should_be_private = False
 
-
-                    call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_43 # Enter the sex system, starting from this point.
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
-                    $ the_person.review_outfit()
+                    if prostitute_role in the_person.special_role:
+                        the_person.char "We can continue what you started, but it would cost you two hundred dollars."
+                        menu:
+                            "Pay her\n{color=#ff0000}{size=18}Costs: $200{/size}{/color}" if mc.business.funds > 200:
+                                $ mc.business.funds += -200
+                                $ the_person.change_obedience(1)
+                                call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_grope_person_prostitute_role
+                                $ the_person.call_dialogue("sex_review", the_report = _return)
+                                $ the_person.review_outfit()
+                            "Pay her\n{color=#ff0000}{size=18}Requires: $200{/size}{/color} (disabled)" if mc.business.funds <= 200:
+                                pass
+                            "No":
+                                mc.name "Thanks for the offer, but no thanks."
+                                "She shrugs."
+                                the_person.char "Your loss."
+                    else:
+                        call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_43 # Enter the sex system, starting from this point.
+                        $ the_person.call_dialogue("sex_review", the_report = _return)
+                        $ the_person.review_outfit()
     return
 
+init -2 python:
+    def build_command_person_actions_menu(the_person):
+        change_titles_action = Action("Change how we refer to each other", requirement = change_titles_requirement, effect = "change_titles_person", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Manage how you refer to " + the_person.title + " and tell her how she should refer to you. Different combinations of stats, roles, and personalities unlock different titles.", priority = -5)
+
+        wardrobe_change_action = Action("Change your wardrobe", requirement = wardrobe_change_requirment, effect = "wardrobe_change_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Add and remove outfits from " + the_person.title + "'s wardrobe, or ask her to put on a specific outfit.", priority = -5)
+
+        serum_demand_action = Action("Drink a dose of serum for me", requirement = serum_demand_requirement, effect = "serum_demand_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Demand " + the_person.title + " drinks a dose of serum right now. Easier to command employees to test serum.", priority = -5)
+
+        strip_demand_action = Action("Strip for me", requirement = demand_strip_requirement, effect = "demand_strip_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Command her to strip off some of her clothing.", priority = -5)
+
+        touch_demand_action = Action("Let me touch you   {color=#FFFF00}-10{/color} {image=gui/extra_images/energy_token.png}", requirement = demand_touch_requirement, effect = "demand_touch_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Demand " + the_person.title + " stays still and lets you touch her. Going too far may damage your relationship.", priority = -5)
+
+        suck_demand_action = Action("Suck my cock", requirement = suck_demand_requirement, effect = "suck_demand_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Demand " + the_person.title + " gets onto her knees and worships your cock.", priority = -5)
+
+        bc_demand_action = Action("Talk about birth control", requirement = demand_bc_requirement, effect = "bc_demand_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Discuss " + the_person.title + "'s use of birth control.", priority = -5)
+
+        return ["Command", change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, suck_demand_action, bc_demand_action, ["Never mind", "Return"]]
+
 label command_person(the_person):
-    # TODO: Add a couple of commands for a person, ramping up to entering the sex system on demand.
-    # Ideas:
-    # Roll all of the "wardrobe" and "call me BLANK" stuff into this, as the early options.
-    # "Show me your tits."
-    # "Get naked for me." - Both only usually possible in private.
-    # Eventaully move into the sex system properly.
-
-    #TODO: All of the "talk about what you call me" stuff should be girlfriend/affair specific (or at least be Love gated), but you can _command_ people to do it.
-
     mc.name "[the_person.title], I want you to do something for me."
     the_person.char "Yes [the_person.mc_title]?"
 
-    $ change_titles_action = Action("Change how we refer to each other.", requirement = change_titles_requirement, effect = "change_titles_person", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Manage how you refer to "+the_person.title+" and tell her how she should refer to you. Different combinations of stats, roles, and personalities unlock different titles.", priority = -5)
-
-    $ wardrobe_change_action = Action("Change your wardrobe.", requirement = wardrobe_change_requirment, effect = "wardrobe_change_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Add and remove outfits from "+the_person.title+"'s wardrobe, or ask her to put on a specific outfit.", priority = -5)
-
-    $ serum_demand_action = Action("Drink a dose of serum for me.", requirement = serum_demand_requirement, effect = "serum_demand_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Demand " +the_person.title+ " drinks a dose of serum right now. Easier to command employees to test serum.", priority = -5)
-
-    $ strip_demand_action = Action("Strip for me.", requirement = demand_strip_requirement, effect = "demand_strip_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Command her to strip off some of her clothing.", priority = -5)
-
-    $ touch_demand_action = Action("Let me touch you.\n-10  {image=gui/extra_images/energy_token.png}", requirement = demand_touch_requirement, effect = "demand_touch_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Demand "+the_person.title+" stays still and lets you touch her. Going too far may damage your relationship.", priority = -5)
-
-    $ suck_demand_action = Action("Suck my cock.", requirement = suck_demand_requirement, effect = "suck_demand_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Demand " + the_person.title + " gets onto her knees and worships your cock.", priority = -5)
-
+    if "action_mod_list" in globals():
+        call screen enhanced_main_choice_display(build_menu_items([build_command_person_actions_menu(the_person)]))
     $ bc_demand_action = Action("Talk about birth control.", requirement = demand_bc_requirement, effect = "bc_demand_label", args = the_person, requirement_args = the_person,
         menu_tooltip = "Discuss "+the_person.title+"'s use of birth control.", priority = -5)
 
     #TODO: Add more commands
     #TODO: Add a way to add role specific commands.
 
-    $ player_choice = call_formated_action_choice([change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, suck_demand_action, bc_demand_action, "Return"])
+    #$ player_choice = call_formated_action_choice([change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, bc_demand_action, "Return"])
     #call screen main_choice_display([["Command her to...", change_titles_action, wardrobe_change_action, serum_demand_action, strip_demand_action, touch_demand_action, "Return"]])
-    #$ player_choice = _return
+    $ player_choice = _return
     if player_choice == "Return":
         pass
     else:
-        $ player_choice.call_action()
+        call screen main_choice_display([build_command_person_actions_menu(the_person)])
+
+    if _return != "Return":
+        $ _return.call_action()
     return
 
 # label seduce_label(the_person): No longer needed since "seduce" was split up to be multiple different approaches
@@ -1117,7 +1182,7 @@ label bc_talk_label(the_person):
         $ the_person.update_birth_control_knowledge()
 
         menu:
-            "Start taking birth control." if not the_person.on_birth_control:
+            "Start taking birth control" if not the_person.on_birth_control:
                 mc.name "You should start taking some, I don't want you getting pregnant."
                 if the_person.love >= needed_start or the_person.effective_sluttiness() >= needed_start:
                     "She thinks about it for a moment, then nods."
@@ -1128,7 +1193,7 @@ label bc_talk_label(the_person):
                         the_person.char "If we keep doing it raw that's a smart idea."
                         the_person.char "I'll talk to my doctor and start taking it as soon as possible."
                     the_person.char "I should be able to start tomorrow, we will still need to careful until then."
-                    call manage_bc(the_person, start = True) from _call_manage_bc_2
+                    $ manage_bc(the_person, start = True)
 
                 else:
                     "She shakes her head."
@@ -1141,7 +1206,7 @@ label bc_talk_label(the_person):
                         the_person.char "I'm sorry [the_person.mc_title], but I've tried it before and it plays hell with my hormones."
                         the_person.char "We can just use a condom, or do something else to have fun together."
 
-            "Stop taking birth control." if the_person.on_birth_control:
+            "Stop taking birth control" if the_person.on_birth_control:
                 mc.name "I want you to stop taking it."
                 if the_person.love >= needed_stop or the_person.effective_sluttiness() >= needed_stop:
                     if the_person.get_opinion_score("creampies") > 0 and the_person.get_opinion_score("bareback sex") > 0:
@@ -1157,7 +1222,7 @@ label bc_talk_label(the_person):
                         "She thinks about it for a long moment, then nods and smiles."
                         the_person.char "Okay, I won't take my birth control in the morning. We'll just be careful, it'll be fine..."
 
-                    call manage_bc(the_person, start = False) from _call_manage_bc_3
+                    $ manage_bc(the_person, start = False)
 
                 else:
                     if the_person.get_opinion_score("bareback sex") > 0:
@@ -1168,7 +1233,7 @@ label bc_talk_label(the_person):
                         the_person.char "I don't think that's a good idea. What if something happened? Are we ready for that change in our lives?"
                         the_person.char "Maybe one day, but I'm not comfortable with it right now."
 
-            "That's all I wanted to know.":
+            "That's all I wanted to know":
                 mc.name "That's all, I just wanted to check on that."
 
     elif the_person.effective_sluttiness() > 40:
@@ -1187,11 +1252,11 @@ label bc_talk_label(the_person):
 
         $ the_person.update_birth_control_knowledge()
         menu:
-            "Start taking birth control." if not the_person.on_birth_control:
+            "Start taking birth control" if not the_person.on_birth_control:
                 mc.name "You should probably start taking it, before something happens and you get pregnant."
                 if the_person.love >= needed_start or the_person.effective_sluttiness() >= needed_start:
                     the_person.char "That's probably a good idea. I'll talk talk to my doctor as soon as possible about it."
-                    call manage_bc(the_person, start = True) from _call_manage_bc_4
+                    $ manage_bc(the_person, start = True)
                 else:
                     if the_person.get_opinion_score("creampies") > 0 and the_person.get_opinion_score("bareback sex") > 0:
                         "She shrugs and shakes her head."
@@ -1202,7 +1267,7 @@ label bc_talk_label(the_person):
                         the_person.char "Sorry, I've tried it before and it just messes with my hormones too badly."
                         the_person.char "We'll just be careful and use a condom, or you can pull out. Okay?"
 
-            "Stop taking birth control." if the_person.on_birth_control:
+            "Stop taking birth control" if the_person.on_birth_control:
                 mc.name "You should stop taking it. Wouldn't that be really hot?"
                 if the_person.love >= needed_start or the_person.effective_sluttiness() >= needed_stop:
                     if the_person.get_opinion_score("creampies") > 0 and the_person.get_opinion_score("bareback sex") > 0:
@@ -1218,12 +1283,12 @@ label bc_talk_label(the_person):
                         mc.name "Then that's what I'll do. I just think it's so much sexier to know there's a little bit of risk."
                         "[the_person.possessive_title] thinks about it for a long moment. Finally she shrugs and nods."
                         the_person.char "Okay, we can give it a try. We'll just need to be very careful."
-                    call manage_bc(the_person, start = False) from _call_manage_bc_5
+                    $ manage_bc(the_person, start = False)
                 else:
                     "[the_person.possessive_title] shakes her head."
                     the_person.char "That would be crazy! There's no way I could gamble the rest of my life on some guy pulling out or me getting lucky."
 
-            "That's all I wanted to know.":
+            "That's all I wanted to know":
                 mc.name "That's all, I just wanted to check."
     else:
         if the_person.love > 30:
@@ -1262,17 +1327,17 @@ label bc_demand_label(the_person):
     $ the_person.update_birth_control_knowledge()
 
     menu:
-        "Start taking birth control." if not the_person.on_birth_control and the_person.obedience >= 130:
+        "Start taking birth control" if not the_person.on_birth_control and the_person.obedience >= 130:
             mc.name "I want you to start taking some. I don't want you getting pregnant."
             "[the_person.possessive_title] nods."
             the_person.char "Okay, I can do that. I'll talk to my doctor, I think I'll be able to start it tomorrow."
             mc.name "Good."
-            call manage_bc(the_person, start = True) from _call_manage_bc_6
+            $ manage_bc(the_person, start = True)
 
-        "Start taking birth control.\n{color=#FF0000}Requires: 130 Obedience{/color} (disabled)" if not the_person.on_birth_control and the_person.obedience < 130:
+        "Start taking birth control\n{color=#FF0000}{size=18}Requires: 130 Obedience{/size}{/color} (disabled)" if not the_person.on_birth_control and the_person.obedience < 130:
             pass
 
-        "Stop taking birth control." if the_person.on_birth_control and the_person.obedience >= 160:
+        "Stop taking birth control" if the_person.on_birth_control and the_person.obedience >= 160:
             mc.name "I want you to stop taking it."
             $ complains_threshold = 45 - (15 * the_person.get_opinion_score("creampies"))
             if the_person.effective_sluttiness() >= complains_threshold:
@@ -1294,24 +1359,25 @@ label bc_demand_label(the_person):
                 "She blushes and looks away under your glare."
                 the_person.char "No. I'll stop right away. Sorry."
 
-            call manage_bc(the_person, start = False) from _call_manage_bc_7
+            $ manage_bc(the_person, start = False)
 
-        "Stop taking birth control.\n{color=#FF0000}Requires: 160 Obedience{/color} (disabled)" if  the_person.on_birth_control and the_person.obedience < 160:
+        "Stop taking birth control\n{color=#FF0000}{size=18}Requires: 160 Obedience{/size}{/color} (disabled)" if  the_person.on_birth_control and the_person.obedience < 160:
             pass
 
-        "That's all I wanted to know.":
-            the_person.char "Good. That's all I wanted to know."
+        "That's all I wanted to know":
+            mc.name "Good. That's all I wanted to know."
     return
 
-label manage_bc(the_person, start): # A little helper label to handle setting up the actions for a girl starting or stopping her BC the next morning.
-    if start:
-        $ event_label = "bc_start_event"
-    else:
-        $ event_label = "bc_stop_event"
+init 5 python:
+    def manage_bc(person, start):
+        if start:
+            event_label = "bc_start_event"
+        else:
+            event_label = "bc_stop_event"
 
-    $ bc_start_action = Action("Change birth control", always_true_requirement, event_label, args = the_person)
-    $ mc.business.mandatory_morning_crises_list.append(bc_start_action) # She starts or stops the next morning.
-    return
+        bc_start_action = Action("Change birth control", always_true_requirement, event_label, args = person)
+        mc.business.mandatory_morning_crises_list.append(bc_start_action) # She starts or stops the next morning.
+        return
 
 label bc_start_event(the_person):
     $ the_person.on_birth_control = True

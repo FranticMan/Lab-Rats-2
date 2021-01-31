@@ -3,7 +3,7 @@ init:
         cunnilingus = Position(name = "Cunnilingus", slut_requirement = 40, slut_cap = 60, requires_hard = False, requires_large_tits = False,
             position_tag = "missionary", requires_location = "Sit", requires_clothing = "Vagina", skill_tag = "Oral",
             girl_arousal = 15, girl_energy = 3,
-            guy_arousal = 3, guy_energy = 15,
+            guy_arousal = 3, guy_energy = 10,
             connections = [],
             intro = "intro_cunnilingus",
             scenes = ["scene_cunnilingus_1","scene_cunnilingus_2"],
@@ -51,7 +51,7 @@ label taboo_break_cunnilingus(the_girl, the_location, the_object):
 label scene_cunnilingus_1(the_girl, the_location, the_object):
     "You lick at [the_girl.possessive_title]'s delicate pussy, spreading her lips and sending your tongue inside."
     "She shivers with each touch, obviously enjoying the feeling."
-    if the_person.arousal > 40:
+    if the_girl.arousal > 40:
         "Her pussy is dripping wet, filling your mouth with the taste of her juices."
     $ the_girl.call_dialogue("sex_responses_oral")
     return
@@ -73,7 +73,7 @@ label outro_cunnilingus(the_girl, the_location, the_object): #With low arousal g
 
 
 label transition_default_cunnilingus(the_girl, the_location, the_object):
-    "You get down on your knees in front of [the_girl.title] and push her legs open. She leans back and lets you spread them."
+    "You get down on your knees in front of [the_girl.title] and push her legs open. She leans back on the [the_object.name] and lets you spread them."
     "You move in and lick her pussy, tasting her sweet juices and making her twitch from the sudden pleasure."
     "She places a hand on the top of your head and moans."
     return
@@ -87,14 +87,14 @@ label strip_cunnilingus(the_girl, the_clothing, the_location, the_object):
 label strip_ask_cunnilingus(the_girl, the_clothing, the_location, the_object):
     the_girl.char "[the_girl.mc_title], I'm like to take off my [the_clothing.name] if you don't mind."
     menu:
-        "Let her strip.":
+        "Let her strip":
             "You look up from between her legs and nod."
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = cunnilingus.position_tag)
             "She strips out of her [the_clothing.name] and throws it to the side while you move back in and lick at her cunt."
 
 
-        "Leave it on.":
+        "Leave it on":
             "You look up from between her legs and shake your head."
             mc.name "No, I like how you look with it on."
             the_girl.char "Yeah? Do I look sexy in it? Mmmm..."

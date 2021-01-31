@@ -3,7 +3,7 @@ init:
         handjob = Position(name = "Handjob", slut_requirement = 15, slut_cap = 40, requires_hard = False, requires_large_tits = False,
             position_tag = "stand3", requires_location = "Stand", requires_clothing = "None", skill_tag = "Foreplay",
             girl_arousal = 5, girl_energy = 10,
-            guy_arousal = 10, guy_energy = 2,
+            guy_arousal = 10, guy_energy = 3,
             connections = [],
             intro = "intro_handjob",
             scenes = ["scene_handjob_1","scene_handjob_2","scene_handjob_3"],
@@ -47,7 +47,7 @@ label taboo_break_handjob(the_girl, the_location, the_object):
     if the_girl.sex_skills["Foreplay"] >= 3:
         "She runs a finger along the bottom of your shaft, ending at the sensitive spot under your tip."
         "Then she wraps her full hand around it and slides it back down to the base."
-        "[the_person.possessive_title] begins to stroke you off with long, deliberate motions."
+        "[the_girl.possessive_title] begins to stroke you off with long, deliberate motions."
     else:
         "She wraps her fingers around the base of your shaft and squeezes it lightly, then begins to slide her hand up and down your length."
     return
@@ -67,7 +67,7 @@ label scene_handjob_1(the_girl, the_location, the_object):
 
 label scene_handjob_2(the_girl, the_location, the_object):
     "[the_girl.title] moves her hand down and cups your balls, massaging them gently."
-    the_person.char "I want you to let all of your cum out of here for me..."
+    the_girl.char "I want you to let all of your cum out of here for me..."
     "She holds your body against her and slides her hand back to your shaft."
     return
 
@@ -86,7 +86,7 @@ label outro_handjob(the_girl, the_location, the_object):
     $ slut_willingness = the_girl.effective_sluttiness()
     if slut_willingness > (60 - the_girl.get_opinion_score("drinking cum")*5):
         "Just as you're about to fire your load [the_girl.possessive_title] drops to the ground in front of you."
-        $ the_person.draw_person(position = "blowjob")
+        $ the_girl.draw_person(position = "blowjob")
         the_girl.char "I want you to put that hot load in my mouth."
         "Just hearing her say that would have pushed you over the edge - her soft, wet hand working your cock is just a bonus."
         "She opens up her mouth and sticks out her tongue, presenting you with a clear target."
@@ -103,7 +103,7 @@ label outro_handjob(the_girl, the_location, the_object):
         "She strokes you to completion, closing her eyes and aiming your cock as you spasm and start to pulse out your hot load."
         $ the_girl.cum_on_face()
         $ the_girl.draw_person(position = "blowjob")
-        "You fire rope after rope of thick cum over [the_person.title]'s waiting face. When you're finished she opens her eyes again and smiles up at you."
+        "You fire rope after rope of thick cum over [the_girl.title]'s waiting face. When you're finished she opens her eyes again and smiles up at you."
         $ the_girl.call_dialogue("cum_face")
 
     elif slut_willingness > (25 - (the_girl.get_opinion_score("being covered in cum")*5)) and the_girl.has_large_tits():
@@ -121,6 +121,7 @@ label outro_handjob(the_girl, the_location, the_object):
                 "She aims your cock and strokes you to completion. You fire your load in thick ropes over the shape of her tits and onto her [blocker.name]."
             else:
                 "She strokes you to completion and you fire your load onto her tits." # just in case something weird happens and we get None.
+            $ del blocker
         #TODO: Add a "cum_tits" dialogue section for personalities.
 
     else:
@@ -144,16 +145,16 @@ label strip_handjob(the_girl, the_clothing, the_location, the_object):
     return
 
 label strip_ask_handjob(the_girl, the_clothing, the_location, the_object):
-    the_person.char "[the_person.mc_title], would you like me to take off my [the_clothing.name]?"
+    the_girl.char "[the_girl.mc_title], would you like me to take off my [the_clothing.name]?"
     "She keeps stroking your cock while you respond."
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = handjob.position_tag)
             "[the_girl.possessive_title] strips out of her [the_clothing.name] and drops it to the side."
-            the_person.char "Ah, so much better."
+            the_girl.char "Ah, so much better."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "I think you look cute in it, leave it on."
             "She nods and keeps jerking you off."
     return
@@ -161,7 +162,7 @@ label strip_ask_handjob(the_girl, the_clothing, the_location, the_object):
 label orgasm_handjob(the_girl, the_location, the_object):
     "[the_girl.possessive_title]'s breathing picks up and her grip on your cock gets firmer."
     "She holds you tight, her breath warm on your ear and whispers."
-    the_person.char "Oh god, I think I'm going to cum... Thinking about this big cock, so close to me..."
+    the_girl.char "Oh god, I think I'm going to cum... Thinking about this big cock, so close to me..."
     "With one final gasp she shivers with pleasure. She struggles to stroke you off as she climaxes, each movement jerky and wild."
     "The moment passes quickly and she gets her body back under control."
     return

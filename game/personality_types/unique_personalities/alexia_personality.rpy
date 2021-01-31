@@ -8,14 +8,15 @@ init 1300:
             return valid_titles
 
         def alexia_possessive_titles(the_person):
-            valid_possessive_titles = []
-            valid_possessive_titles.append("Your old classmate")
-            return valid_possessive_titles
+            valid_titles = []
+            valid_titles.append("Your old classmate")
+            return valid_titles
 
         def alexia_player_titles(the_person):
-            valid_mc_titles = []
-            valid_mc_titles.append(mc.name)
-            return valid_mc_titles
+            valid_titles = [mc.name]
+            if the_person.love > 10:
+                valid_titles.append("Teacher's pet")
+            return valid_titles
 
         alexia_personality = Personality("alexia", default_prefix = "relaxed",
         common_likes = ["sports", "the colour yellow", "pop", "marketing work"],

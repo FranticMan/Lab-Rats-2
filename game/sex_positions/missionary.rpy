@@ -2,8 +2,8 @@
     python:
         missionary = Position(name = "Missionary", slut_requirement = 50, slut_cap = 70, requires_hard = True, requires_large_tits = False,
             position_tag = "missionary", requires_location = "Lay", requires_clothing = "Vagina", skill_tag = "Vaginal",
-            girl_arousal = 16, girl_energy = 12,
-            guy_arousal = 15, guy_energy = 14,
+            girl_arousal = 16, girl_energy = 8,
+            guy_arousal = 15, guy_energy = 10,
             connections = [],
             intro = "intro_missionary",
             scenes = ["scene_missionary_1","scene_missionary_2"],
@@ -52,7 +52,7 @@ label scene_missionary_1(the_girl, the_location, the_object):
         "[the_girl.title]'s pussy is still getting wet. You take it slow, giving her time to warm up."
 
     menu:
-        "Kiss her neck.":
+        "Kiss her neck":
             "You lean down and start to kiss at [the_girl.possessive_title]'s neck. She tilts her head to the side to let you."
             if mc.sex_skills["Foreplay"] > 2:
 
@@ -68,7 +68,7 @@ label scene_missionary_1(the_girl, the_location, the_object):
                 the_girl.char "That feels nice, but I want you to keep fucking me."
                 "You kiss her one last time, then divert all of your attention to making love."
 
-        "Talk dirty to her.":
+        "Talk dirty to her":
             mc.name "You feel amazing [the_girl.title], I wish I could fuck you like this all day."
             if the_girl.core_sluttiness > 60 or the_girl.get_opinion_score("being submissive" > 0):
                 the_girl.char "Then do it. Pin me against the [the_object.name] and fuck me all you want."
@@ -99,7 +99,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
         "[the_girl.title]'s slit is tight and warm, but you can tell she's still getting wet."
         the_girl.name "Could you... take it a little slower for me? Sorry, I'm just not very good at this."
         menu:
-            "Go easy on her.":
+            "Go easy on her":
                 mc.name "Of course."
                 "You slow your thrusts and hold [the_girl.possessive_title] close to you. You can feel her warm breath against your ear and hear her soft moans."
                 mc.name "Is that better?"
@@ -107,7 +107,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
                 "Little by little [the_girl.title] gets wetter and you're able to speed up. Her panting in your ear becomes louder and more passionate."
 
 
-            "Fuck her hard anyways.":
+            "Fuck her hard anyways":
                 mc.name "Don't worry, just relax and it'll all come naturally to you."
                 "You speed up and fuck [the_girl.title]s tight little cunt. She lets out a surprised gasp."
                 if the_girl.get_opinion_score("being submissive") > 0:
@@ -122,7 +122,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
                         $ the_girl.discover_opinion("bareback sex")
                     else:
                         the_girl.char "Oh my god... I'm just a worthless, dirty slut to you..."
-                    "She shivers again, apparantly turned on by the thought."
+                    "She shivers again, apparently turned on by the thought."
                     "You fuck [the_girl.possessive_title] hard and fast for as long as you can manage, but eventually you need to slow down to a more maintainable pace."
 
                 else:
@@ -130,7 +130,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
                     mc.name "You can manage."
                     $ the_girl.change_arousal(-1+the_girl.get_opinion_score("being submissive"))
                     $ the_girl.change_obedience(-1+the_girl.get_opinion_score("being submissive"))
-                    "[the_girl.title] pushes against you and foces you to slide out of her pussy."
+                    "[the_girl.title] pushes against you and forces you to slide out of her pussy."
                     the_girl.char "No, really, I need you to go slower or I can't do this"
                     "You finally nod and she lets you slide back inside of her. This time you move more slowly, and after a few moments you've moved past the incident."
 
@@ -139,7 +139,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
         "[the_girl.title]'s slit is tight and wet as you fuck her. She moans into your ear."
         the_girl.char "Take me, [the_girl.mc_title], I'm all yours..."
         menu:
-            "Fondle her tits.":
+            "Fondle her tits":
                 if the_girl.has_large_tits() :
                     if the_girl.outfit.tits_available():
                         "You plant a hand on [the_girl.possessive_title]'s nice, soft tits and squeeze it. You use your thumb to rub her already hard nipple."
@@ -147,8 +147,9 @@ label scene_missionary_2(the_girl, the_location, the_object):
                         "You enjoy the squishy weight of her breasts for a few moments, then shift your focus back to fucking her."
 
                     else:
-                        $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
+                        $ top_clothing = the_girl.outfit.get_upper_top_layer()
                         "You plant a hand on [the_girl.possessive_title]'s big tits and fondle them through her [top_clothing.name]."
+                        $ top_clothing = None
                         the_girl.char "Mmm, you should just pull that out of the way. I want you to be able to grab them and squeeze them."
 
                 else:
@@ -157,11 +158,12 @@ label scene_missionary_2(the_girl, the_location, the_object):
                         the_girl.char "Oh! Easy there, it's sensitive."
                         "You rub her nipple for a moment and feel it get hard, then move to her other breast and do the same."
                     else:
-                        $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
+                        $ top_clothing = the_girl.outfit.get_upper_top_layer()
                         "You try and feel up [the_girl.possessive_title]'s little tits, but her [top_clothing.name] stops you from getting much more than a handful of fabric."
+                        $ top_clothing = None
                         "You give up and focus on fucking her instead."
 
-            "Pin her down.":
+            "Pin her down":
                 "You grab [the_girl.title]'s hands and lift them above her head. You push them against the [the_object.name] and pin [the_girl.title] underneath you."
                 if the_girl.get_opinion_score("being submissive") > 0:
                     the_girl.char "Oh my god [the_girl.mc_title], what are you going to do to me?"
@@ -182,7 +184,7 @@ label scene_missionary_2(the_girl, the_location, the_object):
                     the_girl.char "Don't stop..."
 
                 elif the_girl.get_opinion_score("being submissive") < 0:
-                    the_girl.char "Woah, easy there..."
+                    the_girl.char "Whoah, easy there..."
                     mc.name "Keep those legs spread for me."
                     "She rolls her eyes and spreads her legs. You start to fuck her hard and fast."
                     the_girl.char "Let my hands go, I want to be able to feel you. I want to touch you."
@@ -208,7 +210,7 @@ label outro_missionary(the_girl, the_location, the_object):
     mc.name "I'm going to cum!"
     $ the_girl.call_dialogue("cum_pullout")
     menu:
-        "Cum inside of her.":
+        "Cum inside of her":
             "You use your full weight to push your cock deep inside of [the_girl.possessive_title]'s cunt as you climax. She gasps and claws lightly at your back as you pump your seed into her."
 
             if mc.condom:
@@ -217,7 +219,7 @@ label outro_missionary(the_girl, the_location, the_object):
                 "Your condom is ballooned with your seed, hanging off your cock to one side."
                 if the_girl.get_opinion_score("drinking cum") > 0 and the_girl.effective_sluttiness() > 50:
                     $ the_girl.discover_opinion("drinking cum")
-                    "[the_girl.possessive_title] reaches over for your cock. With delicate fingers she slides the condom off of you, pinching it off do your cum doesn't spill out."
+                    "[the_girl.possessive_title] reaches over for your cock. With delicate fingers she slides the condom off of you, pinching it off so your cum doesn't spill out."
                     the_girl.char "It would be a shame to waste all of this, right?"
                     "She smiles and brings the condom to her mouth. She tips the bottom up and drains it into her mouth."
                     $ the_girl.change_slut_temp(the_girl.get_opinion_score("drinking cum"))
@@ -231,7 +233,7 @@ label outro_missionary(the_girl, the_location, the_object):
                 $ missionary.redraw_scene(the_girl)
             "You take a moment to catch your breath, then roll off of [the_girl.possessive_title] and lie beside her."
 
-        "Cum on her chest.":
+        "Cum on her chest":
             $ the_girl.cum_on_stomach()
             $ missionary.redraw_scene(the_girl)
             if mc.condom:
@@ -264,13 +266,13 @@ label strip_ask_missionary(the_girl, the_clothing, the_location, the_object):
     the_girl.char "[the_girl.mc_title], I'd like to take off my [the_clothing.name], would you mind?"
     "[the_girl.title] pants as you fuck her."
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = missionary.position_tag)
             "You move back kneel for a moment while [the_girl.title] struggles out of her [the_clothing.name] and throws it to the side. Then she gets herself lined up in front of you again."
             "She sighs happily when you get on top of her and slide your cock back inside."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 80:
                 the_girl.char "Do you think I look sexy in it?"

@@ -12,38 +12,37 @@ init 1300:
             return valid_titles
 
         def cousin_possessive_titles(the_person):
-            valid_possessive_titles = []
-            valid_possessive_titles.append(the_person.name)
-            valid_possessive_titles.append("Your cousin")
+            valid_titles = []
+            valid_titles.append(the_person.name)
+            valid_titles.append("Your cousin")
             if the_person.love > 20:
-                valid_possessive_titles.append("Your cuz")
+                valid_titles.append("Your cuz")
 
             if the_person.love < -30:
-                valid_possessive_titles.append("Your bitchy cousin")
+                valid_titles.append("Your bitchy cousin")
 
             if the_person.sluttiness > 40:
-                valid_possessive_titles.append("Your cock-goth cousin")
+                valid_titles.append("Your cock-goth cousin")
 
-            return valid_possessive_titles
+            return valid_titles
 
         def cousin_player_titles(the_person):
-            valid_player_titles = []
-            valid_player_titles.append(mc.name)
+            valid_titles = [mc.name]
             if the_person.love < -20:
-                valid_player_titles.append("Asshat")
-                valid_player_titles.append("Dickwad")
-                valid_player_titles.append("Dick-for-brains")
+                valid_titles.append("Asshat")
+                valid_titles.append("Dickwad")
+                valid_titles.append("Dick-for-brains")
 
             if the_person.love > 20:
-                valid_player_titles.append("Cuz")
+                valid_titles.append("Cuz")
 
             if the_person.love < 0 and the_person.sluttiness > 40:
-                valid_player_titles.append("Dildo")
+                valid_titles.append("Dildo")
 
                 if the_person.obedience < 20:
-                    valid_player_titles.append("Cock slave")
-                    valid_player_titles.append("Slave")
-            return valid_player_titles
+                    valid_titles.append("Cock slave")
+                    valid_titles.append("Slave")
+            return valid_titles
 
         cousin_personality = Personality("cousin", default_prefix = "introvert",
             common_likes = ["the colour black","heavy metal","punk","makeup","skimpy outfits"],
@@ -54,11 +53,12 @@ init 1300:
 
 ### DIALOGUE ###
 label cousin_sex_review(the_person, the_report):
-    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
     $ comment_position = the_person.pick_position_comment(the_report)
-
     if comment_position is None:
         return #You didn't actually do anything, no need to comment.
+
+    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
+    $ the_person.draw_person()  # make sure she stands up for talking with you
 
     #She's worried about her SO finding out because it was in public
     if the_report.get("was_public", False) and the_person.relationship != "Single" and the_person.get_opinion_score("cheating on men") <= 0: #It was public and she cares.
@@ -79,16 +79,31 @@ label cousin_sex_review(the_person, the_report):
     elif the_report.get("was_public", False) and (the_person.effective_sluttiness()+10*the_person.get_opinion_score("public sex") < comment_position.slut_cap):
         if used_obedience:
             the_person "Fuck, staying here was dumb. Why couldn't you just wait two minutes so we could find somewhere private?"
-            the_person "What if someone recognises both of us?"
+            the_person "What if someone recognizes both of us?"
             mc.name "Relax, nobody here cares who you are. It's going to be fine."
             the_person "Uh huh, sure..."
 
         else:
             the_person "Fuck, staying here was dumb. I should have dragged us somewhere private..."
-            the_person "What do we do if someone recognises us? That could be really bad."
+            the_person "What do we do if someone recognizes us? That could be really bad."
             mc.name "Relax. Nobody here cares who you are, it's going to be fine."
             "[the_person.title] seems unconvinced, but she shrugs and drops the subject."
             the_person "I hope you're right..."
+
+    # special condition - you fucked her brains out
+    elif the_report.get("girl orgasms", 0) > 2:
+        if used_obedience:
+            the_person "Jezus, you fucking creep...I should never..."
+            "She's trying to fight her feelings, still breathing heavily from her multiple orgasms."
+            mc.name "Still don't want to admit what you are?"
+            the_person "Shut up, it's just a natural reaction."
+            mc.name "Yeah, you're a natural nymphomaniac."
+            "[the_person.possessive_title] tries to look upset, but fails miserably, betrayed by her little tremors."
+        else:
+            the_person "Fuck, how...did you even...do that, that's just not possible..."
+            mc.name "Having a good time, are we?"
+            the_person "Ah, fuck you, this won't happen again!"
+            "[the_person.possessive_title] tries to look angry, but she isn't very convincing."
 
     #No special conditions, just respond based on how orgasmed and how slutty the position was.
     elif the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0: #You both came
@@ -166,6 +181,10 @@ label cousin_sex_review(the_person, the_report):
             the_person "Fuck, you're right... I mean, did you really think I was going to let you keep going?"
             the_person "I was just teasing you, obviously..."
             "She doesn't sound to sure of herself."
+
+    # Gave creampie while she is not on birth control (extra dialog when she could get pregnant)
+    if the_report.get("creampies", 0) > 0 and not the_person.on_birth_control and not the_person.event_triggers_dict.get("preg_knows", False):
+        the_person "Fuck, [the_person.mc_title], how do I tell my mom how I got pregnant?"
     return
 
 label cousin_flirt_response_low(the_person):
@@ -179,7 +198,7 @@ label cousin_flirt_response_low(the_person):
 
 label cousin_flirt_response_mid(the_person):
     if the_person.effective_sluttiness("underwear_nudity") < 20: #Not very slutty, so it must be high love.
-        the_person.char "Oh my god, can you stop perving on me for, like, two seconds?"
+        the_person.char "Oh my god, can't you stop acting like a depraved sex-addict, for like, two seconds?"
         mc.name "What? Don't you want to know when you're looking good?"
         "She sighs and rolls her eyes."
         the_person.char "Whatever, it's fine I guess. Thanks."
@@ -206,7 +225,7 @@ label cousin_flirt_response_high(the_person):
             "She smiles and squeezes down on her own breasts."
             the_person.char "Good, I like having that kind of power over you."
             menu:
-                "Kiss her.":
+                "Kiss her":
                     mc.name "Yeah? How do you like this?"
                     $ the_person.draw_person()
                     if the_person.has_taboo("kissing"):
@@ -217,10 +236,10 @@ label cousin_flirt_response_high(the_person):
                     else:
                         "You put your arm around her waist and kiss her. She hesitates for a moment, then leans her body eagerly against yours."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_53
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "Yeah? What are you planning to do with that power?"
                     the_person.char "If I told you it would ruin the surprise. Don't worry, I promise I'm only going to use it for evil."
                     "She winks and lets go of her tits. It takes a second before they stop jiggling completely."
@@ -241,7 +260,7 @@ label cousin_flirt_response_high(the_person):
             "She glances around nervously, checking to see if anyone was listening."
             the_person.char "If you want to talk to me like that you'll have to wait until we're alone."
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "I don't feel like waiting. Come on, let's sneak away."
                     the_person.char "Like, right now? Ugh, fine."
                     "You lead [the_person.possessive_title] away and find a quiet spot where you can be alone."
@@ -253,13 +272,13 @@ label cousin_flirt_response_high(the_person):
                     else:
                         "When you finally have some privacy you don't waste any time. You put an arm around [the_person.title] and pull her into a passionate kiss."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_54
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "Come on, you're really going to make me wait?"
                     $ the_person.draw_person(the_animation = blowjob_bob)
-                    "[the_person.possessive_title] smiles mischeviously and grabs her tits, jiggling them in front of your face."
+                    "[the_person.possessive_title] smiles mischievously and grabs her tits, jiggling them in front of your face."
                     the_person.char "Yeah, I am. Be a patient boy and maybe you'll get to see these later."
                     "She winks and lets go of her tits. It takes a second before they stop jiggling completely."
                     $ the_person.draw_person()
@@ -275,7 +294,7 @@ label cousin_flirt_response_high(the_person):
             mc.name "Well... I wouldn't say no."
             the_person.char "Yeah, that's what I thought. So let's try not to get in trouble, okay?"
             $ the_person.draw_person()
-            "She legs go of her boobs and lets them drop. It takes a second before they stop jiggling completley."
+            "She legs go of her boobs and lets them drop. It takes a second before they stop jiggling completely."
             mc.name "Alright, I get it."
 
     return
@@ -486,7 +505,7 @@ label cousin_licking_pussy_taboo_break(the_person):
         if the_person.has_taboo("sucking_cock"):
             mc.name "I'm going to eat you out. Are you really going to complain about getting head?"
             the_person.char "Oh my god, this is amazing. You're so pathetic you want to lick my pussy just so you can touch a real girl."
-            "She laughs condesendingly."
+            "She laughs condescendingly."
             the_person.char "Alright then, let's see if you're any good at this."
 
         else:
@@ -577,7 +596,7 @@ label cousin_condomless_sex_taboo_break(the_person):
                 the_person.char "Me too, but we need to be really careful if you're going to take me bareback. I'm not on birth control."
                 $ the_person.update_birth_control_knowledge()
                 mc.name "Fine, I'll pull out."
-            the_person.char "You better. If you get me prengant you're going to be the one to tell both of our moms."
+            the_person.char "You better. If you get me pregnant you're going to be the one to tell both of our moms."
         the_person.char "Come on, hurry up and fuck me before I realise this is a bad idea."
 
     else:
@@ -619,7 +638,7 @@ label cousin_bare_tits_taboo_break(the_person, the_clothing):
     the_person.char "No I'm not scared, and my tits are perfect for your information. I bet you've never even gotten to real boobs before. Pathetic."
     "You let her keep talking. It seems like she's convincing herself rather than you."
     the_person.char "You know what, fine. I'll let you see my tits, but only so you know what you're missing out on."
-    "[the_person.possessive_title] gives you an arogant smile, as if she's somehow won."
+    "[the_person.possessive_title] gives you an arrogant smile, as if she's somehow won."
     the_person.char "Well, what are you waiting for?"
     return
 
@@ -633,7 +652,7 @@ label cousin_bare_pussy_taboo_break(the_person, the_clothing):
         the_person.char "Fine. I bet you get one look at it and panic, because you've never been this close to a real girl before."
 
     else:
-        mc.name "You're acting real high and mighty for someone who got fingered by that same cousin. Just shut up and let me get naked."
+        mc.name "You're acting real high and mighty for someone who got fingered by that same cousin. Just shut up and and take off your [the_clothing.display_name]."
         "She rolls her eyes."
         the_person.char "Whatever. You're probably going to cum just looking at me. It's actually really sad."
     return

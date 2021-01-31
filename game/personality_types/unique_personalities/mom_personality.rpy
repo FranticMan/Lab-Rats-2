@@ -8,27 +8,27 @@ init 1300:
             return valid_titles
 
         def mom_possessive_titles(the_person):
-            valid_possessive_titles = ["Your mother"]
+            valid_titles = ["Your mother"]
             if the_person.love > 10:
-                valid_possessive_titles.append("Your mom")
+                valid_titles.append("Your mom")
 
             if the_person.sluttiness > 60 and the_person.love > 60:
-                valid_possessive_titles.append("Your personal MILF")
+                valid_titles.append("Your personal MILF")
 
             if the_person.sluttiness > 100:
-                valid_possessive_titles.append("Your cock hungry mom")
-                valid_possessive_titles.append("The family cumdump")
-            return valid_possessive_titles
+                valid_titles.append("Your cock hungry mom")
+                valid_titles.append("The family cumdump")
+            return valid_titles
 
         def mom_player_titles(the_person):
-            valid_player_titles = [mc.name]
+            valid_titles = [mc.name]
             if the_person.happiness < 70:
-                valid_player_titles.append(mc.name + " " + mc.last_name)
+                valid_titles.append(mc.name + " " + mc.last_name)
 
             if the_person.love > 20:
-                valid_player_titles.append("Sweetheart")
-                valid_player_titles.append("Sweety")
-            return valid_player_titles
+                valid_titles.append("Sweetheart")
+                valid_titles.append("Sweety")
+            return valid_titles
 
         mom_personality = Personality("mom", default_prefix = "reserved",
         common_likes = ["pants", "conservative outfits", "work uniforms", "HR work", "makeup"],
@@ -41,19 +41,19 @@ init 1300:
 label mom_greetings(the_person):
     if the_person.obedience > 130:
         if the_person.sluttiness > 60:
-            the_person.char "Hello sweetheart. Is there anything your mother can take care of for you?"
+            the_person.char "Hello [the_person.mc_title]. Is there anything your mother can take care of for you?"
         else:
-            the_person.char "Hello sweetheart. I hope everything is going well, if there's anything I can help with let me know."
+            the_person.char "Hello [the_person.mc_title]. I hope everything is going well, if there's anything I can help with let me know."
     else:
         if the_person.sluttiness > 60:
             the_person.char "Hello [the_person.mc_title], how has your day been? I was... well, I was thinking about you, that's all."
         else:
             if time_of_day == 0 or time_of_day == 1:
-                the_person.char "Good morning, sweetheart!"
+                the_person.char "Good morning, [the_person.mc_title]!"
             elif time_of_day == 1 or time_of_day == 2:
-                the_person.char "Good afternoon, sweetheart!"
+                the_person.char "Good afternoon, [the_person.mc_title]!"
             else:
-                the_person.char "Good evening, sweetheart!"
+                the_person.char "Good evening, [the_person.mc_title]!"
     return
 
 label mom_sex_responses_foreplay(the_person):
@@ -182,14 +182,14 @@ label mom_sex_responses_anal(the_person):
 label mom_clothing_accept(the_person):
     if the_person.obedience > 140:
         the_person.char "Well, if you think it'll look good on me then I'm not going to argue."
-        the_person.char "Thank you for the wardrobe suggestions sweety."
+        the_person.char "Thank you for the wardrobe suggestions [the_person.mc_title]."
     else:
         the_person.char "Oh that's a cute idea! I'll ask your sister about it later and see what she thinks."
     return
 
 label mom_clothing_reject(the_person):
     if the_person.obedience > 140:
-        the_person.char "I know it would make your day if I wore this for you sweetheart, but what if Lily saw me in this?"
+        the_person.char "I know it would make your day if I wore this for you [the_person.mc_title], but what if Lily saw me in this?"
         the_person.char "I'm sorry, I know you must be so disappointed in me."
     else:
         if the_person.sluttiness > 60:
@@ -213,9 +213,9 @@ label mom_clothing_review(the_person):
 
 label mom_strip_reject(the_person, the_clothing, strip_type = "Full"):
     if the_person.obedience > 130:
-        the_person.char "I know it would make your day sweety, but I don't think I should take my [the_clothing.display_name] off. I'm your mother, after all."
+        the_person.char "I know it would make your day [the_person.mc_title], but I don't think I should take my [the_clothing.display_name] off. I'm your mother, after all."
     elif the_person.obedience < 70:
-        the_person.char "Not yet sweety. You just need to relax and let mommy take care of you."
+        the_person.char "Not yet [the_person.mc_title]. You just need to relax and let mommy take care of you."
     else:
         the_person.char "Don't touch that [the_person.mc_title]. I'm your mother, you shouldn't be trying to take off my [the_clothing.display_name]"
     return
@@ -234,25 +234,25 @@ label mom_strip_obedience_accept(the_person, the_clothing, strip_type = "Full"):
 label mom_grope_body_reject(the_person):
     if the_person.effective_sluttiness("touching_body") < 5: #Fail point for touching shoulder
         "[the_person.title] seems uncomfortable as you touch her."
-        the_person "What are you doing [the_person.mc_title]?"
+        the_person.char "What are you doing [the_person.mc_title]?"
         mc.name "I was... going to give you a shoulder rub? You seem tense."
         if the_person.love > 20:
-            the_person "It's so sweet of you to think about that. I'm okay right now though."
+            the_person.char "It's so sweet of you to think about that. I'm okay right now though."
             "She gives you a quick hug, then steps back and smiles."
-            the_person "I'm so lucky, you're always looking out for ways to help me."
+            the_person.char "I'm so lucky, you're always looking out for ways to help me."
             $ the_person.change_love(1) #Just cancels out the -1 Love you'd get otherwise.
 
         else:
-            the_person "Oh, it's okay [the_person.title]. My shoulders feel fine."
+            the_person.char "Oh, it's okay [the_person.title]. My shoulders feel fine."
             mc.name "Well, if you ever change your mind."
             "She smiles and nods, but she still seems slightly uncomfortable."
 
     else: #Fail point for touching waist
-        the_person "[the_person.mc_title], maybe you should move your hand..."
+        the_person.char "[the_person.mc_title], maybe you should move your hand..."
         mc.name "Is there something wrong?"
-        the_person "I know you're just being affectionate, but it's a little... personal."
+        the_person.char "I know you're just being affectionate, but it's a little... personal."
         mc.name "Oh, I'm sorry [the_person.title], I didn't mean..."
-        the_person "It's fine, it really is. Let's just forget about it, okay?"
+        the_person.char "It's fine, it really is. Let's just forget about it, okay?"
         "You nod, and [the_person.possessive_title] seems to relax a little bit."
     return
 
@@ -261,7 +261,7 @@ label mom_sex_accept(the_person):
         if the_person.obedience < 100:
             the_person.char "This can't be wrong... not if I get so turned on by it, right?"
         else:
-            the_person.char "Whatever you want me to do sweetheart. I just want to make sure you're happy."
+            the_person.char "Whatever you want me to do [the_person.mc_title]. I just want to make sure you're happy."
     else:
         the_person.char "Okay, lets try it. I just hope this brings us closer together as mother and son."
     return
@@ -272,9 +272,9 @@ label mom_sex_obedience_accept(the_person):
         the_person.char "But just a little more couldn't hurt, right?"
     else:
         if the_person.obedience > 130:
-            the_person.char "I... We really shouldn't... But I know it would make you so happy. Okay sweetheart, let's try it"
+            the_person.char "I... We really shouldn't... But I know it would make you so happy. Okay [the_person.mc_title], let's try it"
         else:
-            the_person.char "How does this keep happening sweety? You know I love you but we shouldn't be doing this..."
+            the_person.char "How does this keep happening [the_person.mc_title]? You know I love you but we shouldn't be doing this..."
             "[the_person.possessive_title] looks away, conflicted."
             the_person.char "I... You just have to make sure your sister never knows about this. Nobody can know..."
     return
@@ -330,33 +330,33 @@ label mom_seduction_accept_alone(the_person):
         the_person.char "I can't believe I'm saying this... I'll play along, as long as you promise nobody will ever know."
         mc.name "Of course Mom, I promise."
     elif the_person.sluttiness < 50:
-        the_person.char "Oh sweetheart, what kind of mother would I be if I said no? Come on, let's see what we can do."
+        the_person.char "Oh [the_person.mc_title], what kind of mother would I be if I said no? Come on, let's see what we can do."
     else:
-        the_person.char "Oh sweetheart, I'm so glad I make you feel that way. Come on, let's get started!"
+        the_person.char "Oh [the_person.mc_title], I'm so glad I make you feel that way. Come on, let's get started!"
     return
 
 
 label mom_seduction_refuse(the_person):
     if the_person.sluttiness < 20:
-        the_person.char "Oh my god, what are you saying sweetheart! I'm your mother, we certainly couldn't do anything... physical!"
+        the_person.char "Oh my god, what are you saying [the_person.mc_title]! I'm your mother, we certainly couldn't do anything... physical!"
 
     elif the_person.sluttiness < 50:
-        the_person.char "I'm sorry sweetheart, but we really shouldn't be doing anything together any more. It's just... not the way we're suppose to act."
+        the_person.char "I'm sorry [the_person.mc_title], but we really shouldn't be doing anything together any more. It's just... not the way we're supposed to act."
 
     else:
-        the_person.char "I'm sorry sweety, I know how much you like to spend time with me, but now isn't a good time for me. I'll make it up to you though, I promise."
+        the_person.char "I'm sorry [the_person.mc_title], I know how much you like to spend time with me, but now isn't a good time for me. I'll make it up to you though, I promise."
     return
 
 label mom_flirt_response(the_person):
     if the_person.obedience > 130:
         if the_person.sluttiness > 50:
-            the_person.char "Oh sweetheart stop, you're making your mother think some... impure thoughts."
+            the_person.char "Oh [the_person.mc_title] stop, you're making your mother think some... impure thoughts."
         else:
             the_person.char "Oh stop [the_person.mc_title], it's not nice to make fun of your mother like that."
             "[the_person.possessive_title] blushes and looks away."
     else:
         if the_person.sluttiness > 50:
-            the_person.char "Oh jeez... I... I don't know what to say about that sweetheart. Thank you, I suppose."
+            the_person.char "Oh jeez... I... I don't know what to say about that [the_person.mc_title]. Thank you, I suppose."
             "[the_person.title] smiles at you and spins around, giving you a full look at her body."
             the_person.char "Thank you for paying attention to someone like me."
         else:
@@ -376,7 +376,7 @@ label mom_flirt_response_mid(the_person):
         the_person.char "Oh [the_person.mc_title], you shouldn't be saying things like that about me."
         mc.name "Like what? That you're hot?"
         the_person.char "Yes, that. I appreciate the thought, but I'm still your mother."
-        mc.name "That doesn't make me blind. I'm just telling you what I see [the_person.title], it's suppose to be a compliment."
+        mc.name "That doesn't make me blind. I'm just telling you what I see [the_person.title], it's supposed to be a compliment."
         "She sighs and smiles."
         the_person.char "Well then thank you for the compliment. Come here."
         "[the_person.possessive_title] gives you a quick, motherly hug."
@@ -406,7 +406,7 @@ label mom_flirt_response_high(the_person):
             "She opens her arms up and pulls you into a hug. After a quick squeeze she steps back to arms length and smiles, looking into your eyes."
             the_person.char "No matter what you're always going to be my amazing little boy."
             menu:
-                "Kiss her.":
+                "Kiss her":
                     if the_person.has_taboo("kissing"):
                         $ the_person.call_dialogue("kissing_taboo_break")
                         "You lean in and kiss [the_person.possessive_title]. She does her best to kiss you back, but it's clear she's still adjusting."
@@ -414,10 +414,10 @@ label mom_flirt_response_high(the_person):
                     else:
                         "You lean in and kiss her. She seems startled for a second, then wraps her arms around you and returns the kiss."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_20
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "And you'll always be my beautiful, loving mom."
                     "[the_person.possessive_title] smiles warmly and hugs you again. This time you let your hands slide down her back and rest them on her ass."
                     the_person.char "You shouldn't... Oh what's the harm. Go ahead, give it a squeeze."
@@ -439,15 +439,15 @@ label mom_flirt_response_high(the_person):
         if the_person.effective_sluttiness() > (25 - the_person.get_opinion_score("incest")*5): #She's slutty, but you need to find somewhere private so people don't find out.
             the_person.char "[the_person.mc_title], watch what you're saying! There are other people around."
             mc.name "It's fine [the_person.title], nobody else is listening."
-            "She puts her hands on her hips and shakes her head severly."
-            the_person.char "Do we need to go somewhere private to talk about your behaviour?"
+            "She puts her hands on her hips and shakes her head severely."
+            the_person.char "Do we need to go somewhere private to talk about your behavior?"
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "I think we should, we don't want to bother anyone else."
                     "[the_person.possessive_title] leads you away. When you're alone she turns back to you."
                     the_person.char "I don't mind you joking around like that, but if there are other people around you should be more... discrete."
                     mc.name "I know [the_person.title], but you're so beautiful I just get carried away."
-                    "Her stern glare soften. She sighs and smilse."
+                    "Her stern glare soften. She sighs and smiles."
                     the_person.char "I can't be angry, you're just feeling the same way every young man does. Come here."
                     "She pulls you into a hug and kisses you on the cheek. You put your hands around her and move them down her back."
                     if the_person.has_taboo("kissing"):
@@ -462,10 +462,10 @@ label mom_flirt_response_high(the_person):
                         the_person.char "Only because you really need it."
                         "You lean forward and kiss her passionately. It takes her a few seconds to warm up, but soon she is kissing you back with just as much enthusiasm."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_21
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "Relax, I'm just joking around. What I mean is you're looking stunning today."
                     the_person.char "Thank you, that's a much more appropriate way of saying it."
                     "Her eyes soften and she sighs."
@@ -488,7 +488,7 @@ label mom_cum_face(the_person):
         if the_person.sluttiness > 50:
             the_person.char "Ah... is this what you like to see [the_person.mc_title]? I hope you had a good time."
         else:
-            the_person.char "Oh, it's everywhere! I... I just hope you had a good time sweetheart. I'm doing this all for you."
+            the_person.char "Oh, it's everywhere! I... I just hope you had a good time [the_person.mc_title]. I'm doing this all for you."
     else:
         if the_person.sluttiness > 70:
             the_person.char "Oh, you got it all over me. I hope that means you had a good time!"
@@ -499,14 +499,14 @@ label mom_cum_face(the_person):
 label mom_cum_mouth(the_person):
     if the_person.obedience > 130:
         if the_person.sluttiness > 50:
-            the_person.char "I guess that means I did a good job, right sweetheart?"
+            the_person.char "I guess that means I did a good job, right [the_person.mc_title]?"
         else:
-            the_person.char "I... Oh I'm not sure I'm going to be able to to get use to that. I'll try for you though sweetheart."
+            the_person.char "I... Oh I'm not sure I'm going to be able to to get used to that. I'll try for you though [the_person.mc_title]."
     else:
         if the_person.sluttiness > 70:
-            the_person.char "Mmm, you taste great sweetheart. Thank you for giving mommy such a wonderful reward."
+            the_person.char "Mmm, you taste great [the_person.mc_title]. Thank you for giving mommy such a wonderful reward."
         else:
-            the_person.char "Oh sweetheart... We really shouldn't have done that."
+            the_person.char "Oh [the_person.mc_title]... We really shouldn't have done that."
     return
 
 label mom_cum_pullout(the_person):
@@ -616,7 +616,7 @@ label mom_sex_strip(the_person):
         if the_person.arousal < 50:
             the_person.char "I hope you don't mind if I slip this off..."
         else:
-            the_person.char "I'm just going to take this off for you sweetheart..."
+            the_person.char "I'm just going to take this off for you [the_person.mc_title]..."
 
     elif the_person.sluttiness < 60:
         if the_person.arousal < 50:
@@ -635,42 +635,43 @@ label mom_sex_strip(the_person):
 
 label mom_talk_busy(the_person):
     if the_person.obedience > 120:
-        the_person.char "I'm really sorry sweetheart, but I've got some work to do right now. Could we chat later?"
+        the_person.char "I'm really sorry [the_person.mc_title], but I've got some work to do right now. Could we chat later?"
         the_person.char "Maybe you can stop by for dinner and talk to me and your sister!"
     else:
         the_person.char "I'm sorry [the_person.mc_title], but I'm really busy right now. If it can wait we can talk about it later."
     return
 
 label mom_sex_watch(the_person, the_sex_person, the_position):
+    $ title = the_person.title if the_person.title else "The stranger"
     if the_person.sluttiness < the_position.slut_requirement - 20:
         $ the_person.draw_person(emotion = "angry")
         the_person.char "[the_person.mc_title]! I'm your mother, how can you be doing that in front of me!"
         $ the_person.change_obedience(-2)
         $ the_person.change_happiness(-1)
-        "[the_person.title] looks away while you and [the_sex_person.name] [the_position.verb]."
+        "[title] looks away while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement - 10:
         $ the_person.draw_person()
         $ the_person.change_happiness(-1)
         the_person.char "[the_person.mc_title]! Could you at least try and not do this in front of your mother?"
-        "[the_person.title] tries to avert her gaze while you and [the_sex_person.name] [the_position.verb]."
+        "[title] tries to avert her gaze while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement:
         $ the_person.draw_person()
         the_person.char "[the_person.mc_title], I'm... You really shouldn't be doing this here..."
         $ change_report = the_person.change_slut_temp(1)
-        "[the_person.possessive_title] averts her gaze, but she keeps stealing glances while you and [the_sex_person.name] [the_position.verb]."
+        "[possessive_title] averts her gaze, but she keeps stealing glances while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness > the_position.slut_requirement and the_person.sluttiness < the_position.slut_cap:
         $ the_person.draw_person()
         the_person.char "Who taught you this [the_person.mc_title]? It certainly wasn't me..."
         $ change_report = the_person.change_slut_temp(2)
-        "[the_person.title] watches you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches you and [the_sex_person.name] [the_position.verb]."
 
     else:
         $ the_person.draw_person(emotion = "happy")
         the_person.char "Treat her the way she deserves [the_person.mc_title]. I think you could try something a little more exciting with her."
-        "[the_person.title] watches eagerly while you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches eagerly while you and [the_sex_person.name] [the_position.verb]."
 
     return
 
@@ -718,7 +719,7 @@ label mom_climax_responses_foreplay(the_person):
     if the_person.sluttiness > 50:
         the_person.char "Oh my..."
         "She pauses and moans passionately."
-        the_person.char "You know just what to do to your mother feel alive. I'm going to cum!"
+        the_person.char "You know just what to do to make your mother feel alive. I'm going to cum!"
     else:
         the_person.char "I... I shouldn't be feeling like this... I shouldn't but you're going to..."
         "She hesitates before continuing, almost at a whisper."
@@ -740,7 +741,7 @@ label mom_climax_responses_vaginal(the_person):
         "She closes her eyes as she tenses up. She freezes for a long second, then lets out a long, slow breath."
     else:
         the_person.char "Oh god, I shouldn't be... I shouldn't be feeling like this..."
-        the_person.char "I'm going to cum sweetheart, you're about to make mommy cum! Ah!"
+        the_person.char "I'm going to cum [the_person.mc_title], you're about to make mommy cum! Ah!"
     return
 
 label mom_climax_responses_anal(the_person):
@@ -759,7 +760,7 @@ label mom_date_seduction(the_person):
             the_person.char "You've shown me such a good time tonight. Come with me and I think I can show you a few things too."
         else:
             "When you get home your mother takes your hand and holds it in hers."
-            the_person.char "You were a perfect gentleman tonight sweety. I think you've earned this."
+            the_person.char "You were a perfect gentleman tonight [the_person.mc_title]. I think you've earned this."
             "She leans forward and kisses you on the lips. She lingers there for a couple of seconds before pulling back and sighing."
             the_person.char "Would you... like to come to my room and share a quick drink before I get to bed? Maybe you could tuck me in too."
     else:
@@ -779,7 +780,7 @@ label mom_sex_take_control (the_person):
     if the_person.arousal > 60:
         the_person.char "[the_person.mc_title], you just sit back and let me take care of you. Mommy's going to get what she needs from you..."
     else:
-        the_person.char "Oh sweetheart, you can't get a women all worked up then just walk away. Here, let me take care of both of us."
+        the_person.char "Oh [the_person.mc_title], you can't get a women all worked up then just walk away. Here, let me take care of both of us."
     return
 
 label mom_sex_beg_finish(the_person):
@@ -787,29 +788,43 @@ label mom_sex_beg_finish(the_person):
     return
 
 label mom_sex_review(the_person, the_report):
-    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
     $ comment_position = the_person.pick_position_comment(the_report)
-
     if comment_position is None:
         return #You didn't actually do anything, no need to comment.
+
+    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
+    $ the_person.draw_person()  # make sure she stands up for talking with you
 
     #She's worried about her SO finding out because it was in public
     if the_report.get("was_public", False) and (the_person.effective_sluttiness()+10*the_person.get_opinion_score("public sex") < comment_position.slut_cap):
         if used_obedience:
-            the_person "Oh, why did I let you do that here... People are watching [the_person.mc_title], someone might recorgnise me!"
+            the_person "Oh, why did I let you do that here... People are watching [the_person.mc_title], someone might recognize me!"
             mc.name "It's fine [the_person.title], I don't think anyone knows who we are."
             "[the_person.possessive_title] seems unconvinced, but she doesn't say anything more."
 
         else:
-            the_person "Oh [the_person.mc_title], what was I thinking... People are watching, someone might recognise me!"
+            the_person "Oh [the_person.mc_title], what was I thinking... People are watching, someone might recognize me!"
             mc.name "It's fine [the_person.title], I don't think anyone knows who we are."
             "[the_person.possessive_title] seems unconvinced, but she doesn't say anything more."
+
+    # special condition - you fucked her brains out
+    elif the_report.get("girl orgasms", 0) > 2:
+        if used_obedience:
+            the_person "Are you feeling satisfied now [the_person.mc_title]?"
+            mc.name "Yeah, that was great [the_person.title]. I know you enjoyed it too?"
+            "[the_person.possessive_title] blushes and looks away from you."
+            the_person "It was... amazing. You're so good, I won't ask you who you learned that from."
+        else:
+            the_person "Oh my... I'm sorry sweetheart, I shouldn't have let myself go like that."
+            the_person "I don't know what came over me, I just stopped thinking straight after my second orgasm! I..."
+            "She stops herself and takes a deep breath."
+            mc.name "Don't worry [the_person.title], I really enjoyed our time together."
 
     #No special conditions, just respond based on how orgasmed and how slutty the position was.
     elif the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0: #You both came
         if the_person.effective_sluttiness() > comment_position.slut_cap: #She's sluttier than the position cap, it was tame
             the_person "Did you have a good time sweetheart? That was some fun exercise."
-            the_person "We could even... go a little furthur, next time. Only if you're comfortable with that, of course!"
+            the_person "We could even... go a little further, next time. Only if you're comfortable with that, of course!"
 
         elif the_person.effective_sluttiness() > comment_position.slut_requirement: #She thought it was fun/exciting
             the_person "I hope you're feeling satisfied sweetheart. That was nice."
@@ -854,7 +869,7 @@ label mom_sex_review(the_person, the_report):
         if the_person.effective_sluttiness() > comment_position.slut_cap: #She's sluttier than the position
             the_person "How was that sweetheart, was it everything you wanted it to be?"
             mc.name "Yeah, that was great [the_person.title]."
-            the_person "Good, that's what I like to hear. Next time we can go even furthur, if you'd like."
+            the_person "Good, that's what I like to hear. Next time we can go even further, if you'd like."
             the_person "Anything to make my special man happy."
 
         elif the_person.effective_sluttiness() > comment_position.slut_requirement: #She thought it was fun/exciting
@@ -891,6 +906,10 @@ label mom_sex_review(the_person, the_report):
             the_person "I'm sorry [the_person.mc_title], it's my job to be the responsible one and set boundaries."
             # the_person "You're right, we should probably stop. I just go so carried away, I wouldn't normally do something like this..."
             # "She laughs nervously, trying to hide her embarrassment."
+
+    # Gave creampie while she is not on birth control (extra dialog when she could get pregnant)
+    if the_report.get("creampies", 0) > 0 and not the_person.on_birth_control and not the_person.event_triggers_dict.get("preg_knows", False):
+        the_person "Well [the_person.mc_title], how can I explain to your sister how I got pregnant?"
     return
 
 ## Taboo break dialogue ##
@@ -906,15 +925,15 @@ label mom_kissing_taboo_break(the_person):
     the_person.char "I'm sorry if I've been confusing, but we really can't do that..."
     mc.name "You're the most important woman in the world to me. Other people never need to know, I just really want to feel close to you."
     "Her eyes melt."
-    the_person.char "Oh sweetheart! I want to be close to you too! You know you'll always be my special man, right?"
+    the_person.char "Oh [the_person.mc_title]! I want to be close to you too! You know you'll always be my special man, right?"
     the_person.char "Okay, we can kiss just a little bit if that's how you want to show your love. I understand how you feel."
     the_person.char "And um... Let's just not tell anyone else about this, okay? There's nothing wrong with it, but other people might get the wrong idea."
     mc.name "Of course [the_person.title]."
     return
 
 label mom_touching_body_taboo_break(the_person):
-    "[the_person.mc_title], what are you doing? You shouldn't be touching me like this!"
-    if the_person.love > 20: # Love varient
+    the_person.char "[the_person.mc_title], what are you doing? You shouldn't be touching me like this!"
+    if the_person.love > 20: # Love variant
         mc.name "Why not? You love me, don't you?"
         the_person.char "Of course I love you, but I'm still your mother!"
         mc.name "Please [the_person.title]? I feel so lonely sometimes, and I feel loved when I'm close to you."
@@ -927,7 +946,7 @@ label mom_touching_body_taboo_break(the_person):
         "She seems to be trying to convince herself more than you."
 
 
-    else: # High slut varient
+    else: # High slut variant
         mc.name "Why not? Don't you like it?"
         the_person.char "That's... That's not the point! I'm your mother! I'm twice your age!"
         mc.name "So? I think older women are hot."
@@ -947,7 +966,7 @@ label mom_touching_body_taboo_break(the_person):
 
 label mom_touching_penis_taboo_break(the_person):
     # She's in control here.
-    if the_person.love > 30: # Love varient
+    if the_person.love > 30: # Love variant
         the_person.char "Oh my god, what am I doing!"
         "She looks away from you, on the brink of walking away entirely."
         mc.name "[the_person.title], it's okay. I'm your son and you love me, right?"
@@ -956,10 +975,10 @@ label mom_touching_penis_taboo_break(the_person):
         mc.name "And I love you too. There's nothing wrong about a mother who wants to make sure her son is taken care of."
         "She looks at your hard cock and stares at it for a moment."
         the_person.char "You don't think this is wrong? I'm your mother... I shouldn't be touching you like this."
-        mc.name "I don't think it's anyones business but our own how we show our love for each other."
+        mc.name "I don't think it's anyone's business but our own how we show our love for each other."
         "She thinks for a long moment, eyes still locked on your dick."
         the_person.char "Okay, but only because I love you [the_person.mc_title]."
-        "[the_person.possessive_title] looks you in the eyes again and laughs self-conciously."
+        "[the_person.possessive_title] looks you in the eyes again and laughs self-consciously."
         the_person.char "I guess it's fine to tell you then that your... Penis is very impressive. You should be very proud."
 
     else: #High Slut version
@@ -977,7 +996,7 @@ label mom_touching_vagina_taboo_break(the_person):
     the_person.char "Wait! You can't touch mommy there [the_person.mc_title]."
     if the_person.love > 30:
         mc.name "Why not? You trust me, don't you?"
-        the_person.char "I would trust you with my life sweetheart, but that's a very private place for a woman."
+        the_person.char "I would trust you with my life [the_person.mc_title], but that's a very private place for a woman."
         if the_person.has_taboo("touching_penis"):
             "Almost as an afterthought, she remembers to add:"
             the_person.char "And you're my son! You shouldn't be trying to touch your mom's..."
@@ -1016,7 +1035,7 @@ label mom_touching_vagina_taboo_break(the_person):
 
 label mom_sucking_cock_taboo_break(the_person):
     mc.name "[the_person.title], can you do something special for me?"
-    the_person.char "Maybe, what do you want sweetheart?"
+    the_person.char "Maybe, what do you want [the_person.mc_title]?"
     mc.name "I want you to give me a blowjob."
     if the_person.love > 40:
         "She stares at you in disbelief for a moment."
@@ -1042,9 +1061,11 @@ label mom_sucking_cock_taboo_break(the_person):
         mc.name "You've given a blowjob before, right?"
         "She nods meekly."
         the_person.char "When I was younger. It's been a long time..."
-        mc.name "Then you know what to do. Just kneel down, put slide your lips onto it, and it'll all come back to you."
+        mc.name "Then you know what to do. Just kneel down, put your lips onto it, and it'll all come back to you."
+        $ the_person.draw_person(position = "kissing")
         "[the_person.possessive_title] grabs your head and kisses you passionately. You wrap your arms around her reciprocate."
         "She finally breaks the kiss, pulling back her head and staring into your eyes."
+        $ the_person.draw_person()
         the_person.char "I love you [the_person.mc_title]."
         mc.name "I love you too [the_person.title]. I've loved you my whole life."
 
@@ -1071,21 +1092,23 @@ label mom_sucking_cock_taboo_break(the_person):
         the_person.char "This... Really makes you happy?"
         mc.name "It does, more than I could ever explain."
         the_person.char "It makes me happy too. You're right, I should never have been worried when happiness was right in front of me."
+        $ the_person.draw_person(position = "kissing")
         "[the_person.possessive_title] grabs your head and kisses you passionately. You wrap your arms around her reciprocate."
         "She finally breaks the kiss, pulling back her head and staring into your eyes."
+        $ the_person.draw_person()
         the_person.char "It's been a long time, but I think I still remember how to suck a man off."
         mc.name "Get on your knees and I'm sure it'll come back to you."
     return
 
 label mom_licking_pussy_taboo_break(the_person):
     if the_person.love > 40:
-        the_person.char "You can look, but you can't do any more than that sweetheart."
+        the_person.char "You can look, but you can't do any more than that [the_person.mc_title]."
 
         if the_person.has_taboo("sucking_cock"):
             mc.name "Why not? Your pussy looks really sweet, I don't mind giving it a taste."
             the_person.char "[the_person.mc_title]! I'm your mother, that's no way to talk to me!"
             mc.name "I'm sorry. I just want to find a way make you feel as special as you are to me."
-            the_person.char "Oh sweetheart... I'm very flattered, but there are other things we could do, aren't there?"
+            the_person.char "Oh [the_person.mc_title]... I'm very flattered, but there are other things we could do, aren't there?"
             mc.name "Why are those things okay for us to do, but this isn't?"
             the_person.char "Well... I... I don't know [the_person.mc_title]."
             mc.name "Exactly. Just relax and let me treat you [the_person.title]. Let me show you how much I love you by making you feel good."
@@ -1100,7 +1123,7 @@ label mom_licking_pussy_taboo_break(the_person):
             the_person.char "You... You really don't mind doing that for me?"
             mc.name "Of course not! You're the most important woman in my life [the_person.title], I want to make you feel special."
             "She thinks about it, then nods happily."
-            the_person.char "Okay. That would be really nice sweetheart."
+            the_person.char "Okay. That would be really nice [the_person.mc_title]."
     else:
         the_person.char "Get a good look, if that's what you're after."
         mc.name "I want to do more than look. I want to know how you taste."
@@ -1135,7 +1158,7 @@ label mom_vaginal_sex_taboo_break(the_person):
     else:
         the_person.char "I should stop you here... This is so wrong. Isn't it?"
         mc.name "I don't think there's anything wrong. Why do you?"
-        the_person.char "My son has his cock out and I'm actually thinking about letthing him have sex with me!"
+        the_person.char "My son has his cock out and I'm actually thinking about letting him have sex with me!"
         the_person.char "Isn't that crazy!? Did we both go insane?"
         mc.name "I'm not just your son though, am I? We've done so much together already, isn't this just natural?"
         the_person.char "Nothing about this is natural..."
@@ -1171,7 +1194,7 @@ label mom_anal_sex_taboo_break(the_person):
                 the_person.char "Okay, for your happiness I'll give it a try."
 
             else:
-                mc.name "If I'm fucking your pussy I might get you pregnant, but with anal that can't hapen."
+                mc.name "If I'm fucking your pussy I might get you pregnant, but with anal that can't happen."
                 the_person.char "Or you could put on a condom."
                 mc.name "Those feel like crap though [the_person.title]. I want to feel you wrapped around my cock."
                 the_person.char "Well... Okay, if it would make you happy we can give it a try."
@@ -1204,12 +1227,12 @@ label mom_anal_sex_taboo_break(the_person):
         "She shakes her head."
         the_person.char "No. I've thought about it, but I've never been brave enough to try it."
         mc.name "I'll be as gentle as possible then, so you have time to adjust."
-        the_person.char "It feels so naughty to give my anal vaginity to my own son. It's kind of turning me on."
+        the_person.char "It feels so naughty to give my anal virginity to my own son. It's kind of turning me on."
     return
 
 label mom_condomless_sex_taboo_break(the_person):
     # Lead in: mc.name "No way. I want to feel you wrapped around me."
-    the_person.char "No no no, we really can't do that! I may be old, but you could still get pregnant!"
+    the_person.char "No no no, we really can't do that! I may be old, but you could still get me pregnant!"
     mc.name "Are you taking birth control?"
     if the_person.on_birth_control:
         the_person.char "I am, but birth control isn't one hundred percent effective. Don't they teach you that in health class?"
@@ -1318,7 +1341,7 @@ label mom_creampie_taboo_break(the_person):
             mc.name "It's not a big deal. I really liked it."
             "She's silent for a moment before responding."
             the_person.char "You did? You don't think I'm a terrible mother for letting you... cum inside me?"
-            mc.name "Of cource not! I think it actually brings us closer together. I don't know anyone who is as close to their mom as I am."
+            mc.name "Of course not! I think it actually brings us closer together. I don't know anyone who is as close to their mom as I am."
             the_person.char "I guess that's true... Next time you really should still pull out though, we don't want any accidents."
 
         else:

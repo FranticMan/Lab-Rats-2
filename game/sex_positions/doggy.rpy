@@ -2,8 +2,8 @@
     python:
         doggy = Position(name = "Doggy", slut_requirement = 60, slut_cap = 80, requires_hard = True, requires_large_tits = False,
             position_tag = "doggy", requires_location = "Lay", requires_clothing = "Vagina", skill_tag = "Vaginal",
-            girl_arousal = 16, girl_energy = 14,
-            guy_arousal = 22, guy_energy = 20,
+            girl_arousal = 16, girl_energy = 9,
+            guy_arousal = 22, guy_energy = 13,
             connections = [],
             intro = "intro_doggy",
             scenes = ["scene_doggy_1","scene_doggy_2"],
@@ -80,7 +80,7 @@ label scene_doggy_1(the_girl, the_location, the_object):
     "You grab onto [the_girl.title] by her hips and settle into a steady rhythm, pumping your cock in and out of her tight pussy."
     $ the_girl.call_dialogue("sex_responses_vaginal")
     menu:
-        "Talk dirty to her.":
+        "Talk dirty to her":
             mc.name "How does that feel? Do you like getting railed from behind?"
             if the_girl.get_opinion_score("being submissive") > 0:
                 $ the_girl.discover_opinion("being submissive")
@@ -123,7 +123,7 @@ label scene_doggy_1(the_girl, the_location, the_object):
                     mc.name "You're nice and wet, I love fucking your hot dripping pussy!"
                 "You fuck her a little faster for a while then settle back down to a slower, more sustainable rhythm."
 
-        "Slap her ass.":
+        "Slap her ass":
             "You take a hand off of [the_girl.title]'s hips and squeeze her ass cheeks with it. When she moans happily in response you give her a hard slap."
             if the_girl.get_opinion_score("being submissive") > 0:
                 $ the_girl.discover_opinion("being submissive")
@@ -135,7 +135,7 @@ label scene_doggy_1(the_girl, the_location, the_object):
             else:
                 the_girl.char "Ah!"
                 "You enjoy the way her tight ass jiggles and spank it again."
-            "You leave a hand planted on [the_girl.possessive_title]'s butt while you fuck her, kneeding it and giving it the occasional slap."
+            "You leave a hand planted on [the_girl.possessive_title]'s butt while you fuck her, kneading it and giving it the occasional slap."
 
 
 
@@ -156,7 +156,7 @@ label scene_doggy_2(the_girl, the_location, the_object):
             "[the_girl.title] starts to work her hips in time with yours, panting softly from the effort."
         the_girl.char "Come on [the_girl.mc_title], really give it to me. I can handle it!"
         menu:
-            "Fuck her hard.":
+            "Fuck her hard":
                 "You take a hand off of her hips and lean forward to put it on the back of her neck. With a shove you push her shoulders down against the [the_object.name]."
                 if the_girl.get_opinion_score("being submissive") > 0:
                     the_girl.char "Ah! Yes, use me!"
@@ -168,25 +168,25 @@ label scene_doggy_2(the_girl, the_location, the_object):
                     $ the_girl.change_arousal(the_girl.get_opinion_score("being submissive"))
                 else:
                     the_girl.char "Oh!"
-                "You lean over [the_girl.possessive_title] and fuck her hard, slamming your cock deeep inside her."
+                "You lean over [the_girl.possessive_title] and fuck her hard, slamming your cock deep inside her."
                 if the_girl.arousal > 80:
                     "[the_girl.title] tries to speak, but her words become nothing more than moans and panting while you fuck her stupid."
                 else:
                     "[the_girl.title] arches her back up against you while you fuck her and pants with each thrust."
                 "You slow down and back off before you tire yourself out. [the_girl.title] gets back onto her hands and knees."
 
-            "Fuck her fast.":
+            "Fuck her fast":
                 "You pull [the_girl.title]'s hips towards you and pump into her as fast as you can manage."
                 the_girl.char "That's it, give it to me [the_girl.mc_title]!"
                 if the_girl.has_large_tits() and the_girl.outfit.tits_visible():
-                    "You reach around and grag a handful of [the_girl.possessive_title]'s big tits."
+                    "You reach around and grab a handful of [the_girl.possessive_title]'s big tits."
                 "You keep up the pace as long as you can, but eventually you need to slow down. You settle back into a rhythm you can sustain."
 
     else:
         #Inexperienced. She needs time to get use to it.
         the_girl.char "Ah... go easy on me [the_girl.mc_title], I'm still figuring out how to do this..."
         menu:
-            "Fondle her tits.":
+            "Fondle her tits":
                 "You ease yourself deep inside of [the_girl.title] and give her a chance to get use to your size."
                 the_girl.char "Oh god..."
                 if the_girl.has_large_tits() :
@@ -194,22 +194,24 @@ label scene_doggy_2(the_girl, the_location, the_object):
                         "You occupy yourself by leaning over her and fondling her nice big tits. After a few moments she starts to grind her hips back against you."
 
                     else:
-                        $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
+                        $ top_clothing = the_girl.outfit.get_upper_top_layer()
                         "You occupy yourself by leaning over her and fondling her tits through her [top_clothing.name]. They bounce and jiggle under her clothing."
                         "After a few moments she starts to grind her hips back against you."
+                        $ top_clothing = None
 
                 else:
                     if the_girl.outfit.tits_available():
                         "You occupy yourself by leaning over her and fondling her cute little tits. After a moment she starts to grind her hips back against you."
                     else:
-                        $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
+                        $ top_clothing = the_girl.outfit.get_upper_top_layer()
                         "You occupy yourself by leaning over and trying to fondle her cute little tits."
                         "Her [top_clothing.name] gets in the way, but after a few moments she starts to grind her hips back against you."
+                        $ top_clothing = None
 
-            the_girl.char "I... I want you to keep going."
+            the_girl.char "I... I want you to keep going"
             "Fuck her hard anyways.":
                 mc.name "Don't worry, just relax and you'll manage."
-                "You pull hard on her hips and fuck her hard. She yelps in a combination of suprise and pain."
+                "You pull hard on her hips and fuck her hard. She yelps in a combination of surprise and pain."
                 if the_girl.get_opinion_score("being submissive") > 0:
                     $ the_girl.discover_opinion("being submissive")
                     $ the_girl.change_obedience(the_girl.get_opinion_score("being submissive"))
@@ -245,7 +247,7 @@ label outro_doggy(the_girl, the_location, the_object):
     mc.name "Ah, I'm going to cum!"
     $ the_girl.call_dialogue("cum_pullout")
     menu:
-        "Cum inside of her.":
+        "Cum inside of her":
             if mc.condom:
                 "You pull back on [the_girl.possessive_title]'s hips and drive your cock deep inside of her as you cum. She gasps as you dump your load into her, barely contained by your condom."
                 $ the_girl.call_dialogue("cum_condom")
@@ -267,7 +269,7 @@ label outro_doggy(the_girl, the_location, the_object):
                 $ the_girl.call_dialogue("cum_vagina")
                 "You wait until your orgasm has passed completely, then pull out and sit back. Your cum starts to drip out of [the_girl.title]'s slit almost immediately."
 
-        "Cum on her ass.":
+        "Cum on her ass":
             if mc.condom:
                 "You pull out of [the_girl.title] at the last moment. You whip your condom off and stroke your cock as you blow your load over her ass."
                 "She holds still for you as you cover her with your warm sperm."
@@ -305,12 +307,12 @@ label transition_doggy_doggy_anal(the_girl, the_location, the_object):
 
             else:
                 the_girl.char "Oh fuck! FUCK!"
-                "She yells out in suprise and pain. You bottom out and hold still, giving her a second to get use to your size."
+                "She yells out in surprise and pain. You bottom out and hold still, giving her a second to get use to your size."
                 the_girl.char "Fuck... I hate that part..."
-                mc.name "It's just like ripping off a bandaid. You'll get use to it."
+                mc.name "It's just like ripping off a bandage. You'll get use to it."
                 "You wait a moment, then start to move again. Using her pussy juices as lube you've soon got a good rhythm going."
 
-        "Take it slow.":
+        "Take it slow":
             "You keep a firm grip on her hips as you push forward, sliding into one painful inch at a time."
             "Using her pussy juice as lube, you manage to slip your full cock into her ass. You pause there, giving her a moment to adjust."
             the_girl.char "Mmmhph... Fuck..."
@@ -334,13 +336,13 @@ label strip_ask_doggy(the_girl, the_clothing, the_location, the_object):
     the_girl.char "[the_girl.mc_title], I'd like to take off my [the_clothing.name], would you mind?"
     "[the_girl.title] pants as you fuck her from behind."
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = doggy.position_tag)
             "[the_girl.title] struggles out of her [the_clothing.name] and throws it to the side. Then she gets herself lined up in front of you again."
             "She sighs happily when you slip back inside of her."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 80:
                 the_girl.char "Do you think I look sexy in it?"

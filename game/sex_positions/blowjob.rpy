@@ -12,7 +12,7 @@
             strip_description = "strip_blowjob", strip_ask_description = "strip_ask_blowjob",
             orgasm_description = "orgasm_blowjob",
             taboo_break_description = "taboo_break_blowjob",
-            verb = "throat",
+            verb = "mouth fuck",
             opinion_tags = ["giving blowjobs"], record_class = "Blowjobs",
             default_animation = idle_wiggle_animation, modifier_animations = {"blowjob":blowjob_bob},
             associated_taboo = "sucking_cock")
@@ -27,7 +27,7 @@ label intro_blowjob(the_girl, the_location, the_object):
     "You unzip your pants and pull your underwear down far enough to let your hard cock out."
     mc.name "How about your take care of this for me?"
     if the_girl.effective_sluttiness() > 35:
-        "[the_girl.possessive_title] looks at your shaft for a moment, then drops to her knees in front of you. She runs her hands along your hips, then leans foward and slides her lips over the tip of your dick."
+        "[the_girl.possessive_title] looks at your shaft for a moment, then drops to her knees in front of you. She runs her hands along your hips, then leans forward and slides her lips over the tip of your dick."
     else:
         "[the_girl.possessive_title] looks down at your shaft for a moment, thinks about it for a moment, then drops to her knees in front of you. She leans forward and kisses the tip of your dick gingerly."
     $ blowjob.current_modifier = "blowjob"
@@ -63,7 +63,7 @@ label scene_blowjob_1(the_girl, the_location, the_object):
     if the_girl.sex_skills["Oral"] < 2: #Inexperienced.
         "You rest your hand on [the_girl.title]'s head as she bobs her head back and forth. She struggles to take your very deep, and focuses on licking and sucking your tip instead."
         menu:
-            "Encourage her to go deeper.":
+            "Encourage her to go deeper":
                 mc.name "Come on, you'll never get better if you don't try and take it deeper."
                 "[the_girl.possessive_title] hesitates for a moment, then tries to slide you to the back of her throat. She manages to get half your shaft into her mouth before she pauses, then gags and pulls off."
                 $ blowjob.current_modifier = None
@@ -80,7 +80,7 @@ label scene_blowjob_1(the_girl, the_location, the_object):
                 $ blowjob.redraw_scene(the_girl)
                 "You put a little pressure on the back of her head. She takes the hint and slips you back into her soft mouth."
 
-            "Tell her to use her hand too.":
+            "Tell her to use her hand too":
                 mc.name "There's plenty of shaft still left. Stroke me off a little."
                 if the_girl.sex_skills["Foreplay"] < 2:
                     "[the_girl.possessive_title] wraps her right hand around the base of your cock. She tries jerk off the base of your cock while licking at the tip, but can't quite coordinate the movements."
@@ -112,7 +112,7 @@ label scene_blowjob_1(the_girl, the_location, the_object):
     else: #competent at blowjobs.
         "[the_girl.title] keeps her mouth open wide and bobs her head back and forth to slide your cock in and out. The feeling of her soft, warm mouth sends shivers up your spine."
         menu:
-            "Talk dirty to her.":
+            "Talk dirty to her":
                 mc.name "That feels great [the_girl.title]. You look good on your knees, sucking my cock."
                 if the_girl.get_opinion_score("giving blowjobs") > 0:
                     "She slides your cock out of her mouth to speak."
@@ -136,7 +136,7 @@ label scene_blowjob_1(the_girl, the_location, the_object):
                 else:
                     "[the_girl.possessive_title] stays focused on the task at hand. You run a hand through her hair, then settle the hand on the back of her head to encourage her to keep up the pace."
 
-            "Stay quiet.":
+            "Stay quiet":
                 "You rest your hand on her head, guiding her as she sucks you off."
                 if the_girl.get_opinion_score("masturbating") > 0:
                     if the_girl.outfit.vagina_available():
@@ -174,7 +174,7 @@ label scene_blowjob_2(the_girl, the_location, the_object):
     "[the_girl.title] pulls your cock out of her her mouth and leans in even closer. She runs her tongue along the bottom of your shaft, pausing at the top to kiss the tip a few times."
     the_girl.char "Does that feel good?"
     menu:
-        "Encourage her.":
+        "Encourage her":
             mc.name "Yeah, it does. Keep licking it for me."
             "[the_girl.possessive_title] smiles and keeps working her tongue over your cock. She licks it bottom to top, then sucks on the tip, then licks it from the top back to the bottom."
             if the_girl.get_opinion_score("taking control") > 0:
@@ -189,13 +189,12 @@ label scene_blowjob_2(the_girl, the_location, the_object):
                     "[the_girl.title] keeps on licking your cock. You enjoy the feeling for a while, but you're glad when she finally opens her mouth and starts to blow you again."
                 else:
                     "[the_girl.title] keeps on licking your cock. Her tongue hits all the right places and sends shivers up your spine."
-                    "You're almost disapointed when she opens her mouth wide and starts to blow you again."
+                    "You're almost disappointed when she opens her mouth wide and starts to blow you again."
             $ blowjob.current_modifier = "blowjob"
             $ blowjob.redraw_scene(the_girl)
 
 
-
-        "Insult her.":
+        "Insult her":
             mc.name "Of course it does, you filthy little cocksucker."
             if the_girl.get_opinion_score("being submissive") > 0:
                 "You grab hold of your dick with one hand and bounce it against [the_girl.possessive_title]'s face. She gasps loudly when you do."
@@ -221,7 +220,7 @@ label scene_blowjob_2(the_girl, the_location, the_object):
                 "She sighs and slips your cock back into her mouth."
 
             else:
-                "You grab hold of your dick with one hand and bounce it against [the_girl.title]'s face. She gasps in suprise."
+                "You grab hold of your dick with one hand and bounce it against [the_girl.title]'s face. She gasps in surprise."
                 if the_girl.sex_skills["Foreplay"] > 3:
                     the_girl.char "Filthy cocksucker, huh? Is that what you want me to be?"
                     "She leans forward and rubs her cheek against your wet cock, nuzzling it like a cat."
@@ -234,7 +233,7 @@ label scene_blowjob_2(the_girl, the_location, the_object):
                     "She opens her mouth and slides you inside."
                 else:
                     the_girl.char "Hey, I'm..."
-                    "You interupt her and flop your cock onto her face again."
+                    "You interrupt her and flop your cock onto her face again."
                     the_girl.char "Ugh, fine. Go to town."
                     "She closes her eyes and points her face up. You enjoy a few moments rubbing your cock all over [the_girl.possessive_title]'s face."
                     the_girl.char "Happy now?"
@@ -248,7 +247,7 @@ label outro_blowjob(the_girl, the_location, the_object):
     $ blowjob.redraw_scene(the_girl)
     "Little by little the soft, warm mouth of [the_girl.title] brings you closer to orgasm. One last pass across her velvet tongue is enough to push you past the point of no return."
     menu:
-        "Cum on her face.":
+        "Cum on her face":
             mc.name "Fuck, here I come!"
             "You take a step back, pulling your cock out of [the_girl.possessive_title]'s mouth with a satisfyingly wet pop, and take aim at her face."
             $ blowjob.current_modifier = None
@@ -268,25 +267,29 @@ label outro_blowjob(the_girl, the_location, the_object):
                 $ the_girl.cum_on_face()
                 $ blowjob.redraw_scene(the_girl)
                 "You let out a shuddering moan as you cum, pumping your sperm onto [the_girl.possessive_title]'s face. She flinches as the first splash of warm liquid lands on her cheek, but doesn't pull away entirely."
-            "You take a deep breath to steady yourself once you've finised orgasming. [the_girl.title] looks up at you from her knees, face covered in your semen."
+            "You take a deep breath to steady yourself once you've finished cumming. [the_girl.title] looks up at you from her knees, face covered in your semen."
             $ the_girl.call_dialogue("cum_face")
 
-        "Cum in her mouth.":
+        "Cum in her mouth":
             $ blowjob.current_modifier = "blowjob"
             $ blowjob.redraw_scene(the_girl)
             mc.name "Fuck, I'm about to cum!"
             "You keep a hand on the back of [the_girl.title]'s head to make it clear you want her to keep sucking. She keeps blowing you until you tense up and start to pump your load out into her mouth."
             if the_girl.effective_sluttiness() > 70:
-                "[the_girl.possessive_title] doesn't even flinch as you shoot your hot cum across the back of her throat. She keeps bobbing her head up and down until you've let out every last drop, then slides back carefully and looks up with a mouth full of sperm."
+                "[the_girl.possessive_title] doesn't even flinch as you shoot your hot cum across the back of her throat."
+                "She keeps bobbing her head up and down until you've let out every last drop, then slides back carefully and looks up with a mouth full of sperm."
             else:
-                "[the_girl.possessive_title] stops when you shoot your first blast of hot cum across the back of her throat. She pulls back, leaving just the tip of your cock in her mouth as you fill it up with semen. Once you've finished she slides off and looks up to show you a mouth full of sperm."
+                "[the_girl.possessive_title] stops when you shoot your first blast of hot cum across the back of her throat."
+                "She pulls back, leaving just the tip of your cock in her mouth as you fill it up with semen. Once you've finished she slides off and looks up to show you a mouth full of sperm."
 
             $ the_girl.cum_in_mouth()
             $ blowjob.redraw_scene(the_girl)
             if the_girl.effective_sluttiness() > 80:
-                "Once you've had a good long look at your work [the_girl.title] closes her mouth and swallows loudly. It takes a few big gulps to get every last drop of your cum down, but when she opens up again it's all gone."
+                "Once you've had a good long look at your work [the_girl.title] closes her mouth and swallows loudly."
+                "It takes a few big gulps to get every last drop of your cum down, but when she opens up again it's all gone."
             else:
-                "Once you've had a good long look at your work [the_girl.title] leans over to the side and lets your cum dribble out slowly onto the ground. She straightens up and wipes her lips with the back of her hand."
+                "Once you've had a good long look at your work [the_girl.title] leans over to the side and lets your cum dribble out slowly onto the ground."
+                "She straightens up and wipes her lips with the back of her hand."
 
             $ blowjob.current_modifier = None
             $ blowjob.redraw_scene(the_girl)
@@ -307,7 +310,7 @@ label transition_blowjob_deepthroat(the_girl, the_location, the_object):
 label transition_default_blowjob(the_girl, the_location, the_object):
     $ blowjob.current_modifier = "blowjob"
     $ blowjob.redraw_scene(the_girl)
-    "[the_girl.possessive_title] gets onto her knees in front of you and takes your hard cock in her hands. She strokes it tentativly a few times, then leans in and slides the tip into her mouth."
+    "[the_girl.possessive_title] gets onto her knees in front of you and takes your hard cock in her hands. She strokes it tentatively a few times, then leans in and slides the tip into her mouth."
     mc.name "That's it, that's a good girl."
     return
 
@@ -330,7 +333,7 @@ label strip_ask_blowjob(the_girl, the_clothing, the_location, the_object):
     "[the_girl.title] pops off your cock and looks up at you from her knees."
     the_girl.char "[the_girl.mc_title], I'd like to take off my [the_clothing.name], would you mind?"
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = blowjob.position_tag)
             "[the_girl.possessive_title] stands up and strips out of her [the_clothing.name]. Then she gets back onto her knees and slides your cock all the way to the back of her mouth."
@@ -338,7 +341,7 @@ label strip_ask_blowjob(the_girl, the_clothing, the_location, the_object):
             $ blowjob.redraw_scene(the_girl)
 
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 60:
                 the_girl.char "Yeah? Do I look sexy in it?"
@@ -356,7 +359,7 @@ label orgasm_blowjob(the_girl, the_location, the_object):
     $ blowjob.redraw_scene(the_girl)
     "[the_girl.title] pauses suddenly. You hear her whimper softly - the noise party muffled by your cock."
     menu:
-        "Be rough as she cums.":
+        "Be rough as she cums":
             "[the_girl.possessive_title] starts to pull back off of your cock. You place a firm hand on the back of her head."
             mc.name "Did I tell you to stop sucking, you dirty little slut?"
             if the_girl.sex_skills["Oral"] > 2:
@@ -374,11 +377,12 @@ label orgasm_blowjob(the_girl, the_location, the_object):
                 if the_girl.outfit.vagina_visible():
                     "You can see that [the_girl.title]'s pussy is dripping wet as she cums."
                 else:
-                    $ top_piece = the_girl.outfit.get_lower_ordered()[-1]
-                    if top_piece.underwear:
-                        "[the_girl.possessive_title]'s dripping wet pussy has managed to soak through her underwear, leaving a wet mark on her [top_piece.name]."
+                    $ the_item = the_girl.outfit.get_lower_top_layer()
+                    if the_item.underwear:
+                        "[the_girl.possessive_title]'s dripping wet pussy has managed to soak through her underwear, leaving a wet mark on her [the_item.name]."
                     else:
                         "[the_girl.possessive_title] clenches her thighs together and rides out her orgasm."
+                    $ the_item = None
                 $ blowjob.current_modifier = None
                 $ blowjob.redraw_scene(the_girl)
                 "When she's stopped twitching and moaning you let [the_girl.title] slide back. She pants loudly, then licks along the length of your cock."
@@ -392,14 +396,14 @@ label orgasm_blowjob(the_girl, the_location, the_object):
                 $ the_girl.change_happiness(-2)
                 the_girl.char "Just... Let me handle things next time, okay?"
 
-        "Be gentle as she cums.":
+        "Be gentle as she cums":
             $ blowjob.current_modifier = None
             $ blowjob.redraw_scene(the_girl)
             mc.name "That's it, cum for me [the_girl.title]."
             "[the_girl.possessive_title] pulls off your cock as she climaxes. She nuzzles up against your hot, wet shaft as her body shivers uncontrollably."
             "You stroke her hair and wait until she's over the worst of it."
             $ the_girl.change_happiness(2)
-            the_girl.name "Wow... Thanks for waiting, that was really intens."
+            the_girl.name "Wow... Thanks for waiting, that was really intense."
             "She licks your shaft and looks up at you."
             the_girl.name "Should I get going again?"
             "She doesn't wait for an answer and starts sucking your cock again."

@@ -15,11 +15,11 @@ init -2 python:
 
     def alexia_intro_phase_two_requirement(the_person): #BUG: Alexia's title appears correctly in the action name but incorrectly in the disabled slug. May be due to some argument list references that are by reference instead of value.
         if mc.business.is_weekend():
-            return "[alexia.title] only works on week days."
+            return "[alexia.title] only works on week days"
         elif time_of_day == 0:
-            return "It's too early to visit [alexia.title]."
+            return "It's too early to visit [alexia.title]"
         elif time_of_day >= 4:
-            return "It's too late to visit [alexia.title]."
+            return "It's too late to visit [alexia.title]"
         else:
             return True
 
@@ -29,7 +29,7 @@ init -2 python:
         elif the_person.love < 10:
             return "Requires: 10 Love"
         elif mc.business.get_employee_count() >= mc.business.max_employee_count:
-            return "At employee limit."
+            return "At employee limit"
         else:
             return True
 
@@ -66,7 +66,7 @@ init -2 python:
         elif mc.business.get_employee_workstation(the_person) is None:
             return False
         elif mc.business.funds < 500:
-            return "Insufficient funds."
+            return "Requires: $500"
         else:
             return True
 
@@ -84,7 +84,7 @@ init -2 python:
         elif mc.business.get_employee_workstation(the_person) is None:
             return False
         elif time_of_day >= 4:
-            return "Too late to start taking pictures."
+            return "Too late to shoot pictures"
         else:
             return True
 
@@ -92,6 +92,48 @@ init -2 python:
         if day > the_day:
             return True
         return False
+
+    def add_alexia_phase_two_action(the_person):
+        alexia_intro_phase_two_action = Action("Visit " + the_person.title + " at work", alexia_intro_phase_two_requirement, "alexia_intro_phase_two_label", args = the_person, requirement_args = the_person)
+        downtown.actions.append(alexia_intro_phase_two_action)
+        downtown.move_person(the_person, the_person.home) #Change her schedule again so you don't see her anymore unless you visit her explicitly.
+        alexia.set_schedule(alexia.home, times = [1,2,3])
+        return
+
+    def remove_item_from_list(search, action_list):
+        found = None
+        for item in action_list:
+            if search(item):
+                found = item
+                break
+        if item:
+            action_list.remove(item)
+        return
+
+    def add_alexia_hire_action(the_person):
+        remove_item_from_list(lambda x: x.effect == "alexia_intro_phase_two_label", downtown.actions)
+        alexia.set_schedule(downtown, days = [0, 1, 2, 3, 4], times = [1,2,3]) #She spends her time downtown "working".
+
+        alexia_hire_action = Action("Hire " + alexia.title + " to work in sales", alexia_hire_requirement, "alexia_hire_label")
+        the_person.get_role_reference_by_name("Alexia").actions.append(alexia_hire_action)
+        return
+
+    def hire_alexia_and_add_to_company(the_person):
+        remove_item_from_list(lambda x: x.effect == "alexia_hire_label", the_person.get_role_reference_by_name("Alexia").actions)
+
+        mc.business.add_employee_marketing(the_person)
+
+        ad_suggest_event = Action("Ad Suggestion", alexia_ad_suggest_requirement, "alexia_ad_suggest_label", args = the_person, requirement_args = [the_person, day + renpy.random.randint(7,12)])
+        mc.business.mandatory_crises_list.append(ad_suggest_event)
+        return
+
+    def add_camera_arrive_action(the_person):
+        camera_arrive_action = Action("Camera Arrive", camera_arrive_requirement, "alexia_ad_camera_label", args = the_person, requirement_args = day + renpy.random.randint(3,7))
+        mc.business.mandatory_crises_list.append(camera_arrive_action)
+        the_person.event_triggers_dict["camera_purchased"] = True
+        the_person.event_triggers_dict["camera_reintro_enabled"] = False
+        return
+
 
 label alexia_phase_zero_label():
     #Sets Alexia's schedule so she is downtown during time periods 1,2,3.
@@ -121,13 +163,13 @@ label alexia_intro_phase_one_label(the_person):
     "She laughs and touches your arm."
     the_person.char "Do you? Like coffee, I mean. I've got to run, but I'd love to catch up with you. If you come by at the end of my shift I'll buy you a drink."
     menu:
-        "I'd love to.":
+        "I'd love to":
             mc.name "That sounds like a great idea. I'll make sure to come by as soon as I can."
             $ the_person.change_happiness(2)
             $ the_person.change_love(1)
             the_person.char "It's a date then!"
 
-        "I don't think I'll have time.":
+        "I don't think I'll have time":
             mc.name "I've been really busy lately, so I'm not sure I'll have time."
             $ the_person.change_happiness(-2)
             the_person.char "I understand. The offer stands, if your schedule ever changes."
@@ -137,11 +179,7 @@ label alexia_intro_phase_one_label(the_person):
     the_person.char "I've got to run, but I hope I'll see you around!"
     "You wave goodbye to [the_person.possessive_title] as she walks away."
 
-    python:
-        alexia_intro_phase_two_action = Action("Visit " + the_person.title + " at work", alexia_intro_phase_two_requirement, "alexia_intro_phase_two_label", args = the_person, requirement_args = the_person)
-        downtown.actions.append(alexia_intro_phase_two_action)
-        downtown.move_person(the_person, the_person.home) #Change her schedule again so you don't see her anymore unless you visit her explicitly.
-        alexia.set_schedule(alexia.home, times = [1,2,3])
+    $ add_alexia_phase_two_action(the_person)
     $ clear_scene()
     return
 
@@ -166,14 +204,14 @@ label alexia_intro_phase_two_label(the_person):
     "You sip at your coffee and listen to [the_person.possessive_title] talk."
     the_person.char "I'm sorry we never talked again. You must have thought I fell off the face of the Earth."
     menu:
-        "I forgive you.":
+        "I forgive you":
             mc.name "It's okay [the_person.title], I think I understand what you were going through. I'm glad we're able to reconnect now."
             $ the_person.change_happiness(5)
             $ the_person.change_love(1)
             "She sighs and smiles."
             the_person.char "That means the world to me to hear. Thank you [the_person.mc_title]."
 
-        "I missed you.":
+        "I missed you":
             mc.name "When you disappeared it hurt, and I've missed you all this time. It's really strange having you pop back into my life again."
             $ the_person.change_happiness(-5)
             $ the_person.change_obedience(3)
@@ -182,10 +220,10 @@ label alexia_intro_phase_two_label(the_person):
 
     the_person.char "But enough about me, what have you been doing? Are you done with your degree?"
     menu:
-        "Brag.":
+        "Brag":
             mc.name "More than that. You're looking at the proud owner of [mc.business.name], an independent pharmaceutical company."
 
-        "Be Humble.":
+        "Be Humble":
             mc.name "I am. I work for a small pharmaceutical company now."
             the_person.char "That's great! What do you do there?"
             mc.name "A bunch of things, really. I manage the day to day operations, oversee production, R&D, sales..."
@@ -209,32 +247,26 @@ label alexia_intro_phase_two_label(the_person):
     the_person.SO_name "Hey, it's nice to meet you."
     "He holds out his hand to shake yours."
     menu:
-        "Be polite.":
+        "Be polite":
             "You take his hand and shake it."
             mc.name "It's nice to meet you, too. I hope we'll have time to talk more in the future."
             $ the_person.change_happiness(3)
             the_person.char "That would be great, the three of us should meet up and have dinner, or see a movie, or something."
 
-        "Be rude.":
+        "Be rude":
             "You don't shake his hand."
             mc.name "Oh, [the_person.title] didn't even mention she was seeing anyone until now."
             $ the_person.change_love(-1)
             $ the_person.change_obedience(1)
-            the_person.char "Sorry sweety, we got talking about [the_person.mc_title]'s work and it never came up."
+            the_person.char "Sorry honey, we got talking about [the_person.mc_title]'s work and it never came up."
             "She glares at you for a moment, but [the_person.SO_name] doesn't seem to notice."
             the_person.SO_name "Well, we'll have to fix that. If you two are friends we should have dinner together, so you can catch up."
 
     $ clear_scene()
     "[the_person.title] gets into the passenger side of her boyfriend's car. She says goodbye from inside and they drive off."
-    python:
-        downtown.actions.remove(alexia_intro_phase_two_action) #Clear the action from her actions list.
-        alexia.set_schedule(downtown, times = [1,2,3]) #She spends her time downtown "working".
-
-        alexia_hire_action = Action("Hire " + alexia.title + " to work in sales.", alexia_hire_requirement, "alexia_hire_label")
-        the_person.get_role_reference_by_name("Alexia").actions.append(alexia_hire_action)
+    $ add_alexia_hire_action(the_person)
     call advance_time from _call_advance_time_18
     return
-
 
 
 label alexia_hire_label(the_person):
@@ -248,11 +280,11 @@ label alexia_hire_label(the_person):
     $ the_person.change_love(2)
     the_person.char "Okay, I'll do it! Thank you [the_person.mc_title]! Or should I call you boss now?"
     menu:
-        "[the_person.mc_title] is fine.":
+        "[the_person.mc_title] is fine":
             mc.name "No need to be too formal. I want you around because you're a friend and we make a good team."
             $ the_person.change_love(1)
 
-        "Boss sounds good.":
+        "Boss sounds good":
             $ the_person.set_mc_title("Boss")
             mc.name "I guess I am your boss now, aren't I. I like the way that sounds."
             $ the_person.change_obedience(2)
@@ -261,19 +293,7 @@ label alexia_hire_label(the_person):
     $ the_person.draw_person(emotion = "happy") #TODO: When we have a hugging position draw them as happy.
     the_person.char "So, when can I start?"
     "You give [the_person.title] all of the details about her new job. She phones the coffee shop and quits on the spot."
-    python: #TODO: Consider calling the "hire someone" label instead of having a special section for this.
-        the_person.event_triggers_dict["employed_since"] = day
-        mc.business.listener_system.fire_event("new_hire", the_person = the_person)
-        the_person.add_role(employee_role)
-        for other_employee in mc.business.get_employee_list():
-            town_relationships.begin_relationship(the_person, other_employee) #She is introduced to everyone at work
-
-        mc.business.add_employee_marketing(the_person)
-        the_person.set_work(mc.business.m_div)
-        the_person.get_role_reference_by_name("Alexia").actions.remove(alexia_hire_action) #Remove the hire action because this story event has played itself out.
-
-        ad_suggest_event = Action("Ad Suggestion", alexia_ad_suggest_requirement, "alexia_ad_suggest_label", args = the_person, requirement_args = [the_person, day + renpy.random.randint(7,12)])
-        mc.business.mandatory_crises_list.append(ad_suggest_event)
+    $ hire_alexia_and_add_to_company(the_person)
     return
 
 
@@ -295,7 +315,7 @@ label alexia_ad_suggest_label(the_person):
     mc.name "I also don't think we would need to hire a model."
     the_person.char "What do you mean?"
     menu:
-        "You're all the eye candy we need.":
+        "You're all the eye candy we need":
             mc.name "You're all the eye candy we need. We can take a few high quality pictures of you and we're good to go."
             $ the_person.change_slut_temp(2)
             $ the_person.change_love(1)
@@ -303,7 +323,7 @@ label alexia_ad_suggest_label(the_person):
             the_person.char "Oh come on, you know we could find someone better for it. But I guess if I did it we would save some money."
             the_person.char "If it's just a few quick shots, I suppose I wouldn't mind."
 
-        "We would save money if you were the model.":
+        "We would save money if you were the model":
             mc.name "You look perfect for the role in this mockup already. We can take a few high quality pictures and these would be ready for production."
             $ the_person.change_obedience(2)
             $ the_person.change_happiness(1)
@@ -313,19 +333,17 @@ label alexia_ad_suggest_label(the_person):
     mc.name "Good to hear. What will you need to get this going?"
     the_person.char "We should probably get a proper camera instead of my phone, and we'll need to pay to have the cards printed professionally."
     menu:
-        "Pay for equipment. -$500" if mc.business.funds >= 500:
+        "Pay for equipment\n{color=#ff0000}{size=18}Costs: $500{/size}{/color}" if mc.business.funds >= 500:
             mc.name "That sounds reasonable. Buy whatever you think is reasonable and I will cover the expense."
             $ mc.business.funds += -500
             the_person.char "You got it! I'll order it A.S.A.P and let you know when it arrives."
             mc.name "Great work [the_person.title], you're a credit to the team."
-            $ camera_arrive_action = Action("Camera Arrive", camera_arrive_requirement, "alexia_ad_camera_label", args = the_person, requirement_args = day + renpy.random.randint(3,7))
-            $ mc.business.mandatory_crises_list.append(camera_arrive_action)
-            $ the_person.event_triggers_dict["camera_purchased"] = True
+            $ add_camera_arrive_action(the_person)
 
-        "Pay for equipment. -$500 (disabled)" if mc.business.funds < 500:
+        "Pay for equipment\n{color=#ff0000}{size=18}Requires $500{/size}{/color} (disabled)" if mc.business.funds < 500:
             pass
 
-        "Talk to her later.":
+        "Talk to her later":
             $ the_person.event_triggers_dict["camera_reintro_enabled"] = True
             mc.name "Okay, I'll come talk to you soon and we can sort out these details. Great work [the_person.title], you're a credit to the team."
 
@@ -340,10 +358,7 @@ label alexia_ad_suggest_reintro_label(the_person):
     the_person.char "Okay. I'll get right on that and order it ASAP!"
     mc.name "Send me any receipts and I'll cover the cost."
     $ mc.business.funds += -500
-    $ camera_arrive_action = Action("Camera Arrive", camera_arrive_requirement, "alexia_ad_camera_label", args = the_person, requirement_args = day + renpy.random.randint(3,7))
-    $ mc.business.mandatory_crises_list.append(camera_arrive_action)
-    $ the_person.event_triggers_dict["camera_purchased"] = True
-    $ the_person.event_triggers_dict["camera_reintro_enabled"] = False
+    $ add_camera_arrive_action(the_person)
     return
 
 label alexia_ad_camera_label(the_person):
@@ -358,7 +373,7 @@ label alexia_ad_camera_label(the_person):
 
 label alexia_photography_intro_label(the_person):
     # You shoot your business cards. Results in a minor (%1) boost in sales values and gives you an opportunity to tell Alexia to pose for you.
-    mc.name "Are you ready for our photoshoot?"
+    mc.name "Are you ready for our photo shoot?"
     the_person.char "As ready as I'll ever be, I suppose. I found a good spot in the storage room. It has plenty of light and a blank wall."
     mc.name "Excellent. Let's go."
     # TODO: Change location? Just change background art?
@@ -375,7 +390,7 @@ label alexia_photography_intro_label(the_person):
     $ the_person.draw_person(position = "back_peek")
     "You snap pictures as she poses."
     menu:
-        "Focus on her ass.":
+        "Focus on her ass":
             mc.name "Bend forward just a little bit for me. Let's show off your butt."
             the_person.char "Really? Do you think that's important?"
             mc.name "Sex sells. It may not be what we go with, but I want to have options."
@@ -383,7 +398,7 @@ label alexia_photography_intro_label(the_person):
             $ the_person.change_obedience(1)
             "She rolls her eyes and bends forward, perking up her ass and showing it off to the camera. You take a couple more pictures."
 
-        "Focus on her smile.":
+        "Focus on her smile":
             mc.name "That's good, now give me one of your beautiful smiles. That's what the camera wants to see."
             $ the_person.draw_person(position = "back_peek", emotion = "happy")
             $ the_person.change_happiness(4)
@@ -399,11 +414,7 @@ label alexia_photography_intro_label(the_person):
     $ the_person.change_obedience(1)
     the_person.char "Yeah, I can do that! I don't know why, but I thought it was really exciting to be in front of that camera."
     mc.name "I'll let you get back to work then. See you around [the_person.title]."
-    if mc.business.company_model is not None:
-        $ mc.business.company_model.remove_role(company_model_role) #If we somehow ended up with her here, fire her.
-    $ mc.business.company_model = the_person
-    $ the_person.add_role(company_model_role) #Now we just make Alexia a model instead of having this be specific to her role. You get there by either buying the policy or following her storyline here.
-
+    $ mc.business.hire_company_model(the_person)
     $ public_advertising_license_policy.buy_policy(ignore_cost = True) # This special storyline "buys" the policy for free.
     call advance_time from _call_advance_time_19
     return

@@ -1,5 +1,7 @@
 #Cousin Role Action Requirements
 init -2 python:
+    cousin_strip_pose_list = ["walking_away","back_peek","standing_doggy","stand2","stand3","stand4","stand5"] #A list to let us randomly get some poses so each dance is a little different.
+
     def cousin_intro_phase_one_requirement(day_trigger):
         if day >= day_trigger and time_of_day == 4:
             return True
@@ -29,15 +31,15 @@ init -2 python:
         if the_person.event_triggers_dict.get("blackmail_level", -1) < 1:
             return False
         elif day < the_person.event_triggers_dict.get("last_blackmailed",-5) + 5:
-            return "Blackmailed too recently."
-        elif __builtin__.len(mc.location.people) > 1:
-            return "Must be in private."
+            return "Blackmailed too recently"
+        elif mc.location.get_person_count() > 1:
+            return "Must be in private"
         else:
             return True
 
     def stripclub_show_requirement():
         if time_of_day in [0,1,2]:
-            return "Too early for the performance to start."
+            return "Too early for performances"
         else:
             return True
 
@@ -59,7 +61,7 @@ init -2 python:
         elif the_person.event_triggers_dict.get("found_stripping_clue", False):
             return False
         elif time_of_day == 4:
-            return "Too late to search thoroughly."
+            return "Too late to search room"
         elif the_person in mc.location.people:
             return the_person.title + " is in the room."
         else:
@@ -68,10 +70,11 @@ init -2 python:
     def blackmail_2_confront_requirement(the_person):
         if the_person.event_triggers_dict.get("blackmail_level", -1) != 1:
             return False
-        else:
-            return True
+        elif the_person.get_destination() == strip_club:
+            return "Not in the strip club"
+        return True
 
-    def cousin_boobjob_ask_requirement(the_person,start_day ):
+    def cousin_boobjob_ask_requirement(the_person, start_day):
         if day < start_day:
             return False
         elif the_person.event_triggers_dict.get("getting boobjob", False):
@@ -91,7 +94,7 @@ init -2 python:
         elif the_person.event_triggers_dict.get("getting boobjob", False):
             return False
         elif aunt in mc.location.people:
-            return "Not while [aunt.title] is around."
+            return "Not while [aunt.title] is around"
         else:
             return True
 
@@ -118,12 +121,94 @@ init -2 python:
             return False
         return True
 
+    def add_cousin_blackmail_hint_action(the_person):
+        the_person.set_schedule(hall, times = [2])
+        the_person.event_triggers_dict["blackmail_level"] = 1
 
+        blackmail_2_event = Action("Blackmail hint", blackmail_hint_requirement, "aunt_cousin_hint_label", args = [aunt, the_person], requirement_args = [the_person, day + renpy.random.randint(2,4)])
+        mc.business.mandatory_crises_list.append(blackmail_2_event)
+        return
 
+    def add_cousin_serum_boobjob_check_action(the_person):
+        cousin_serum_boobjob_check_action = Action("Cousin serum boobjob check", cousin_serum_boobjob_check_requirement, "cousin_serum_boobjob_label", args = [the_person, the_person.tits], requirement_args = [the_person, the_person.tits, day + 3])
+        mc.business.mandatory_crises_list.append(cousin_serum_boobjob_check_action)
+        return
+
+    def add_cousin_boobjob_get_action(the_person):
+        #Sets up an event that will trigger after a set number of days when she has gotten her boob job. This event, in turns, adds in an event when you talk to her.
+        the_person.event_triggers_dict["getting boobjob"] = True #Reset the flag so you can ask her to get _another_ boobjob.
+        cousin_boobjob_get_action = Action("Cousin boob job get", cousin_boobjob_get_requirement, "cousin_boobjob_get_label", args = the_person, requirement_args = [the_person, day + renpy.random.randint(4,6)])
+        mc.business.mandatory_crises_list.append(cousin_boobjob_get_action)
+        return
+
+    def add_cousin_tits_payback_action(the_person, amount):
+        cousin_tits_payback_action = Action("cousin tits payback", cousin_tits_payback_requirement, "cousin_tits_payback_label", args = [the_person, amount], requirement_args = day + 7)
+        mc.business.mandatory_crises_list.append(cousin_tits_payback_action) #An event where she sends you some cash in a week, which if it has not finished then re-adds itself with the new amount
+        return
+
+    def add_cousin_blackmail_2_confront_action():
+        blackmail_2_confront_action = Action("Confront her about her stripping", blackmail_2_confront_requirement, "cousin_blackmail_level_2_confront_label",
+            menu_tooltip = "Tell her that you know about her job as a stripper and use it as further leverage.")
+        cousin_role.actions.append(blackmail_2_confront_action)
+        cousin.event_triggers_dict["seen_cousin_stripping"] = True
+        return
+
+    def add_cousin_at_house_phase_two_action(the_person):
+        #Changes her schedule to be at your house
+        if not find_in_list(lambda x: x.effect == "cousin_house_phase_two_label", the_person.on_room_enter_event_list):
+            the_person.set_schedule(hall, days = [0, 1, 2, 3, 4], times = [2])
+            cousin_at_house_phase_two_action = Action("Cousin visits house", cousin_house_phase_two_requirement, "cousin_house_phase_two_label")
+            the_person.on_room_enter_event_list.append(cousin_at_house_phase_two_action) #When you see her next in your house this event triggers and she explains why she's there.
+        return
+
+    def add_cousin_at_house_phase_three_action():
+        cousin_at_house_phase_three_action = Action("Cousin changes schedule", cousin_house_phase_three_requirement, "cousin_house_phase_three_label", args = cousin, requirement_args = day+renpy.random.randint(2,5))
+        mc.business.mandatory_crises_list.append(cousin_at_house_phase_three_action) #In a couple of days change her schedule so she starts stealing from Lily.
+        return
+
+    def add_cousin_blackmail_intro_action(the_person):
+        the_person.set_schedule(lily_bedroom, days = [0, 1, 2, 3, 4], times = [2])
+        if not find_in_list(lambda x: x.effect == "cousin_blackmail_intro_label", the_person.on_room_enter_event_list):
+            cousin_blackmail_intro_action = Action("Cousin caught stealing", cousin_blackmail_intro_requirement, "cousin_blackmail_intro_label")
+            the_person.on_room_enter_event_list.append(cousin_blackmail_intro_action)
+        return
+
+    def add_cousin_stripping_and_setup_search_room_action(the_aunt, the_cousin):
+        stripclub_strippers.append(the_cousin)
+        the_cousin.set_schedule(strip_club, times = [3, 4])
+
+        the_cousin.event_triggers_dict["stripping"] = True #Used to flag the blackmail event.
+        cousin_room_search_action = Action("Search her room {image=gui/heart/Time_Advance.png}", cousin_room_search_requirement, "cousin_search_room_label",requirement_args = [the_cousin], args = [the_cousin, the_aunt])
+        cousin_bedroom.actions.append(cousin_room_search_action) #Lets you search her room for a clue about where to go to find her.
+        return
+
+    def add_cousin_boobjob_ask_action(the_person):
+        cousin_boobjob_ask_action = Action("Cousin Boobjob Ask", cousin_boobjob_ask_requirement, "cousin_boobjob_ask_label", requirement_args = day + renpy.random.randint(3,6))
+        the_person.on_talk_event_list.append(cousin_boobjob_ask_action)
+        return
+
+    def add_cousin_boobjob_brag_action(the_person):
+        cousin_new_boobs_brag_action = Action("Cousin new boobs brag", cousin_new_boobs_brag_requirement, "cousin_new_boobs_brag_label")
+        the_person.on_talk_event_list.append(cousin_new_boobs_brag_action) #Next time you talk to her she brags about her new boobs, offers to show them to you, and tells you that she'll pay you back eventually.
+        return
+
+    def add_cousin_talk_boobjob_again_action():
+        cousin_talk_boobjob_again_action = Action("Talk to her about getting a boobjob\nCosts: $5000", cousin_talk_boobjob_again_requirement, "cousin_talk_boobjob_again_label")
+        cousin_role.actions.append(cousin_talk_boobjob_again_action)
+        return
+
+    def remove_cousin_talk_boobjob_again_action():
+        for role in cousin.special_role:
+            for act in role.actions:
+                if act.effect == "cousin_talk_boobjob_again_label": #Find and remove this action.
+                    role.actions.remove(act)
+                    break
+        return
 
 ###COUSIN ACTION LABELS###
 label cousin_intro_phase_one_label():
     #Your cousin bursts into your room at the end of the day frustrated with Lily and how little personal space she has.
+    $ mc.change_location(bedroom)
     $ mc.location.show_background()
     $ cousin.draw_person(emotion = "angry")
     "Without warning your bedroom door is opened and [cousin.possessive_title] walks in. She closes the door behind her and looks awkwardly at you."
@@ -132,13 +217,13 @@ label cousin_intro_phase_one_label():
     mc.name "Is everything okay?"
     cousin.char "Your sister just keeps talking. She won't shut up. I just need some silence."
     menu:
-        "Offer to talk to [lily.title].":
+        "Offer to talk to [lily.title]":
             pass
 
-        "Let [cousin.title] stay as long as she wants.":
+        "Let [cousin.title] stay as long as she wants":
             pass
 
-        "Tell [cousin.title] to leave you alone.":
+        "Tell [cousin.title] to leave you alone":
             pass
 
     mc.name "Right. How about..."
@@ -147,14 +232,14 @@ label cousin_intro_phase_one_label():
     $ cousin.draw_person()
     "She sits down and leans back against your door, staring at her phone."
     menu:
-        "Say nothing.":
+        "Say nothing":
             "You decide to just stay quiet and go back to what you were doing. [cousin.title] reads on her phone for half an hour before standing back up."
             $ cousin.change_happiness(5)
             $ cousin.change_love(1)
             cousin.char "Thanks."
             "With that she opens your door and leaves."
 
-        "Kick her out.":
+        "Kick her out":
             mc.name "Listen [cousin.title], this is my room and I want some privacy. Get out."
             "[cousin.possessive_title] rolls her eyes and sighs dramatically."
             cousin.char "If you're just going to keep talking at me, gladly."
@@ -165,10 +250,7 @@ label cousin_intro_phase_one_label():
     return
 
 label cousin_house_phase_one_label(the_person):
-    #Changes her schedule to be at your house
-    $ the_person.set_schedule(hall, times = [2])
-    $ cousin_house_phase_two_action = Action("Cousin visits house", cousin_house_phase_two_requirement, "cousin_house_phase_two_label")
-    $ cousin.on_room_enter_event_list.append(cousin_house_phase_two_action) #When you see her next in your house this event triggers and she explains why she's there.
+    $ add_cousin_at_house_phase_two_action(the_person)
     return
 
 label cousin_house_phase_two_label(the_person):
@@ -180,15 +262,11 @@ label cousin_house_phase_two_label(the_person):
     mc.name "What's up? Why are you over here?"
     the_person.char "Your mom said I could come over whenever I wanted. My mom won't stop bothering me and our crappy apartment is tiny."
     "[the_person.possessive_title] shrugs and turns her full attention back to her TV show."
-    $ cousin_at_house_phase_three_action = Action("Cousin changes schedule", cousin_house_phase_three_requirement, "cousin_house_phase_three_label", args = cousin, requirement_args = day+renpy.random.randint(2,5))
-    $ mc.business.mandatory_crises_list.append(cousin_at_house_phase_three_action) #In a couple of days change her schedule so she starts stealing from Lily.
-    $ clear_scene()
+    $ add_cousin_at_house_phase_three_action()
     return
 
 label cousin_house_phase_three_label(the_person):
-    $ the_person.set_schedule(lily_bedroom, times = [2])#Set her to be in Lily's room AND for an event to trigger when you walk in on her.
-    $ cousin_blackmail_intro_action = Action("Cousin caught stealing", cousin_blackmail_intro_requirement, "cousin_blackmail_intro_label")
-    $ the_person.on_room_enter_event_list.append(cousin_blackmail_intro_action)
+    $ add_cousin_blackmail_intro_action(the_person)
     return
 
 label cousin_blackmail_intro_label(the_person):
@@ -214,7 +292,7 @@ label cousin_blackmail_intro_label(the_person):
     the_person.char "You can't tell my mom. She would never let me leave the house."
     #TODO: add a "blackmail level" event variable that is increased by this.
     menu:
-        "Blackmail her.":
+        "Blackmail her":
             mc.name "Fine, I'll stay quiet. If you do something for me."
             $ the_person.change_happiness(5)
             $ the_person.change_obedience(5)
@@ -224,7 +302,7 @@ label cousin_blackmail_intro_label(the_person):
             call cousin_blackmail_list(the_person) from _call_cousin_blackmail_list
 
 
-        "Promise to stay quiet.":
+        "Promise to stay quiet":
             mc.name "I'll keep this between you and me."
             "[the_person.title] gives you a suspicious look."
             the_person.char "Just like that?"
@@ -235,11 +313,7 @@ label cousin_blackmail_intro_label(the_person):
             the_person.char "Okay. I better not find out you told someone."
             mc.name "Your secret's safe with me."
 
-    $ the_person.set_schedule(hall, times = [2])
-    $ the_person.event_triggers_dict["blackmail_level"] = 1
-
-    $ blackmail_2_event = Action("Blackmail hint", blackmail_hint_requirement, "aunt_cousin_hint_label", args = [aunt, the_person], requirement_args = [the_person, day + renpy.random.randint(2,4)])
-    $ mc.business.mandatory_crises_list.append(blackmail_2_event)
+    $ add_cousin_blackmail_hint_action(the_person)
     $ clear_scene()
     return
 
@@ -256,7 +330,7 @@ label cousin_blackmail_label(the_person):
 
 label cousin_blackmail_list(the_person):
     menu:
-        "Demand to know where she has been going at night." if the_person.event_triggers_dict.get("stripping", False) and the_person.event_triggers_dict.get("blackmail_level",-1) == 1:
+        "Demand to know where she has been going at night" if the_person.event_triggers_dict.get("stripping", False) and the_person.event_triggers_dict.get("blackmail_level",-1) == 1:
             call cousin_blackmail_ask_label(the_person) from _call_cousin_blackmail_ask_label
             if not _return: #If she didn't tell you anything she tells you to pick something else.
                 call cousin_blackmail_list(the_person) from _call_cousin_blackmail_list_4
@@ -264,7 +338,7 @@ label cousin_blackmail_list(the_person):
                 $ the_person.event_triggers_dict["last_blackmailed"] = day
                 $ the_person.change_love(-1)
 
-        "Cash.":
+        "Cash":
             #Always succeeds. Get some extra cash from her.
             if the_person.event_triggers_dict.get("blackmail_level",-1) >= 2:
                 mc.name "I assume your little stripping gig has still been paying well. I want my cut."
@@ -291,7 +365,7 @@ label cousin_blackmail_list(the_person):
 
 
 
-        "Test this serum.":
+        "Test this serum":
             #Always succeeds. She takes a dose of serum for you.
             mc.name "I've got stuff from work that needs testing. If you test it, I'll stay quiet."
             the_person.char "Fine."
@@ -310,7 +384,7 @@ label cousin_blackmail_list(the_person):
                 the_person.char "Whatever. What else do I need to do to keep you quiet?"
                 call cousin_blackmail_list(the_person) from _call_cousin_blackmail_list_2
 
-        "Strip for me.":
+        "Strip for me":
             #Requires min sluttiness. She'll strip down her outfit until a certain point for you.
             mc.name "I want to see you strip for me."
             if the_person.effective_sluttiness() >= 15:
@@ -326,6 +400,7 @@ label cousin_blackmail_list(the_person):
                             $ the_item = the_person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
                             $ the_person.draw_animated_removal(the_item) #Strip down to her underwear.
                             "[the_person.possessive_title] takes off her [the_item.name]."
+                        $ the_item = None
                     else: #She's not wearing a bra and doesn't want you to see her tits.
                         "[the_person.title] seems nervous and plays with her shirt." #TODO: Check that she is wearing a shirt
                         mc.name "What's wrong?"
@@ -339,6 +414,7 @@ label cousin_blackmail_list(the_person):
                             $ the_item = the_person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
                             $ the_person.draw_animated_removal(the_item)
                             "[the_person.possessive_title] takes off her [the_item.name]."
+                        $ the_item = None
                     else: #TODO: make sure she's actually wearing a dress or skirt or something
                         the_person.char "So, I'm not wearing any panties right now. That means I can't take this off."
                         mc.name "Come on, that's not what the deal is."
@@ -359,7 +435,7 @@ label cousin_blackmail_list(the_person):
                     the_person.char "Finally..."
                     "[the_person.possessive_title] gets dressed again."
                     $ the_person.update_outfit_taboos()
-                    $ the_person.apply_outfit(the_person.planned_outfit)
+                    $ the_person.apply_outfit()
                     $ the_person.draw_person()
                     $ the_person.change_slut_temp(5)
 
@@ -379,7 +455,7 @@ label cousin_blackmail_list(the_person):
                         else:
                             "[the_person.possessive_title] takes off her [the_item.display_name]."
 
-
+                    $ the_item = None
 
 
                     if the_person.outfit.wearing_panties():
@@ -387,6 +463,7 @@ label cousin_blackmail_list(the_person):
                             $ the_item = the_person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
                             $ the_person.draw_animated_removal(the_item)
                             "[the_person.possessive_title] takes off her [the_item.display_name]."
+                        $ the_item = None
                     else: #TODO: make sure she's actually wearing a dress or skirt or something
                         the_person.char "So, I'm not wearing any panties right now. That means I can't take this off."
                         mc.name "Come on, that's not what the deal is."
@@ -400,7 +477,7 @@ label cousin_blackmail_list(the_person):
                     the_person.char "Well keep dreaming. I'm not that fucking desperate."
                     "Once you've gotten your fill, [the_person.title] gets dressed again."
                     $ the_person.update_outfit_taboos()
-                    $ the_person.apply_outfit(the_person.planned_outfit)
+                    $ the_person.apply_outfit()
                     $ the_person.draw_person()
                     $ the_person.change_slut_temp(5)
 
@@ -432,6 +509,7 @@ label cousin_blackmail_list(the_person):
                         else:
                             "[the_person.possessive_title] takes off her [the_item.name]."
 
+                    $ the_item = None
                     the_person.char "There, are you satisfied?"
                     $ the_person.draw_person(position = "back_peek")
                     "She spins on the spot, letting you get a look at her ass."
@@ -445,7 +523,7 @@ label cousin_blackmail_list(the_person):
                     mc.name "Fine, that'll do."
                     the_person.char "Fucking finally..."
                     $ the_person.update_outfit_taboos()
-                    $ the_person.apply_outfit(the_person.planned_outfit)
+                    $ the_person.apply_outfit()
                     $ the_person.draw_person()
                     $ the_person.change_slut_temp(5)
 
@@ -463,7 +541,7 @@ label cousin_blackmail_list(the_person):
                 call cousin_blackmail_list(the_person) from _call_cousin_blackmail_list_3
 
 
-        "Kiss me." if the_person.event_triggers_dict.get("blackmail_level", -1) >= 2:
+        "Kiss me" if the_person.event_triggers_dict.get("blackmail_level", -1) >= 2:
             #Requires min sluttiness and more blackmail (Or high sluttiness). Either is a special kissing scene OR we add functionality to lock people into a sex position.
             mc.name "I want you to kiss me."
             "She sneers."
@@ -472,11 +550,8 @@ label cousin_blackmail_list(the_person):
             the_person.char "There, are we done now?"
             mc.name "You know we aren't. Come here."
             $ the_person.add_situational_obedience("blackmail", 30, "This will keep him quiet.")
-            $ object_list = mc.location.objects_with_trait("Stand")
-            $ an_object = None
-            if object_list:
-                $ an_object = object_list[0] #Just get the first one in the list, which should be standing.
-            call fuck_person(the_person, start_position = kissing, start_object = an_object, position_locked = True) from _call_fuck_person_24
+
+            call fuck_person(the_person, start_position = kissing, start_object = make_floor(), position_locked = True) from _call_fuck_person_24
             $ the_report = _return
             if the_report.get("girl orgasms", 0) > 0:
                 "[the_person.title] is left flush and panting when you're finished making out."
@@ -492,7 +567,7 @@ label cousin_blackmail_list(the_person):
             $ the_person.review_outfit()
             $ the_person.event_triggers_dict["last_blackmailed"] = day
 
-        "Fuck me." if the_person.event_triggers_dict.get("blackmail_level", -1) >= 2:
+        "Fuck me" if the_person.event_triggers_dict.get("blackmail_level", -1) >= 2:
             #Requires min sluttiness and more blackmail (Or high sluttiness). Generic fuck_person call with a large obedience boost so she'll do things you tell her to do.
             mc.name "I want your body. All of it."
             if the_person.effective_sluttiness("vaginal_sex") >= 20:
@@ -525,7 +600,7 @@ label cousin_blackmail_list(the_person):
                 the_person.char "Ha! Dream on you fucking perv. I'm a stripper not a whore."
                 call cousin_blackmail_list(the_person) from _call_cousin_blackmail_list_5
 
-        "Nothing.":
+        "Nothing":
             mc.name "Nothing right now, but I'll come up with something."
             the_person.char "Ugh."
 
@@ -533,37 +608,35 @@ label cousin_blackmail_list(the_person):
 
 
 label aunt_cousin_hint_label(the_aunt, the_cousin):
+    # prevent event from triggering twice
+    python:
+        if any(x.effect == "cousin_search_room_label" for x in cousin.home.actions):
+            renpy.return_statement()
+
     #Your aunt calls at night to ask if you know where Gabrielle is. Hints that she's up to something late at night.
     "You get a call on your phone. It's [the_aunt.possessive_title]."
     mc.name "Hey [the_aunt.title], is everything alright?"
     the_aunt.char "Hi [the_aunt.mc_title]. Do you have a moment?"
     mc.name "Sure, what's up?"
-    the_aunt.char "It's about [the_cousin.title]. For the last few nights she's been staying out late and she won't tell me where she is."
+    the_aunt.char "It's about [the_cousin.name]. For the last few nights she's been staying out late and she won't tell me where she is."
     the_aunt.char "I'm worried that she's getting up to trouble. Do you have any clue what she's doing?"
     menu:
-        "Offer to find out.":
+        "Offer to find out":
             mc.name "No, but I can try and find out if you'd like."
             $ the_aunt.change_happiness(3)
             $ the_aunt.change_love(1)
             the_aunt.char "That would be great, thank you. I'm sure I'm just overreacting, but it would help me sleep better at night knowing she's okay."
             mc.name "I'll let you know if I learn anything."
 
-        "No clue.":
+        "No clue":
             mc.name "Nope, no idea. Sorry."
             the_aunt.char "That's okay, she's always been very private, so I'm not surprised."
             the_aunt.char "Well, if you hear anything, just let me know, okay? I'm sure I'm overreacting, but it would help me sleep if I knew she was okay."
             mc.name "Okay [the_aunt.title], if I hear anything I'll let you know."
 
-
     the_aunt.title "Thank you. I won't keep you any longer then, I'm sure you're busy!"
 
-    $ stripclub_strippers.append(the_cousin)
-    $ the_cousin.set_schedule(strip_club, times = [4])
-
-    $ the_cousin.event_triggers_dict["stripping"] = True #Used to flag the blackmail event.
-    $ cousin_room_search_action = Action("Search her room. {image=gui/heart/Time_Advance.png}", cousin_room_search_requirement, "cousin_search_room_label",requirement_args = [the_cousin], args = [the_cousin, the_aunt])
-    $ cousin_bedroom.actions.append(cousin_room_search_action) #Lets you search her room for a clue about where to go to find her.
-
+    $ add_cousin_stripping_and_setup_search_room_action(the_aunt, the_cousin)
     return
 
 label cousin_blackmail_ask_label(the_person):
@@ -655,6 +728,7 @@ label cousin_search_room_label(the_cousin, the_aunt):
             $ mom.change_happiness(-5)
             $ mom.change_love(-1)
             $ mc.change_location(downtown)
+            $ mc.location.show_background()
             "You'll need [the_aunt.possessive_title] out of the apartment if you want to search [the_cousin.title]'s room undisturbed."
             return
         else:
@@ -667,6 +741,7 @@ label cousin_search_room_label(the_cousin, the_aunt):
                 $ the_aunt.change_love(-1)
                 "You're forced to abandon your search. [the_aunt.possessive_title] escorts you to the living room."
                 $ mc.change_location(aunt_apartment)
+                $ mc.location.show_background()
                 "If she was more obedient she might let you continue the search, or you could wait until she isn't in the apartment."
                 return
 
@@ -722,8 +797,7 @@ label cousin_blackmail_level_2_confront_label(the_person):
 
 label begin_boobjob_story(the_person):
     #Creates and adds the boobjob quest. Broken out here to make it easier to run in multiple places once you know about her job.
-    $ cousin_boobjob_ask_action = Action("Cousin Boobjob Ask", cousin_boobjob_ask_requirement, "cousin_boobjob_ask_label", requirement_args = day + renpy.random.randint(3,6))
-    $ the_person.on_talk_event_list.append(cousin_boobjob_ask_action)
+    $ add_cousin_boobjob_ask_action(the_person)
     return
 
 label cousin_boobjob_ask_label(the_person):
@@ -764,7 +838,7 @@ label cousin_boobjob_ask_label(the_person):
             if breast_enhancement in serum_design.traits:
                 has_boob_enhancement_serum = True #The player has a serum in their inventory that can grow her breasts, so you can do that instead of getting her surgery.
     menu:
-        "Pay for it. -$5000" if mc.business.funds >= 5000:
+        "Pay for it\n{color=#ff0000}{size=18}Costs: $5000{/size}{/color}" if mc.business.funds >= 5000:
             mc.name "Fine. Send me over the bill and I'll pay it."
             the_person.char "Really? Just like that?"
             if the_person.love < 10:
@@ -779,15 +853,15 @@ label cousin_boobjob_ask_label(the_person):
             $ the_person.change_slut_temp(2)
             $ mc.business.funds += -5000
 
-        "Pay for it. -$5000 (disabled)" if mc.business.funds < 5000:
+        "Pay for it\n{color=#ff0000}{size=18}Requires: $5000{/size}{/color} (disabled)" if mc.business.funds < 5000:
             pass
 
-        "Offer breast enhancing serum instead." if has_boob_enhancement_serum:
+        "Offer breast enhancing serum instead" if has_boob_enhancement_serum:
             mc.name "Why go through all that trouble when I have a serum that could do this for you right now."
             the_person.char "Wait, you do?"
             mc.name "Of course I do. It's what my business does. I have a dose right here, if you'd like to try it out."
             the_person.char "And this stuff really works? I always thought you were running a scam."
-            mc.name "Yes, it really works. Do you want it or not."
+            mc.name "Yes, it really works. Do you want it or not?"
             "She eyes you cautiously, then nods."
             the_person.char "Fine, give it here."
             call give_serum(the_person) from _call_give_serum_15
@@ -797,7 +871,7 @@ label cousin_boobjob_ask_label(the_person):
                 the_person.char "I knew you were running a scam. If you didn't want to pay, you could have just said so instead of lying."
                 call talk_person(the_person) from _call_talk_person_2
 
-                $ cousin_role.actions.append(cousin_talk_boobjob_again_action)
+                $ add_cousin_talk_boobjob_again_action()
                 return
 
             else:
@@ -807,14 +881,13 @@ label cousin_boobjob_ask_label(the_person):
                 the_person.char "Right, of course. I guess I'll let you know if it actually works then. I'm going to be pissed if this is all a scam though."
                 call talk_person(the_person) from _call_talk_person_3
 
-                $ cousin_serum_boobjob_check_action = Action("Cousin serum boobjob check", cousin_serum_boobjob_check_requirement, "cousin_serum_boobjob_label", args = [the_person, the_person.tits], requirement_args = [the_person, the_person.tits, day + 3])
-                $ mc.business.mandatory_crises_list.append(cousin_serum_boobjob_check_action)
+                $ add_cousin_serum_boobjob_check_action(the_person)
                 return
 
-        "Offer breast enhancing serum instead.\nRequires: Serum with Breast Enhancement trait (disabled)" if not has_boob_enhancement_serum and mc.business.research_tier >= 2:
+        "Offer breast enhancing serum instead\n{color=#ff0000}{size=18}Requires: Serum with Breast Enhancement trait{/size}{/color} (disabled)" if not has_boob_enhancement_serum and mc.business.research_tier >= 2:
             pass #Shows as a disabled when you could get the research, until then does not show up at all (unless you somehow have something with the trait, from a random event for example)
 
-        "Refuse to pay.":
+        "Refuse to pay":
             mc.name "Five thousand dollars? That's ridiculous. I can't pay that just to get you a set of bigger tits."
             the_person.char "Come on, please? What can I do to convince you?"
             if mc.business.funds < 5000:
@@ -823,7 +896,7 @@ label cousin_boobjob_ask_label(the_person):
                 the_person.char "Really? Ugh, you're useless."
                 call talk_person(the_person) from _call_talk_person_4
                 #Note: we add the boobjob talk option after so that the player has to come back and talk to her again.
-                $ cousin_role.actions.append(cousin_talk_boobjob_again_action)
+                $ add_cousin_talk_boobjob_again_action()
                 return
             else:
                 mc.name "What can you do? I've got the money, I just don't see a reason to give it to you."
@@ -831,31 +904,25 @@ label cousin_boobjob_ask_label(the_person):
                 "She leans close to you, standing on the tips of her toes to whisper sensually into your ear."
                 the_person.char "Maybe I can show you why... Would that be enough? If your slutty, stripper cousin helped get you off, would that be enough to convince you?"
                 menu:
-                    "Pay for it and fuck her. -$5000":
+                    "Pay for it and fuck her\n{color=#ff0000}{size=18}Costs: $5000{/size}{/color}":
                         "You wrap a hand around her waist and slap her ass."
                         mc.name "Alright then, you've got yourself a deal."
                         $ the_person.add_situational_obedience("event", 20, "My new tits will make this all worth it!")
                         call fuck_person(the_person) from _call_fuck_person_42
                         $ the_person.clear_situational_obedience("event")
                         $ the_person.change_slut_temp(5)
-                        $ mc.business.fund += -5000
+                        $ mc.business.funds += -5000
 
-                    "Refuse to pay.":
+                    "Refuse to pay":
                         mc.name "I don't need to pay you if I want to use you. Sorry, but you'll have to find a way to buy your own tits."
                         "She backs up and sulks."
                         the_person.char "Ugh. Fine. Whatever."
                         call talk_person(the_person) from _call_talk_person_5
-                        $ cousin_role.actions.append(cousin_talk_boobjob_again_action)
+                        $ add_cousin_talk_boobjob_again_action()
                         return
 
 
-
-
-
-    python: #Sets up an event that will trigger after a set number of days when she has gotten her boob job. This event, in turns, adds in an event when you talk to her.
-        the_person.event_triggers_dict["getting boobjob"] = True #Reset the flag so you can ask her to get _another_ boobjob.
-        cousin_boobjob_get_action = Action("Cousin boob job get", cousin_boobjob_get_requirement, "cousin_boobjob_get_label", args = the_person, requirement_args = [the_person, the_day + renpy.random.randint(4,6)])
-        mc.business.mandatory_crises_list.append(cousin_boobjob_get_action)
+    $ add_cousin_boobjob_get_action(the_person)
 
     call talk_person(the_person) from _call_talk_person_7
     return
@@ -876,7 +943,7 @@ label cousin_talk_boobjob_again_label(the_person):
                 has_boob_enhancement_serum = True #The player has a serum in their inventory that can grow her breasts, so you can do that instead of getting her surgery.
 
     menu:
-        "Pay for it. -$5000" if mc.business.funds >= 5000:
+        "Pay for it\n{color=#ff0000}{size=18}Costs: $5000{/size}{/color}" if mc.business.funds >= 5000:
             mc.name "Fine. Send me the bill and I'll pay it."
             the_person.char "Really? Just like that?"
             if the_person.love < 10:
@@ -891,24 +958,18 @@ label cousin_talk_boobjob_again_label(the_person):
                 the_person.change_obedience(5)
                 the_person.change_slut_temp(2)
                 mc.business.funds += -5000
-                the_person.event_triggers_dict["getting boobjob"] = True #Reset the flag so you can ask her to get _another_ boobjob.
-                cousin_boobjob_get_action = Action("Cousin boob job get", cousin_boobjob_get_requirement, "cousin_boobjob_get_label", args = the_person, requirement_args = [the_person, day + renpy.random.randint(4,6)])
-                mc.business.mandatory_crises_list.append(cousin_boobjob_get_action)
+                add_cousin_boobjob_get_action(the_person)
+                remove_cousin_talk_boobjob_again_action()
 
-                for an_action in cousin_role.actions:
-                    if an_action == cousin_talk_boobjob_again_action: #Find and remove this action.
-                        cousin_role.actions.remove(an_action)
-                        break
-
-        "Pay for it. -$5000 (disabled)" if mc.business.funds < 5000:
+        "Pay for it\n{color=#ff0000}{size=18}Requires: $5000{/size}{/color} (disabled)" if mc.business.funds < 5000:
             pass
 
-        "Offer breast enhancing serum instead." if has_boob_enhancement_serum:
+        "Offer breast enhancing serum instead" if has_boob_enhancement_serum:
             mc.name "Why go through all that trouble when I have a serum that could do this for you right now."
             the_person.char "Wait, you do?"
             mc.name "Of course I do. It's what my business does. I have a dose right here, if you'd like to try it out."
             the_person.char "And this stuff really works? I always thought you were running a scam."
-            mc.name "Yes, it really works. Do you want it or not."
+            mc.name "Yes, it really works. Do you want it or not?"
             "She eyes you cautiously, then nods."
             the_person.char "Fine, give it here."
             call give_serum(the_person) from _call_give_serum_16
@@ -924,19 +985,14 @@ label cousin_talk_boobjob_again_label(the_person):
                 mc.name "I'm a chemical engineer, not a wizard. It will take some time for the effects to be apparent, and the effectiveness varies from person to person."
                 the_person.char "Right, of course. I guess I'll let you know if it actually works then. I'm going to be pissed if this is all a scam though."
 
-                $ cousin_serum_boobjob_check_action = Action("Cousin serum boobjob check", cousin_serum_boobjob_check_requirement, "cousin_serum_boobjob_label", args = [the_person, the_person.tits], requirement_args = [the_person, the_person.tits, day + 3])
-                $ mc.business.mandatory_crises_list.append(cousin_serum_boobjob_check_action)
-                python:
-                    for an_action in cousin_role.actions:
-                        if an_action == cousin_talk_boobjob_again_action: #Find and remove this action.
-                            cousin_role.actions.remove(an_action)
-                            break
+                $ add_cousin_serum_boobjob_check_action(the_person)
+                $ remove_cousin_talk_boobjob_again_action()
                 return
 
-        "Offer breast enhancing serum instead.\nRequires: Serum with Breast Enhancement trait (disabled)" if not has_boob_enhancement_serum and mc.business.research_tier >= 2:
+        "Offer breast enhancing serum instead\n{color=#ff0000}{size=18}Requires: Serum with Breast Enhancement trait{/size}{/color} (disabled)" if not has_boob_enhancement_serum and mc.business.research_tier >= 2:
             pass
 
-        "Refuse to pay.":
+        "Refuse to pay":
             mc.name "Well, you can keep on wanting them, because I'm still not paying."
             the_person.char "Wait, did you seriously bring that up just to say no again."
             $ the_person.change_love(-3)
@@ -946,9 +1002,8 @@ label cousin_talk_boobjob_again_label(the_person):
 
 label cousin_boobjob_get_label(the_person):
     call got_boobjob(the_person) from _call_got_boobjob
-    python: # Now set the cousin specific stuff so she'll talk about it with you after
-        cousin_new_boobs_brag_action = Action("Cousin new boobs brag", cousin_new_boobs_brag_requirement, "cousin_new_boobs_brag_label")
-        the_person.on_talk_event_list.append(cousin_new_boobs_brag_action) #Next time you talk to her she brags about her new boobs, offers to show them to you, and tells you that she'll pay you back eventually.
+    # Now set the cousin specific stuff so she'll talk about it with you after
+    $ add_cousin_boobjob_brag_action(the_person)
     return
 
 label cousin_new_boobs_brag_label(the_person):
@@ -962,12 +1017,12 @@ label cousin_new_boobs_brag_label(the_person):
 
     the_person.char "I got my new tits! Come on, what do you think?"
     menu:
-        "They look good.":
+        "They look good":
             mc.name "They look good. They better after what I paid!"
             $ the_person.change_love(1)
             $ the_person.change_obedience(3)
 
-        "You look like a bimbo.":
+        "You look like a bimbo":
             mc.name "They make you look like a bimbo. Big tits, no brain."
             if the_person.personality is bimbo_personality:
                 the_person.char "Thank you! I really like them, too!"
@@ -994,7 +1049,7 @@ label cousin_new_boobs_brag_label(the_person):
         else:
             the_person.char "So... Do you want to see them?"
         menu:
-            "Show them to me.":
+            "Show them to me":
                 mc.name "Alright, I want to see my investment."
                 $ the_person.change_slut_temp(1)
                 if mc.location.get_person_count() > 1:
@@ -1026,28 +1081,26 @@ label cousin_new_boobs_brag_label(the_person):
                     "She looks down at her own chest and gives it a shake, setting her tits jiggling. When they settle down, she reaches for her top again."
 
                 $ the_person.apply_outfit(old_outfit, ignore_base = True)
-                # the_person.outfit = old_outfit changed v0.24.1
                 $ the_person.draw_person()
+                $ del old_outfit
 
-            "Not right now.":
+            "Not right now":
                 $ the_person.change_obedience(1)
                 mc.name "I'm sure I'll get a chance to see them some other time. Maybe I'll stop by the club and watch you put them to work."
                 the_person.char "Oh god, could you please not? I hate knowing you might be out in the crowd watching..."
 
-    $ cousin_tits_payback_action = Action("cousin tits payback", cousin_tits_payback_requirement, "cousin_tits_payback_label", args = [the_person, 5000], requirement_args = day + 7)
-    $ mc.business.mandatory_crises_list.append(cousin_tits_payback_action) #An event where she sends you some cash in a week, which if it has not finished then re-adds itself with the new amount
+    $ add_cousin_tits_payback_action(the_person, 5000)
     call talk_person(the_person) from _call_talk_person_8
     return
 
 label cousin_tits_payback_label(the_person, amount_remaining):
-    "You recieve a notification on your phone from your bank."
+    "You receive a notification on your phone from your bank."
     $ mc.business.funds += 1000
     if amount_remaining > 1000:
-        "[the_person.title] has transfered you $1000 with a note saying \"You know why\"."
-        $ cousin_tits_payback_action = Action("cousin tits payback", cousin_tits_payback_requirement, "cousin_tits_payback_label", args = [the_person, amount_remaining-1000], requirement_args = day + 7)
-        $ mc.business.mandatory_crises_list.append(cousin_tits_payback_action) #An event where she sends you some cash in a week, which if it has not finished then re-adds itself with the new amount
+        "[the_person.title] has transferred you $1000 with a note saying \"You know why\"."
+        $ add_cousin_tits_payback_action(the_person, amount_remaining - 1000)
     else:
-        "[the_person.title] has transferred the last of the $5000 you loaned her for her boob job. You get a text shortly afterwards."
+        "[the_person.title] has transferred the last of the $5000 you loaned her for her surgery. You get a text shortly afterwards."
         the_person.char "There, I'm finally done with your tits payment plan."
         mc.name "For now. Maybe you'll want them even bigger someday."
         the_person.char "You wish, perv."
@@ -1075,7 +1128,7 @@ label cousin_serum_boobjob_label(the_person, starting_tits):
         #YOu actually made her tits smaller
 
     elif rank_tits(the_person.tits) - rank_tits(starting_tits) == 1:
-        # One level bigger which she's kind of ahppy with but wanted more.
+        # One level bigger which she's kind of happy with but wanted more.
         "You get a text from [the_person.title]."
         $ the_person.change_obedience(2)
         the_person.char "Hey, I think your serum thing stopped working. My boobs seem a little bigger, but I was hoping for more."
@@ -1088,7 +1141,6 @@ label cousin_serum_boobjob_label(the_person, starting_tits):
         $ the_person.change_love(1)
         the_person.char "I can't believe it, but your freaky serum stuff actually worked! My tits are way bigger now!"
         "There's a pause, then she sends you a picture."
-        $ old_outfit = the_person.outfit.get_copy()
         #She'll show you her tits.
         while not the_person.outfit.tits_visible():
             $ the_person.outfit.remove_random_upper(top_layer_first = True)
@@ -1097,10 +1149,11 @@ label cousin_serum_boobjob_label(the_person, starting_tits):
         $ the_person.break_taboo("bare_tits")
         "It's a selfie of her in the bathroom, tits on display for you."
         the_person.char "You've saved me a ton of cash, so I thought you might enjoy that."
+        $ the_person.review_outfit(dialogue = False)
         $ clear_scene()
         return #Note: we're returning without adding the boobjob ask again event, which means we can consider this "done" at this point.
 
-    $ cousin_role.actions.append(cousin_talk_boobjob_again_action)
+    $ add_cousin_talk_boobjob_again_action()
     return
 
 label stripclub_dance():
@@ -1110,9 +1163,6 @@ label stripclub_dance():
     #-> If you tip enough she strips off her bra and/or panties.
     #-> When she ends her dance, if you've paid enough she may ask if you want to come back for a private lap dance.
     #-> Lap dance scene may just turn into sex.
-    $ pose_list = ["walking_away","back_peek","standing_doggy","stand2","stand3","stand4","stand5"] #A list to let us randomly get some poses so each dance is a little different. #  Removed until we fix this with the clipping
-
-
 
     "You take a seat near the edge of the stage and wait for the next performer."
 
@@ -1127,11 +1177,7 @@ label stripclub_dance():
     if performer_title is not None:
         if cousin_role in the_person.special_role:
             if the_person.event_triggers_dict.get("blackmail_level",-1) < 2 and not the_person.event_triggers_dict.get("seen_cousin_stripping",False):
-                python:
-                    blackmail_2_confront_action = Action("Confront her about her stripping", blackmail_2_confront_requirement, "cousin_blackmail_level_2_confront_label",
-                        menu_tooltip = "Tell her that you know about her job as a stripper and use it as further leverage.")
-                    cousin_role.actions.append(blackmail_2_confront_action)
-                    the_person.event_triggers_dict["seen_cousin_stripping"] = True
+                $ add_cousin_blackmail_2_confront_action()
 
                 "It takes you a moment to recognize your cousin, [the_person.title], as she struts out onto the stage."
                 if not the_person.event_triggers_dict.get("found_stripping_clue", False):
@@ -1177,7 +1223,7 @@ label stripclub_dance():
     else:
         "As the music builds, [performer_title]'s dance becomes more energetic. She runs her hands over her tight body, accentuating her curves."
     call stripshow_strip(the_person) from _call_stripshow_strip_2
-    $ the_person.draw_person(position = get_random_from_list(pose_list), the_animation = blowjob_bob, animation_effect_strength = 0.7)
+    $ the_person.draw_person(position = get_random_from_list(cousin_strip_pose_list), the_animation = blowjob_bob, animation_effect_strength = 0.7)
     "Her music hits its crescendo and her dancing does the same. [performer_title] holds onto the pole in the middle of the stage and spins herself around it."
     call stripshow_strip(the_person) from _call_stripshow_strip_3
     $ the_person.draw_person(position = "doggy", the_animation = ass_bob, animation_effect_strength = 0.8)
@@ -1197,7 +1243,7 @@ label stripclub_dance():
 
 label stripshow_strip(the_person):
     menu:
-        "Throw some cash. -$20" if mc.business.funds >= 20:
+        "Throw some cash\n{color=#ff0000}{size=18}Costs: $20{/size}{/color}" if mc.business.funds >= 20:
             $ mc.business.funds += -20
             "You reach into your wallet and pull out a $20 bill. You wait until the dancer is looking in your direction, then throw it onto the stage."
 
@@ -1210,11 +1256,12 @@ label stripshow_strip(the_person):
                 "She smiles at you and starts to peel off her [random_item.display_name]."
             else:
                 "She smiles and wiggles her hips for you."
+            $ del random_item
 
-        "Throw some cash. -$20 (disabled)" if mc.business.funds < 20:
+        "Throw some cash\n{color=#ff0000}{size=18}Requires: $20{/size}{/color} (disabled)" if mc.business.funds < 20:
             pass
 
-        "Just enjoy the show.":
+        "Just enjoy the show":
             "You lean back in your seat and enjoy the dance."
             if renpy.random.randint(0,100) < 30:
                 #Someone else throws cash onto the stage.
@@ -1228,4 +1275,5 @@ label stripshow_strip(the_person):
                     $ the_person.draw_animated_removal(random_item)
                 else:
                     "She takes the money and holds onto it while she continues to move her body to the music."
+                $ del random_item
     return

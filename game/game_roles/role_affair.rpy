@@ -4,8 +4,8 @@ init -1 python:
     def so_morning_breakup_requirement(the_person):
         return True #ALways valid for now.
 
-    def leave_SO_love_calculation(the_person): #Standalone calculation so we can use these values in multiple dfferent events
-        love_required = 80 - (the_person.get_opinion_score("cheating on men") * 10) #This should never be lower than the love reuqirement for her being your girlfriend.
+    def leave_SO_love_calculation(the_person): #Standalone calculation so we can use these values in multiple different events
+        love_required = 80 - (the_person.get_opinion_score("cheating on men") * 10) #This should never be lower than the love requirement for her being your girlfriend.
         if the_person.relationship == "Fiancée":
             love_required += 10
         elif the_person.relationship == "Married":
@@ -20,14 +20,24 @@ init -1 python:
             return True
 
     def fuck_date_requirement(the_person):
-        if mc.business.event_triggers_dict.get("date_scheduled", False):
-            return "You already have a date planned!"
+        if mc.business.event_triggers_dict.get("fuck_date_scheduled", False):
+            return "Already planned fuck date!"
         else:
             return True
 
     def caught_affair_cheating_requirement(the_person): #Event when you have public sex in front of someone you're having an affair with.
         return True
 
+    def add_plan_fuck_date_action(the_person):
+        evening_fuck_date_action = Action("Fuck date", evening_date_trigger, "fuck_date_label", args = the_person, requirement_args = 3) #Happens on a thursday
+        mc.business.mandatory_crises_list.append(evening_fuck_date_action)
+        mc.business.event_triggers_dict["fuck_date_scheduled"] = True
+        return
+
+    def add_so_morning_breakup_crisis(the_person):
+        morning_so_breakup_crisis = Action("Morning SO breakup", so_morning_breakup_requirement, "so_morning_breakup_label", args = the_person, requirement_args = the_person)
+        mc.business.mandatory_morning_crises_list.append(morning_so_breakup_crisis)
+        return
 
 label ask_leave_SO_label(the_person): #
     # Ask her to leave her significant other. Requires high love (and no negatively impactful opinions).
@@ -43,8 +53,9 @@ label ask_leave_SO_label(the_person): #
     call transform_affair(the_person) from _call_transform_affair_3
     $ the_person.change_love(10)
     $ the_person.change_obedience(5)
-    $ the_person.draw_person(emotion = "happy")
+    $ the_person.draw_person(position = "kissing", emotion = "happy")
     "You put your arms around her waist and she kisses you immediately. When you break the kiss she's grinning ear to ear."
+    $ the_person.draw_person(emotion = "happy")
     $ ex_title = so_title[:4] #Get's only the first 4 characters of any title for some hesitant-sounding speach.
     the_person.char "It feels so good to not have to hide anything anymore! I'll break the news to my [ex_title]... My ex-[so_title] later today."
     return
@@ -58,20 +69,18 @@ label plan_fuck_date_label(the_person):
     "You place a hand on [the_person.possessive_title]'s hips and caress her leg. She smiles and leans into your hand."
     mc.name "I want to be alone with you. When will your [so_title] be out of the way so I can have you all to myself?"
     if the_person.kids > 0:
-        the_person.char "He normally stays late at work on Fridays. I can make sure the house is empty and we can get down to business the moment you're in the door."
+        the_person.char "He normally stays late at work on Thursdays. I can make sure the house is empty and we can get down to business the moment you're in the door."
     else:
-        the_person.char "He's normally stuck late at work on Fridays. Just come on over and we can get down to business."
+        the_person.char "He's normally stuck late at work on Thursdays. Just come on over and we can get down to business."
 
     menu:
-        "Plan a date for Friday night.":
+        "Plan a date for Thursday night":
             mc.name "Good, I'll be there."
             the_person.char "I'll be ready and waiting."
             "She winks at you and smiles."
-            $ fuck_date_action = Action("Fuck date", evening_date_trigger, "fuck_date_label", args = the_person, requirement_args = 4) #Happens on a friday
-            $ mc.business.mandatory_crises_list.append(fuck_date_action)
-            $ mc.business.event_triggers_dict["date_scheduled"] = True
+            $ add_plan_fuck_date_action(the_person)
 
-        "Maybe some other time.":
+        "Maybe some other time":
             mc.name "Damn, that's not going to work for me."
             the_person.char "Aww, I guess I'll be spending the night alone then..."
             "She pouts and shrugs."
@@ -81,18 +90,18 @@ label plan_fuck_date_label(the_person):
 
 label fuck_date_label(the_person):
     #You go to her home and fuck her as much as your energy can support. Small chance her SO either calls or walks in.
-    # Occures at night. You go to her place.
+    # Occurs at night. You go to her place.
 
-    $ mc.business.event_triggers_dict["date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
+    $ mc.business.event_triggers_dict["fuck_date_scheduled"] = False #Deflag this event so you can schedule a date with another person for next week.
     if the_person.relationship == "Single":
         return #If she's single she must have broken up with her SO at some point, which means you're no longer having an affair with her. Clear out your date and move on with your life.
 
     "You have a fuck date planned with [the_person.title]."
     menu:
-        "Get ready for the date. {image=gui/heart/Time_Advance.png}":
+        "Get ready for the date {image=gui/heart/Time_Advance.png}":
             pass
 
-        "Cancel the date. (tooltip)She won't be happy with you canceling last minute.":
+        "Cancel the date (tooltip)She won't be happy with you canceling last minute.":
             "You get your phone out and text [the_person.title]."
             mc.name "I'm sorry, but something important came up at the last minute. We'll have to reschedule."
             $ the_person.change_love(-5)
@@ -102,6 +111,7 @@ label fuck_date_label(the_person):
             return
 
     $ mc.change_location(the_person.home)
+    $ mc.location.show_background()
     $ so_title = SO_relationship_to_title(the_person.relationship) #TODO: Make sure she's still in a relationship, or void this date if she isn't (because she's your girlfriend now).
 
     if the_person.home not in mc.known_home_locations:
@@ -111,7 +121,7 @@ label fuck_date_label(the_person):
         "You make your way to [the_person.possessive_title]'s house. You text her first, in case her [so_title] is unexpectedly home."
     mc.name "I'm here. Are you ready?"
     the_person.char "Come on in, the door is unlocked. I'm in the bedroom"
-    $ mc.location.show_background()
+    $ aunt_bedroom.show_background()
     "You go inside. The only light in the house comes from a room with its door ajar. When you swing it open you see [the_person.title] waiting."
     $ the_person.add_situational_slut("Date", 20, "There's no reason to hold back, he's here to fuck me!") # Bonus to sluttiness since you're in an affair and this is blatently a date to get fucked on.
     call fuck_date_event(the_person) from _call_fuck_date_event
@@ -136,7 +146,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
         the_person.char "Hello, I'm ready for you [the_person.mc_title]..."
         "She licks her lips and watches you from her knees."
         the_person.char "Don't waste any time, I want you in my mouth."
-        call fuck_person(the_person, private = True, start_position = blowjob) from _call_fuck_person_34
+        call fuck_person(the_person, private = True, start_position = blowjob, skip_intro = True) from _call_fuck_person_34
 
     else:
         #She's standing and ready to make out as soon as you come in."
@@ -151,12 +161,13 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
     $ done = False
     $ girl_came = False
     $ so_called = False
-    $ energy_gain_amount = 50 #Drops each round, representing your flagging endurance.
+    $ energy_gain_amount = mc.max_energy // 3 #Drops each round, representing your flagging endurance.
     while not done:
         if the_report.get("girl orgasms", 0) > 0: #TODO: Have some variation to this based on how many times we've looped around.
             $ the_person.change_love(2 + the_person.get_opinion_score("cheating on men"))
             $ the_person.change_slut_temp(1)
             the_person.char "Oh god... That was amazing. You're so much better at that than my [so_title]."
+            $ the_person.draw_person(position = "missionary")
             "[the_person.title] lies down on her bed and catches her breath."
             the_person.char "Ready to get back to it?"
             $ girl_came = True
@@ -164,6 +175,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
         else:
             the_person.char "Whew, good job. Get some water and let's go for another!"
             "You take some time to catch your breath, drink some water, and wait for your refractory period to pass."
+            $ the_person.draw_person(position = "missionary")
             "You hold [the_person.title] in bed while she caresses you and touches herself, keeping herself ready for you."
 
 
@@ -188,13 +200,13 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
             $ mc.change_energy(energy_gain_amount)
             $ the_person.change_energy(energy_gain_amount) #She gains some back too
             if energy_gain_amount >= 10:
-                $ energy_gain_amount += -10 #Gain less and less energy back each time until eventually you're exhausted and gain nothing back.
+                $ energy_gain_amount -= 10 #Gain less and less energy back each time until eventually you're exhausted and gain nothing back.
             menu:
-                "Fuck her again.":
+                "Fuck her again":
                     "Soon you're ready to go again and you wrap your arms around [the_person.title]."
                     mc.name "Come here you little slut."
-                    $ random_num = renpy.random.randint(0,100)
-                    if random_num < 8 and not so_called:
+                    $ ran_num = renpy.random.randint(0,100)
+                    if ran_num < 15 and not so_called:
                         #Her SO Comes home (unless he's called, in which case we know where he is.)
                         "She smiles and wraps her arms around you in return, pressing her body against yours."
                         the_person.char "Come and take me. I..."
@@ -206,9 +218,8 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                             "Hide!":
                                 $ done = True
                                 "You jump up from [the_person.possessive_title]'s bed and look around the room. You hear her [so_title] close the car door."
-                                $ random_num = renpy.random.randint(0,100)
                                 $ hiding_under_bed = True
-                                if random_num < 50:
+                                if renpy.random.randint(0,100) < 50:
                                     "Without many options you drop to the ground and shimmy yourself under her bed, trying to make sure you can't be seen from the bedroom door."
                                     "Above you [the_person.title] lies down on her bed and waits. You hear her [so_title] open the front door, then walk through the house toward you."
 
@@ -265,19 +276,17 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 $ done = True
                                 mc.name "Fuck!"
                                 "You don't waste any time, throwing your clothes on as quickly as possible. By the time you hear the front door open you're already rushing for the back yard."
-                                $ random_num = renpy.random.randint(0,100)
-                                if random_num < 20:
+                                if renpy.random.randint(0,100) < 20:
                                     # You get caught (but she's the one who has to deal with it).
                                     "[the_person.title] rushes to the door to intercept her [so_title]. She's trying to stall, but he doesn't stop. You're almost free and clear, when you hear him yell."
                                     the_person.SO_name "Hey! Who are you?"
                                     "You don't stop. You slam the door and sprint away as quickly as your legs will carry you."
-                                    $ morning_so_breakup_crisis = Action("Morning SO breakup", so_morning_breakup_requirement, "so_morning_breakup_label", args = the_person, requirement_args = the_person)
-                                    $ mc.business.mandatory_morning_crises_list.append(morning_so_breakup_crisis)
+                                    $ add_so_morning_breakup_crisis(the_person)
                                 else:
                                     "[the_person.title] rushes to the door to intercept her [so_title]. You hear her stalling for you as you open the side door and break into the night."
 
                             "Fuck her anyways!" if the_person.love + the_person.effective_sluttiness("vaginal_sex") >= leave_SO_love_calculation(the_person) + 60:
-                                # You assert dominance and fuck her as he comes in. He breaks down as you claim her as your own.
+                                # You assert dominance and fuck her as he comes in. She breaks down as you claim her as your own.
 
                                 mc.name "Well, I think I'm still going to bend you over and fuck you. He was going to find out eventually, right?"
                                 the_person.char "What? Oh my god..."
@@ -286,22 +295,23 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "I... I can't believe I'm actually doing this! Oh my god!"
                                 if not the_person.outfit.vagina_available():
                                     "You strip her down as quickly as you can, not a minute to spare."
-                                    while not the_person.outfit.vagina_available():
-                                        $ the_item = the_person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
-                                        $ the_person.draw_animated_removal(the_item)
-                                        ""
+                                    python:
+                                        while not the_person.outfit.vagina_available():
+                                            the_item = the_person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+                                            the_person.draw_animated_removal(the_item)
+                                            renpy.pause(1)
 
-                                    while not the_person.outfit.vagina_available():
-                                        $ the_item = the_person.outfit.remove_random_any(top_layer_first = True, do_not_remove = True)
-                                        $ the_person.draw_animated_removal(the_item)
-                                        ""
-
+                                        while not the_person.outfit.vagina_available():
+                                            the_item = the_person.outfit.remove_random_any(top_layer_first = True, do_not_remove = True)
+                                            the_person.draw_animated_removal(the_item)
+                                            renpy.pause(1)
+                                        the_item = None
                                 menu:
-                                    "Put on a condom.":
+                                    "Put on a condom":
                                         "You pause for a second to put on a condom, spreading it over your hard cock before lining it up with her wet pussy."
                                         $ mc.condom = True
 
-                                    "Fuck her bareback.":
+                                    "Fuck her bareback":
                                         "You give her ass a smack and line your cock up with her wet pussy."
 
                                 if the_person.effective_sluttiness("condomless_sex") < the_person.get_no_condom_threshold() and not mc.condom:
@@ -330,7 +340,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "All I want is his cock!"
                                 "He gibbers weakly to himself and turns around, leaving the room. Shortly after you hear the engine of his car start up and he drives away."
 
-                                call fuck_person(the_person, private = True, start_position = doggy, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, skip_condom = true) from _call_fuck_person_101
+                                call fuck_person(the_person, private = True, start_position = doggy, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, asked_for_condom = True) from _call_fuck_person_101
                                 $ the_report = _return
                                 call transform_affair(the_person) from _call_transform_affair_1 #She's no longer with her husband, obviously.
 
@@ -338,7 +348,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "Oh my god, that was actually it. It's just me and you, nobody else in our way."
                                 "She holds onto you tightly and rests her head on your chest."
 
-                    elif random_num < 20 and not so_called:
+                    elif ran_num < 30 and not so_called:
                         #Her SO calls home. Depending on Love/Sluttiness she might want to stop, or keep going while talking to him.
                         $ so_called = True
                         "She smiles and moves to kiss you, when a happy little jingle fills the room."
@@ -351,7 +361,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                         the_person.char "Hey sweetheart! How are you doing?"
                         the_person.char "Good, that's good to hear. I'm doing fine, it's a little lonely here without you..."
                         menu:
-                            "Stay quiet.":
+                            "Stay quiet":
                                 #Time passes then you fuck her as normal.
                                 "You lie back and get comfortable on [the_person.title]'s bed while she's talking. You wonder briefly if this is her side of the bed or her [so_title]'s."
                                 the_person.char "Yeah? You don't say... Uh huh..."
@@ -364,7 +374,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 call fuck_person(the_person, private = True) from _call_fuck_person_37 #Just normal start.
                                 $ the_report = _return
 
-                            "Grope her.":
+                            "Grope her":
                                 #Basically an extended intro.
                                 "You shuffle across [the_person.title]'s bed while she is talking and wrap your arms around her torso. She places a hand on your forearm and caresses it."
                                 the_person.char "Yeah? You don't say... Uh huh... Mhmm."
@@ -388,7 +398,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 call fuck_person(the_person, private = True) from _call_fuck_person_38
                                 $ the_report = _return
 
-                            "Make her suck your cock." if the_person.effective_sluttiness("sucking_cock") >= 50:
+                            "Make her suck your cock" if the_person.effective_sluttiness("sucking_cock") >= 50:
                                 #Basically an extended intro
                                 "You shuffle across the bed and stand up in front of [the_person.title]. She looks at you quizzically before noticing your hard cock at face level."
                                 if the_person.has_taboo("sucking_cock"):
@@ -415,7 +425,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 call fuck_person(the_person, private = True, start_position = blowjob, skip_intro = True) from _call_fuck_person_39
                                 $ the_report = _return
 
-                            "Fuck her while she's talking." if the_person.effective_sluttiness("vaginal_sex") >= 80:
+                            "Fuck her while she's talking" if the_person.effective_sluttiness("vaginal_sex") >= 80:
                                 #This is basically an extended intro
                                 "You shuffle behind [the_person.title] and wrap your arms around her, grabbing a tit with one hand while the other slides down to her waist and caresses her pussy."
                                 the_person.char "Yeah? You don't say... Uh huh?"
@@ -427,28 +437,29 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 else:
                                     # You undress her so you can get to the point you can fuck her
                                     "You undress her while she's still on the phone with her [so_title]."
-                                    while not the_person.outfit.vagina_available():
-                                        $ the_item = the_person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
-                                        $ the_person.draw_animated_removal(the_item)
-                                        ""
+                                    python:
+                                        while not the_person.outfit.vagina_available():
+                                            the_item = the_person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+                                            the_person.draw_animated_removal(the_item)
+                                            renpy.pause(1)
 
-                                    while not the_person.outfit.vagina_available():
-                                        $ the_item = the_person.outfit.remove_random_any(top_layer_first = True, do_not_remove = True)
-                                        $ the_person.draw_animated_removal(the_item)
-                                        ""
-
+                                        while not the_person.outfit.vagina_available():
+                                            the_item = the_person.outfit.remove_random_any(top_layer_first = True, do_not_remove = True)
+                                            the_person.draw_animated_removal(the_item)
+                                            renpy.pause(1)
+                                        the_item = None
                                     "Once her cute little pussy is available, she spreads her legs for you."
                                     $ the_person.update_outfit_taboos()
 
                                 $ wanted_condom = False
                                 if the_person.effective_sluttiness("condomless_sex") < the_person.get_no_condom_threshold():
                                     $ wanted_condom = True
-                                    "She pauses and points towards your cock and mouthes \"C-O-N-D-O-M\""
+                                    "She pauses and points towards your cock and mouthing \"C-O-N-D-O-M\""
                                 else:
                                     "She reaches down with her free hand and strokes your hard cock, sliding the tip against her wet slit."
 
                                 menu:
-                                    "Wear a condom.":
+                                    "Wear a condom":
                                         if not wanted_condom:
                                             "You pause for a moment to grab a condom from her bedstand. [the_person.possessive_title] rolls her eyes impatiently underneath you."
                                         else:
@@ -456,7 +467,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                         $ mc.condom = True
 
 
-                                    "Fuck her bareback.":
+                                    "Fuck her bareback":
                                         if wanted_condom:
                                             "You hold a finger up to your lips, reminding her to be quiet, and slide into her anyway."
                                             $ the_person.change_obedience(2 + the_person.get_opinion_score("bareback sex"))
@@ -475,7 +486,7 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                                 the_person.char "Oh fuck, you're crazy [the_person.mc_title]! What if we get caught?"
                                 mc.name "We'll deal with that if it happens. Just relax and enjoy."
 
-                                call fuck_person(the_person, private = True, start_position = missionary, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, skip_condom = true) from _call_fuck_person_102
+                                call fuck_person(the_person, private = True, start_position = missionary, start_object = mc.location.get_object_with_name("bed"), skip_intro = True, asked_for_condom = True) from _call_fuck_person_102
                                 $ the_report = _return
 
                         #TODO: At this point run a check on her arousal.
@@ -489,11 +500,12 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
                         call fuck_person(the_person) from _call_fuck_person_41
                         $ the_report = _return
 
-                "Call it a night.":
+                "Call it a night":
                     mc.name "I have to get going. This was fun."
                     "You kiss [the_person.title], then get up and start collecting your clothes."
                     if girl_came:
                         the_person.char "Okay then. We need to do this again, you rocked my world [the_person.mc_title]."
+                        $ the_person.draw_person(position = "missionary")
                         "She sighs happily and lies down on her bed."
 
                     else:
@@ -507,8 +519,12 @@ label fuck_date_event(the_person): #A breakout function so we can call the fuck_
 
     #As soon as done is True we finish looping. This means each path should narrate it's own end of encounter stuff.
     #Generic stuff to make sure we don't keep showing anyone.
-    $ the_person.clear_situational_slut("Date")
-    $ clear_scene()
+    python:
+        the_person.clear_situational_slut("Date")
+        mc.change_location(bedroom) # go home
+        clear_scene()
+        so_title = None
+        del energy_gain_amount
     return "Advance Time"
 
 
@@ -520,8 +536,7 @@ label blackmail_person(the_person):
 
 label transform_affair(the_person):
     # If a girl leaves her SO for crisis reasons call this, which transforms her affair you had into a boyfriend-girlfriend relationship.
-    if affair_role in the_person.special_role: # Technically we can use this to immediately jump to girlfrined with someone who is in a relationship as well.
-        $ the_person.remove_role(affair_role)
+    $ the_person.remove_role(affair_role)
     $ the_person.add_role(girlfriend_role)
     $ the_person.relationship = "Single" #Technically they aren't "single", but the MC has special roles for their girlfriend.
     $ the_person.SO_name = None #Clear the name of their ex so that it doesn't get used in
@@ -544,7 +559,7 @@ label so_morning_breakup(the_person): #Used as a mandatory event after a girls S
     return
 
 label caught_affair_cheating_label(the_other_girl, the_girlfriend):
-    #TODO: She confronts you about being with another owman. You point out that she's ALSO with another guy. She asks you to tone it down a bit, she wants to be your main thing.
+    #TODO: She confronts you about being with another woman. You point out that she's ALSO with another guy. She asks you to tone it down a bit, she wants to be your main thing.
     # OR, if you lose enough Love, she ends the affair.
 
     if affair_role not in the_girlfriend.special_role:

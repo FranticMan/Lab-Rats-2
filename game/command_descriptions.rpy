@@ -16,7 +16,7 @@ label serum_demand_label(the_person):
 
 label wardrobe_change_label(the_person):
     menu:
-        "Add an outfit.":
+        "Add an outfit":
             mc.name "[the_person.title], I got you something I think you might like."
             $ clear_scene()
             call outfit_master_manager(main_selectable = True) from _call_outfit_master_manager_8
@@ -24,19 +24,19 @@ label wardrobe_change_label(the_person):
             if _return:
                 $ new_outfit = _return
                 menu:
-                    "Save as a full outfit.":
+                    "Save as a full outfit":
                         $ outfit_type = "full"
 
-                    "Save as an underwear set." if new_outfit.is_suitable_underwear_set():
+                    "Save as an underwear set" if new_outfit.is_suitable_underwear_set():
                         $ outfit_type = "under"
 
-                    "Save as an underwear set. (disabled)" if not new_outfit.is_suitable_underwear_set():
+                    "Save as an underwear set (disabled)" if not new_outfit.is_suitable_underwear_set():
                         pass
 
-                    "Save as an overwear set." if new_outfit.is_suitable_overwear_set():
+                    "Save as an overwear set" if new_outfit.is_suitable_overwear_set():
                         $ outfit_type = "over"
 
-                    "Save as an overwear set. (disabled)" if not new_outfit.is_suitable_overwear_set():
+                    "Save as an overwear set (disabled)" if not new_outfit.is_suitable_overwear_set():
                         pass
 
 
@@ -56,16 +56,16 @@ label wardrobe_change_label(the_person):
 
 
             else:
-                mc.name "On second thought, nevermind."
+                mc.name "On second thought, never mind."
 
-        "Delete an outfit.":
+        "Delete an outfit":
             mc.name "[the_person.title], lets have a talk about what you've been wearing."
             $ clear_scene()
             call screen outfit_delete_manager(the_person.wardrobe)
             $ the_person.draw_person()
             #TODO: Figure out what happens when someone doesn't have anything in their wardrobe.
 
-        "Wear an outfit right now.":
+        "Wear an outfit right now":
             mc.name "[the_person.title], I want you to get changed for me."
             $ clear_scene()
             call screen girl_outfit_select_manager(the_person.wardrobe)
@@ -80,25 +80,22 @@ label wardrobe_change_label(the_person):
 
 label change_titles_person(the_person):
     menu:
-        "Change what you call her. (tooltip)Change the title you have for her. This may just be her name, an honourific such as \"Miss.\", or a complete nickname such as \"Cocksleeve\". Different combinations of stats, roles, and personalities unlock different titles.":
-            call new_title_menu(the_person) from _call_new_title_menu
-            $ title_choice = _return
+        "Change what you call her (tooltip)Change the title you have for her. This may just be her name, an honorific such as \"Miss.\", or a complete nickname such as \"Cocksleeve\". Different combinations of stats, roles, and personalities unlock different titles.":
+            $ title_choice = new_title_menu(the_person)
             if not (title_choice == "Back" or the_person.title == the_person.create_formatted_title(title_choice)):
                 "You tell [the_person.name] [the_person.last_name] that you are going to call her [title_choice] instead of [the_person.title]."
                 $ the_person.set_title(title_choice)
 
-        "Change what she calls you. (tooltip)Change the title she has for you. This may just be your name, an honourific such as \"Mr.Games\", or a complete nickname such as \"Master\". Different combinations of stats, roles, and personalities unlock different titles.":
-            call new_mc_title_menu(the_person) from _call_new_mc_title_menu
-            $ title_choice = _return
+        "Change what she calls you (tooltip)Change the title she has for you. This may just be your name, an honorific such as \"Mr.Games\", or a complete nickname such as \"Master\". Different combinations of stats, roles, and personalities unlock different titles.":
+            $ title_choice = new_mc_title_menu(the_person)
             if not (title_choice == "Back" or the_person.mc_title == title_choice):
                 "You tell [the_person.title] to stop calling you [the_person.mc_title] and to refer to you as [title_choice] instead."
                 $ the_person.set_mc_title(title_choice)
 
-        "Change how you refer to her. (tooltip)Change your possessive title for this girl. A possessive title takes the form \"your employee\", \"your sister\", etc. It can also just be their name repeated. Different combinations of stats, roles, and personalities unlock different titles.":
-            call new_possessive_title_menu(the_person) from _call_new_possessive_title_menu
-            $ title_choice = _return
-            if not (title_choice == "Back" or the_person.possessive_title ==  the_person.create_formatted_title(the_person.possessive_title)):
-                "You decide to start refering [the_person.name] [the_person.last_name] as [title_choice] instead of [the_person.possessive_title] when you're talking about her."
+        "Change how you refer to her (tooltip)Change your possessive title for this girl. A possessive title takes the form \"your employee\", \"your sister\", etc. It can also just be their name repeated. Different combinations of stats, roles, and personalities unlock different titles.":
+            $ title_choice = new_possessive_title_menu(the_person)
+            if not (title_choice == "Back" or the_person.possessive_title == the_person.create_formatted_title(title_choice)):
+                "You decide to start referring [the_person.name] [the_person.last_name] as [title_choice] instead of [the_person.possessive_title] when you're talking about her."
                 $ the_person.set_possessive_title(title_choice)
     return
 
@@ -145,14 +142,14 @@ label demand_touch_label(the_person):
             the_person.char "[the_person.mc_title], there are people around! If you want me to do this, we need to go somewhere else."
             "She has a fierce look in her eye, like this might be the limit of her obedience."
             menu:
-                "Find somewhere quiet.\n{size=22}No interuptions{/size}":
+                "Find somewhere quiet\n{color=#ff0000}{size=18}No interruptions{/size}{/color}":
                     mc.name "Alright, come with me."
                     "You take [the_person.title] by her wrist and lead her away."
                     #TODO: have each location have a unique "find someplace quiet" descriptor with a default fallback option
                     "After a couple of minutes searching you find a quiet space with just the two of you."
                     "You don't waste any time getting back to what you were doing, grabbing [the_person.possessive_title]'s tits and groping her ass."
 
-                "Stay where you are.\n{size=22}[extra_people_count] watching{/size}":
+                "Stay where you are\n{color=#ff0000}{size=18}[extra_people_count] watching{/size}{/color}":
                     mc.name "We're going to stay right here."
                     the_person.char "I... No, I'm not going to let you do this!"
                     "She pushes your hands away from her and steps back, glaring at you."
@@ -168,14 +165,14 @@ label demand_touch_label(the_person):
             "[the_person.possessive_title] looks around nervously."
             the_person.char "[the_person.mc_title], there are other people looking. Could we please find somewhere private?"
             menu:
-                "Find somewhere quiet.\n{size=22}No interuptions{/size}":
+                "Find somewhere quiet\n{color=#ff0000}{size=18}No interruptions{/size}{/color}":
                     mc.name "Alright, come with me."
                     "You take [the_person.title] by her wrist and lead her away."
                     #TODO: have each location have a unique "find someplace quiet" descriptor with a default fallback option
                     "After searching for a couple of minutes you find a quiet space with just the two of you."
                     "You don't waste any time getting back to what you were doing, grabbing [the_person.possessive_title]'s tits and groping her ass."
 
-                "Stay where you are.\n{size=22}[extra_people_count] watching{/size}":
+                "Stay where you are\n{color=#ff0000}{size=18}[extra_people_count] watching{/size}{/color}":
                     mc.name "We're going to stay right here."
                     the_person.char "But people are watching, and..."
                     mc.name "I don't care if they're watching."
@@ -188,25 +185,40 @@ label demand_touch_label(the_person):
             #She's fine with it, but we'll give you the option anyways.
             "There are other people around, but [the_person.possessive_title] either doesn't care or is too determined to follow your instructions exactly."
             menu:
-                "Find somewhere quiet.\n{size=22}No interuptions{/size}":
+                "Find somewhere quiet\n{color=#ff0000}{size=18}No interruptions{/size}{/color}":
                     mc.name "Come with me, I don't want to be interrupted."
                     "You take [the_person.title] by the wrist and lead her away. She follows without question."
                     "After searching for a couple of minutes you find a quiet space with just the two of you."
                     "You don't waste any time getting back to what you were doing, grabbing [the_person.possessive_title]'s tits and groping her ass."
 
-                "Stay where you are.\n{size=22}[extra_people_count] watching{/size}":
+                "Stay where you are\n{color=#ff0000}{size=18}[extra_people_count] watching{/size}{/color}":
                     $ should_be_private = False
 
 
     if the_person.has_taboo("touching_body"):
-        $ the_person.call_dialogue("touching_body_taboo_break") #TODO: Have a varient when a person is being _commanded_ instead of seduced.
+        $ the_person.call_dialogue("touching_body_taboo_break") #TODO: Have a variant when a person is being _commanded_ instead of seduced.
         $ the_person.break_taboo("touching_body")
 
 
-    call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_44
-    $ the_report = _return
-    $ the_person.call_dialogue("sex_review", the_report = the_report)
-    $ the_person.review_outfit()
+    if prostitute_role in the_person.special_role:
+        the_person.char "We can continue what you started, but it would cost you two hundred dollars."
+        menu:
+            "Pay her\n{color=#ff0000}{size=18}Costs: $200{/size}{/color}" if mc.business.funds > 200:
+                $ mc.business.funds += -200
+                $ the_person.change_obedience(1)
+                call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_demand_touch_prostitute
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
+            "Pay her\n{color=#ff0000}{size=18}Requires: $200{/size}{/color} (disabled)" if mc.business.funds <= 200:
+                pass
+            "No":
+                mc.name "Thanks for the offer, but no thanks."
+                "She shrugs."
+                the_person.char "Your loss."
+    else:
+        call fuck_person(the_person, private = should_be_private, start_position = standing_grope, start_object = None, skip_intro = True) from _call_fuck_person_44
+        $ the_person.call_dialogue("sex_review", the_report = _return)
+        $ the_person.review_outfit()
     return
 
 init -3 python:
@@ -236,22 +248,78 @@ init -3 python:
         else:
             return True
 
+    def build_demand_strip_menu(the_person):
+        demand_strip_tits_action = Action("Get your tits out", demand_strip_tits_requirement, "demand_strip_tits_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Have her strip down until you can see her tits.")
+        demand_strip_underwear_action = Action("Strip to your underwear", demand_strip_underwear_requirement, "demand_strip_underwear_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Have her strip down until she's only in her underwear.")
+        demand_strip_naked_action = Action("Get naked", demand_strip_naked_requirement, "demand_strip_naked_label", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Have her strip until she is completely naked.")
+        return ["Strip Command", demand_strip_tits_action, demand_strip_underwear_action, demand_strip_naked_action, ["Never mind", "Return"]]
+
+    def top_strip_description(person, strip_list):
+        for item_to_strip in strip_list:
+            person.draw_animated_removal(item_to_strip)
+            if item_to_strip == strip_list[-1]: #Special line for the last item.
+                if person.has_large_tits():
+                    renpy.say("","She pulls off her " + item_to_strip.display_name + ", letting her tits spill out.")
+                else:
+                    renpy.say("","She pulls off her " + item_to_strip.display_name + ", revealing her cute tits.")
+            else:
+                renpy.say ("","")
+        return
+
+    def underwear_strip_description(person):
+        the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+        while person.outfit.bra_covered() and the_item is not None:
+            person.draw_animated_removal(the_item)
+            the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+
+        the_item = person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
+        while person.outfit.panties_covered() and the_item is not None:
+            person.draw_animated_removal(the_item)
+            if person.outfit.underwear_visible():
+                renpy.say("", person.possessive_title + " strips off her " + the_item.display_name + ", leaving her wearing only her underwear.") #TODO: Generalize these kinds of strip functions.
+            the_item = person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
+        return
+
+    def naked_strip_description(person):
+        the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+        while the_item is not None and not person.outfit.tits_visible():
+            person.draw_animated_removal(the_item)
+            if person.outfit.tits_visible():
+                renpy.say("", person.possessive_title + " pulls her tits out from her " + the_item.display_name + ", putting them on display for you.")
+            the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+
+        if not person.outfit.tits_visible():
+            renpy.say("", person.possessive_title + " looks at you, you just nod, indicating she should continue.")
+
+        the_item = person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
+        while the_item is not None and not person.outfit.vagina_visible():
+            person.draw_animated_removal(the_item)
+            if person.outfit.vagina_visible():
+                renpy.say("", person.possessive_title + " peels off her " + the_item.display_name + ", revealing her cute little pussy.")
+            the_item = person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
+
+        if not person.outfit.vagina_visible():
+            renpy.say("", person.possessive_title + " looks at you, you motion her to keep going.")
+
+        # special case where the item is a two part item and did not get removed from the first upper run
+        the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+        while the_item is not None and not person.outfit.tits_visible():
+            person.draw_animated_removal(the_item)
+            if person.outfit.tits_visible() and person.outfit.vagina_visible():
+                renpy.say("", person.possessive_title + " takes of her " + the_item.display_name + ", displaying her naked body to you.")
+            the_item = person.outfit.remove_random_upper(top_layer_first = True, do_not_remove = True)
+        return
 
 label demand_strip_label(the_person):
-    $ demand_strip_tits_action = Action("Get your tits out.", demand_strip_tits_requirement, "demand_strip_tits_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Have her strip down until you can see her tits.")
-    $ demand_strip_underwear_action = Action("Strip to your underwear.", demand_strip_underwear_requirement, "demand_strip_underwear_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Have her strip down until she's only in her underwear.")
-    $ demand_strip_naked_action = Action("Get naked.", demand_strip_naked_requirement, "demand_strip_naked_label", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Have her strip until she is completely naked.")
-
-    $ demand_list = [demand_strip_tits_action, demand_strip_underwear_action, demand_strip_naked_action, "Return"]
-
-    $ return_value = call_formated_action_choice(demand_list)
-    if return_value == "Return": #Just return, we either don't want to select any of these options, or we _can't_
-        return
+    if "action_mod_list" in globals():
+        call screen enhanced_main_choice_display(build_menu_items([build_demand_strip_menu(the_person)]))
     else:
-        $ return_value.call_action()
+        call screen main_choice_display([build_demand_strip_menu(the_person)])
+    if _return != "Return": #Just return, we either don't want to select any of these options, or we _can't_
+        $ _return.call_action()
 
     return
 
@@ -266,20 +334,20 @@ label demand_strip_tits_label(the_person):
             "[the_person.possessive_title] looks around nervously, then back at you."
             the_person.char "But... Here? Can we go somewhere without other people around first?"
             menu:
-                "Find somewhere private.":
+                "Find somewhere private":
                     mc.name "Fine, if that's what you need."
                     "She is visibly relieved, and follows you as you find somewhere private for the two of you."
                     "Once you're finally alone she moves to pull off her [first_item.display_name] for you."
 
 
-                "Stay right here." if the_person.obedience >= 140:
+                "Stay right here" if the_person.obedience >= 140:
                     "You shake your head."
                     mc.name "No, we're going to stay right here."
                     "[the_person.possessive_title] doesn't argue. She just blushes and starts to pull off her [first_item.display_name] for you."
 
-                "Stay right here.\nRequires: 140 Obedience (disabled)" if the_person.obedience < 140:
+                "Stay right here\n{color=#ff0000}{size=18}Requires: 140 Obedience{/size}{/color} (disabled)" if the_person.obedience < 140:
                     pass
-            call top_strip_description(the_person, strip_list) from _call_top_strip_description
+            $ top_strip_description(the_person, strip_list)
 
 
         else:
@@ -291,7 +359,7 @@ label demand_strip_tits_label(the_person):
             else:
                 #She loves you, this is just cutting to the chase.
                 "[the_person.possessive_title] nods obediently and begins to take off her [first_item.display_name] while you watch."
-            call top_strip_description(the_person, strip_list) from _call_top_strip_description_1
+            $ top_strip_description(the_person, strip_list)
 
     else:
         # She doesn't have any problem showing off her tits, so she doesn't care if she's in public or not.
@@ -301,10 +369,14 @@ label demand_strip_tits_label(the_person):
             "[the_person.possessive_title] doesn't seem to care about the other people around and starts to pull off her [first_item.display_name] right away."
         else:
             "[the_person.possessive_title] starts to pull off her [first_item.display_name] right away."
-        call top_strip_description(the_person, strip_list) from _call_top_strip_description_2
+        $ top_strip_description(the_person, strip_list)
 
+    $ del first_item
+    $ del strip_list
 
-    if the_person.update_outfit_taboos() or the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("showing her tits"))): # She's shy
+    $ the_person.update_outfit_taboos()
+
+    if the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("showing her tits"))): # She's shy
         "[the_person.title] brings her hands up to cover her breasts."
         the_person.char "Are we done?"
         mc.name "I want to get a look first, and I can't see anything if you're hiding everything like this."
@@ -320,13 +392,13 @@ label demand_strip_tits_label(the_person):
         the_person.char "So you want me to get dressed again?"
 
     menu:
-        "Let her get dressed.":
+        "Let her get dressed":
             mc.name "Yeah, you can."
             "You watch her put her clothes back on, covering up her tits."
-            $ the_person.apply_outfit(the_person.planned_outfit)
+            $ the_person.apply_outfit()
             $ the_person.draw_person()
 
-        "Keep your tits out.":
+        "Keep your tits out":
             mc.name "I think you look good with your tits out. Stay like this for a while, okay?"
             if the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("showing her tits"))):
                 the_person.char "I... Okay, if that's what you want [the_person.mc_title]."
@@ -334,17 +406,6 @@ label demand_strip_tits_label(the_person):
                 $ the_person.change_happiness(-2)
             else:
                 the_person.char "Okay, if that's what you want me to do [the_person.mc_title]."
-    return
-
-label top_strip_description(the_person, strip_list):
-    #Helper label for demand_strip_tits
-    $ generalised_strip_description(the_person, strip_list)
-    return
-
-label underwear_strip_description(the_person):
-    $ strip_list = the_person.outfit.get_underwear_strip_list()
-    $ generalised_strip_description(the_person, strip_list)
-    "[the_person.possessive_title] is left standing in front of you wearing only her underwear."
     return
 
 init -2 python:
@@ -384,7 +445,7 @@ init -2 python:
                         renpy.say("", the_person.title + " pulls off her " + item.display_name + ", letting her tits spill out.")
                 else:
                     if half_off_instead:
-                        renpy.say("", the_person.title + " pulsl her " + item.display_name + " aside and sets her tits free.")
+                        renpy.say("", the_person.title + " pulls her " + item.display_name + " aside and sets her tits free.")
                     else:
                         renpy.say("", the_person.title + " takes off her " + item.display_name + " and sets her tits free.")
             elif the_person.outfit.tits_visible() and not test_outfit.tits_visible(): #Tits aren't out for use, but her clothing let's you get a good look.
@@ -449,13 +510,6 @@ init -2 python:
                 clear_scene()
                 group_display.redraw_group()
 
-
-
-label naked_strip_description(the_person, remove_shoes = False): #This has been replaced by the generalised strip function in v0.34.1. Function left here for mod compatability in case any of them make use of this.
-    $ strip_list = the_person.outfit.get_full_strip_list(strip_feet = remove_shoes)
-    $ generalised_strip_description(the_person, strip_list)
-    return
-
 label demand_strip_underwear_label(the_person):
     mc.name "You're going to strip into your underwear for me."
     if not the_person.outfit.wearing_panties() or not the_person.outfit.wearing_bra():
@@ -476,25 +530,25 @@ label demand_strip_underwear_label(the_person):
             "[the_person.possessive_title] looks around nervously, then back at you."
             the_person.char "But... Here? Can we go somewhere without other people around first?"
             menu:
-                "Find somewhere private.":
+                "Find somewhere private":
                     mc.name "Fine, if that's what you need."
                     "She is visibly relieved, and follows you as you find somewhere private for the two of you."
                     "Once you're there she starts to pull off her clothes for you."
 
 
-                "Stay right here." if the_person.obedience >= 140:
+                "Stay right here" if the_person.obedience >= 140:
                     "You shake your head."
                     mc.name "No, we're going to stay right here."
                     "[the_person.possessive_title] doesn't argue. She just blushes and starts to pull off her clothes."
 
-                "Stay right here.\nRequires: 140 Obedience (disabled)" if the_person.obedience < 140:
+                "Stay right here\n{color=#ff0000}{size=18}Requires: 140 Obedience{/size}{/color} (disabled)" if the_person.obedience < 140:
                     pass
 
         else: #She's into it
             "[the_person.possessive_title] nods obediently, seemingly unbothered by your command."
 
 
-        call underwear_strip_description(the_person) from _call_underwear_strip_description
+        $ underwear_strip_description(the_person)
 
 
     else: #You are alone
@@ -505,12 +559,14 @@ label demand_strip_underwear_label(the_person):
             the_person.char "Okay, whatever you want [the_person.mc_title]."
             "She starts to strip down for you."
 
-        call underwear_strip_description(the_person) from _call_underwear_strip_description_1
+        $ underwear_strip_description(the_person)
 
-    if the_person.update_outfit_taboos() or the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("lingerie"))): # She's shy
+    $ the_person.update_outfit_taboos()
+
+    if the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("lingerie"))): # She's shy
         the_person.char "Um... So what do we do now?"
         mc.name "Just relax and let me take a look. You look cute."
-        "She nods and puts her hands behind her back. She blushes and looks away self-conciously as you ogle her."
+        "She nods and puts her hands behind her back. She blushes and looks away self-consciously as you ogle her."
         $ the_person.change_slut_temp( 1+ the_person.get_opinion_score("lingerie"))
         $ the_person.change_happiness(-2 + the_person.get_opinion_score("lingerie"))
         mc.name "Let me see what it looks like from behind."
@@ -519,12 +575,10 @@ label demand_strip_underwear_label(the_person):
         "You enjoy the view for a little while longer. [the_person.possessive_title] seems anxious to cover up again."
         the_person.char "Can I get dressed now?"
         $ the_person.draw_person()
-
-
     else:
         "[the_person.title] immediately puts her hands behind her back and pushes her chest forward, accentuating her tits."
         the_person.char "So, what do you think? Does my underwear look good?"
-        mc.name "I does, you look cute."
+        mc.name "It does, you look cute."
         "She smiles and gives you a spin, letting you take a look at her from behind."
         $ the_person.draw_person(position = "back_peek")
         "You enjoy the view for a little while longer, then nod approvingly to [the_person.possessive_title]."
@@ -532,13 +586,13 @@ label demand_strip_underwear_label(the_person):
         the_person.char "Would you like me to get dressed again?"
 
     menu:
-        "Let her get dressed.":
+        "Let her get dressed":
             mc.name "Yeah, you can."
             "You watch her put her clothes back on."
-            $ the_person.apply_outfit(the_person.planned_outfit)
+            $ the_person.apply_outfit()
             $ the_person.draw_person()
 
-        "Stay in your underwear.":
+        "Stay in your underwear":
             mc.name "Your underwear is too cute to hide it away, you should should stay in it for a while."
             if the_person.effective_sluttiness() < (40 - (5*the_person.get_opinion_score("lingerie"))):
                 the_person.char "I... Okay, if that's what you want [the_person.mc_title]."
@@ -554,18 +608,18 @@ label demand_strip_naked_label(the_person):
             "[the_person.possessive_title] looks around nervously, then back at you."
             the_person.char "But... Here? I don't want to get naked in front of other people."
             menu:
-                "Find somewhere private.":
+                "Find somewhere private":
                     mc.name "Fine, if that's what you need."
                     "She is visibly relieved, and follows you as you find somewhere private for the two of you."
                     "Once you're there she starts to strip down immediately."
 
 
-                "Stay right here." if the_person.obedience >= 170:
+                "Stay right here" if the_person.obedience >= 170:
                     "You shake your head."
                     mc.name "No, we're going to stay right here."
                     "[the_person.possessive_title] doesn't argue. She just blushes and starts to strip down."
 
-                "Stay right here.\nRequires: 170 Obedience (disabled)" if the_person.obedience < 170:
+                "Stay right here\n{color=#ff0000}{size=18}Requires: 170 Obedience{/size}{/color} (disabled)" if the_person.obedience < 170:
                     pass
         else:
             "[the_person.possessive_title] nods and starts to enthusiastically strip down."
@@ -573,26 +627,23 @@ label demand_strip_naked_label(the_person):
     else:
         if the_person.effective_sluttiness(["bare_tits","bare_pussy"]) < (80 - (5*the_person.get_opinion_score("not wearing anything"))): #She's shy
             "[the_person.possessive_title] seems uncomfortable, but she nods obediently and starts to pull off all her clothes."
-
-
         else:
             the_person.char "Okay, whatever you want [the_person.mc_title]."
             "She starts to strip down for you."
 
     $ remove_shoes = False
-    $ feet_ordered = the_person.outfit.get_feet_ordered()
-    if feet_ordered:
-        $ top_feet = feet_ordered[-1]
-        the_person "Do you want me to keep my [top_feet.display_name] on?"
+    $ the_item = the_person.outfit.get_feet_top_layer()
+    if the_item:
+        the_person.char "Do you want me to keep my [the_item.display_name] on?"
         menu:
-            "Strip it all off.":
+            "Strip it all off":
                 mc.name "Take it all off, I don't want you to be wearing anything."
                 $ remove_shoes = True
-
-            "Leave them on.":
+            "Leave them on":
                 mc.name "You can leave them on."
+    $ del the_item
 
-    call naked_strip_description(the_person, remove_shoes = remove_shoes) from _call_naked_strip_description
+    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list(strip_feet = remove_shoes))
 
     if the_person.update_outfit_taboos() or the_person.effective_sluttiness() < (80 - (5*the_person.get_opinion_score("not wearing anything"))): # She's shy
         the_person.char "What would you like me to do now?"
@@ -619,13 +670,13 @@ label demand_strip_naked_label(the_person):
         the_person.char "Is there anything else, [the_person.mc_title]?"
 
     menu:
-        "Let her get dressed.":
+        "Let her get dressed":
             mc.name "I've seen enough. You can get dressed."
             "You watch her as she gets dressed again."
-            $ the_person.apply_outfit(the_person.planned_outfit)
+            $ the_person.apply_outfit()
             $ the_person.draw_person()
 
-        "Keep her naked.":
+        "Keep her naked":
             mc.name "Your body is way too nice looking to hide away. Stay like this for a while."
             if the_person.effective_sluttiness() < (80 - (5*the_person.get_opinion_score("not wearing anything"))):
                 the_person.char "I... Okay, if that's what you want [the_person.mc_title]."
@@ -641,12 +692,12 @@ label suck_demand_label(the_person):
     if mc.location.get_person_count() > 1:
         # There are other people here, let's ask if we want to go someplace quiet first.
         menu:
-            "Find someplace quiet first.":
+            "Find someplace quiet":
                 mc.name "Follow me."
                 "[the_person.possessive_title] nods and follows obediently after you."
                 "You find a quiet spot where you're unlikely to be interrupted and turn back to her."
 
-            "Do it right here.":
+            "Do it right here":
                 $ private = False
                 pass
 
@@ -674,7 +725,7 @@ label suck_demand_label(the_person):
             mc.name "I wasn't asking you a question. On your knees, now. The longer you take the more stress I'm going to need relieved."
             "She seems on the verge of refusing, but drops slowly to her knees to put her face at cock level."
         else:
-            "[the_person.possessive_title] looks around, almost paniced."
+            "[the_person.possessive_title] looks around, almost panicked."
             the_person.char "I can't... We can't do that here! People would see me, I would..."
             mc.name "I've already got my cock out, and I'm not putting it back in my pants until it's been down your throat."
             mc.name "On your knees. Now."
@@ -683,13 +734,13 @@ label suck_demand_label(the_person):
     $ the_person.draw_person(position = "blowjob", special_modifier = "blowjob", the_animation = blowjob_bob, animation_effect_strength = 0.3)
     "[the_person.title] licks the tip of your cock, then slides it tenderly into her mouth."
     menu:
-        "Let her worship your cock.":
+        "Let her worship your cock":
             "You sigh and enjoy the feeling of her warm, wet blowjob."
             mc.name "That's a good girl..."
             call fuck_person(the_person, private = private, start_position = deepthroat, skip_intro = True) from _call_fuck_person_87
 
 
-        "Grab her head and fuck her mouth.":
+        "Grab her head and fuck her mouth":
             "You place your hands on either side of [the_person.possessive_title]'s head. She cocks her head and looks up at you."
             mc.name "That's a good girl, now let's put you to good use."
             "You hold her head in place as you shove your hips forward."
@@ -698,7 +749,7 @@ label suck_demand_label(the_person):
                 "Her eyes flutter briefly as you bottom out, balls rubbing against her chin. You can feel her quiver as she tries to suppress her gag reflex."
 
             else: #Gags
-                "[the_person.title] instinctively tries to jerk away, but clamp down and don't let her move."
+                "[the_person.title] instinctively tries to jerk away, but you clamp down and don't let her move."
                 "Her eyes open wide as you force your cock clear down her throat. She gags hard, blowing spit out where her lips meet the base of your shaft."
                 mc.name "I think you still need a little more practice. Let's see what we can do about that..."
 
@@ -712,7 +763,6 @@ label suck_demand_label(the_person):
 
             call fuck_person(the_person, private = private, start_position = skull_fuck, skip_intro = True) from _call_fuck_person_88
 
-    $ the_report = _return
-    $ the_person.call_dialogue("sex_review", the_report = the_report)
+    $ the_person.call_dialogue("sex_review", the_report = _return)
     $ the_person.review_outfit()
     return

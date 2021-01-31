@@ -3,23 +3,28 @@
 
 init 1 python:
     def so_relationship_improve_requirement():
-        for place in list_of_places:
-            for a_person in place.people:
-                if (a_person.love > 10 or employee_role in a_person.special_role) and not a_person.title is None and not a_person.relationship == "Married":
-                    if not affair_role in a_person.special_role and not girlfriend_role in a_person.special_role and not mother_role in a_person.special_role and not sister_role in a_person.special_role and not cousin_role in a_person.special_role and not aunt_role in a_person.special_role:
-                    # You have at least one person you know who is in a relationship. People you're having an affair never have it get better.
-                    # Your also family never forms relationships, because we do that through direct story stuff.
-                        return True
-        return False
+        return not get_so_relationship_improve_person() is None
 
     def so_relationship_worsen_requirement():
+        return not get_so_relationship_worsen_person() is None
+
+    def get_so_relationship_improve_person():
+        potential_people = []
         for place in list_of_places:
-            for a_person in place.people:
-                if (a_person.love > 10 or employee_role in a_person.special_role) and not a_person.title is None and not a_person.relationship == "Single":
-                    if not mother_role in a_person.special_role and not sister_role in a_person.special_role and not cousin_role in a_person.special_role and not aunt_role in a_person.special_role:
-                    # We only change thse relationships in events. If we can find anyone who meets the requirements the event can proceed.
-                        return True
-        return False
+            for a_person in [x for x in place.people if not x in [emily, christina]]:
+                if a_person.love > 10 and not a_person.title is None and not a_person.relationship == "Married":
+                    if not any(x in a_person.special_role for x in [mother_role, sister_role, cousin_role, aunt_role, girlfriend_role, affair_role]):
+                        potential_people.append(a_person)
+        return get_random_from_list(potential_people)
+
+    def get_so_relationship_worsen_person():
+        potential_people = []
+        for place in list_of_places:
+            for a_person in [x for x in place.people if not x in [emily, christina]]:
+                if a_person.love > 10 and not a_person.title is None and not a_person.relationship == "Single":
+                    if not any(x in a_person.special_role for x in [mother_role, sister_role, cousin_role, aunt_role]):
+                        potential_people.append(a_person)
+        return get_random_from_list(potential_people)
 
     so_relationship_improve_crisis = Action("Friend SO relationship improve", so_relationship_improve_requirement, "so_relationship_improve_label")
     crisis_list.append([so_relationship_improve_crisis, 3])
@@ -28,16 +33,7 @@ init 1 python:
     crisis_list.append([so_relationship_worsen_crisis, 1])
 
 label so_relationship_improve_label():
-    $ potential_people = []
-    python:
-        for place in list_of_places:
-            for a_person in place.people:
-                if a_person.love > 10 and not a_person.title is None and not a_person.relationship == "Married":
-                    if not affair_role in a_person.special_role and not girlfriend_role in a_person.special_role and not mother_role in a_person.special_role and not sister_role in a_person.special_role and not cousin_role in a_person.special_role and not aunt_role in a_person.special_role:
-                        if a_person is not emily and a_person is not christina: #Cludge to stop them from getting in relationships. TODO: Add a flag to stop people from changing their relationship status.
-                            potential_people.append(a_person)
-
-    $ the_person = get_random_from_list(potential_people)
+    $ the_person = get_so_relationship_improve_person()
     if the_person is None:
         return #Something's changed and there is no longer a valid person
 
@@ -56,13 +52,13 @@ label so_relationship_improve_label():
             the_person.char "Hey [the_person.mc_title], I have some exciting news!"
             the_person.char "My boyfriend proposed, me and [the_person.SO_name] are getting married! I'm so excited, I just had to tell you!"
             menu:
-                "Congratulate her.":
+                "Congratulate her":
                     "You text back."
-                    mc.name "Congradulations! I'm sure you're the happiest girl in the world."
+                    mc.name "Congratulations! I'm sure you're the happiest girl in the world."
                     $ the_person.change_love(1)
                     the_person.char "I am! I've got other people to tell now, talk to you later!"
 
-                "Warn her against it.":
+                "Warn her against it":
                     "You text back."
                     mc.name "I don't know if that's such a good idea. Do you even know him that well?"
                     "Her response is near instant."
@@ -80,25 +76,15 @@ label so_relationship_improve_label():
     elif the_person.relationship == "Fiancée":
         #TODO: Add an event where you're invited to their wedding and fuck the bride.
         "You get a notification on your phone."
-        "It seems [the_person.title]'s just had her wedding to her Fiancé, [the_person.SO_name]. You take a moment to add your congradulations to her wedding photo."
+        "It seems [the_person.title]'s just had her wedding to her Fiancé, [the_person.SO_name]. You take a moment to add your congratulations to her wedding photo."
         $ the_person.relationship = "Married"
 
-    $ potential_people = []
     return
 
 
 
 label so_relationship_worsen_label():
-    $ potential_people = []
-    python:
-        for place in list_of_places:
-            for a_person in place.people:
-                if a_person.love > 10 and not a_person.title is None and not a_person.relationship == "Single":
-                    if not mother_role in a_person.special_role and not sister_role in a_person.special_role and not cousin_role in a_person.special_role and not aunt_role in a_person.special_role:
-                        if a_person is not emily and a_person is not christina:
-                            potential_people.append(a_person)
-
-    $ the_person = get_random_from_list(potential_people)
+    $ the_person = get_so_relationship_worsen_person()
     if the_person is None:
         return #Something's changed and there is no longer a valid person
 
@@ -124,24 +110,23 @@ label so_relationship_worsen_label():
 init 1 python:
     def affair_dick_pic_requirement():
         if time_of_day == 3 or time_of_day == 4:
-            for place in list_of_places:
-                for a_person in place.people:
-                    if affair_role in a_person.special_role and a_person not in mc.location.people: #Soemone is in an affair with you and wants a dic pic
-                        return True
+            return not get_affair_dick_pick_person() is None
         return False
+
+    def get_affair_dick_pick_person():
+        possible_people = []
+        for place in list_of_places:
+            for a_person in place.people:
+                if affair_role in a_person.special_role and a_person not in mc.location.people: #Someone is in an affair with you and wants a dic pic
+                    possible_people.append(a_person)
+
+        return get_random_from_list(possible_people)
 
     affair_dick_pic_crisis = Action("Affair dic pic", affair_dick_pic_requirement, "affair_dick_pick_label")
     crisis_list.append([affair_dick_pic_crisis, 5])
 
-
 label affair_dick_pick_label():
-    $ possible_people = []
-    python:
-        for place in list_of_places:
-            for a_person in place.people:
-                if affair_role in a_person.special_role and a_person not in mc.location.people: #Soemone is in an affair with you and wants a dic pic
-                    possible_people.append(a_person)
-    $ the_person = get_random_from_list(possible_people)
+    $ the_person = get_affair_dick_pick_person()
     if the_person is None:
         return
 
@@ -152,7 +137,7 @@ label affair_dick_pick_label():
     $ the_person.draw_person(position = "missionary")
     "[the_person.possessive_title] is lying face up in her bed, one hand cradling a breast while the other fingers her wet pussy."
     menu:
-        "Send her a dick pic back.":
+        "Send her a dick pic back":
             if mc.location.get_person_count() > 0:
                 "You find a quiet spot and whip out your dick for a quick glamour shot."
             else:
@@ -170,9 +155,9 @@ label affair_dick_pick_label():
 
 
 
-        "Tell her you're busy.":
+        "Tell her you're busy":
             "As much as you enjoy the picture, you've got important work to do. You text her back."
-            mc.name "I've got work to get done [the_person.title]. Stop bothing me just because you're a bitch in heat."
+            mc.name "I've got work to get done [the_person.title]. Stop bothering me just because you're a bitch in heat."
             if the_person.get_opinion_score("being submissive") > 0:
                 $ the_person.change_slut_temp(2)
                 $ the_person.change_obedience(2)
@@ -193,23 +178,22 @@ label affair_dick_pick_label():
 init 1 python:
     def girlfriend_nudes_requirement():
         if time_of_day == 3 or time_of_day == 4:
-            for place in list_of_places:
-                for a_person in place.people:
-                    if girlfriend_role in a_person.special_role and a_person not in mc.location.people: #Soemone is in an affair with you and wants a dic pic
-                        return True
+            return not get_girlfriend_nudes_person() is None
         return False
+
+    def get_girlfriend_nudes_person():
+        possible_people = []
+        for place in list_of_places:
+            for a_person in place.people:
+                if girlfriend_role in a_person.special_role and a_person not in mc.location.people: #Someone is in an affair with you and wants a dic pic
+                    possible_people.append(a_person)
+        return get_random_from_list(possible_people)
 
     girlfriend_nudes_crisis = Action("Girlfriend nudes", girlfriend_nudes_requirement, "girlfriend_nudes_label")
     crisis_list.append([girlfriend_nudes_crisis, 5])
 
 label girlfriend_nudes_label():
-    $ possible_people = []
-    python:
-        for place in list_of_places:
-            for a_person in place.people:
-                if girlfriend_role in a_person.special_role and a_person not in mc.location.people: #Soemone is in an affair with you and wants a dic pic
-                    possible_people.append(a_person)
-    $ the_person = get_random_from_list(possible_people)
+    $ the_person = get_girlfriend_nudes_person()
     if the_person is None:
         return
 
@@ -237,17 +221,18 @@ label girlfriend_nudes_label():
         "You open the video."
         $ the_person.draw_person(position = "stand5", the_animation = blowjob_bob, animation_effect_strength = 0.8)
         "It's [the_person.title] in her room in front of a mirror. She smiles and waves at you, then bounces her tits up and down."
-        $ tit_strip_list = the_person.outfit.get_tit_strip_list(visible_enough = True)
-        if tit_strip_list: #She has something to strip to show off her tits more
+        $ strip_list = the_person.outfit.get_tit_strip_list(visible_enough = True)
+        if strip_list: #She has something to strip to show off her tits more
             "She dances for a moment, then starts to strip down even more."
             python:
-                for the_item in tit_strip_list:
+                for the_item in strip_list:
                     the_person.draw_animated_removal(the_item, position = "stand5", the_animation = blowjob_bob, animation_effect_strength = 0.8)
                     if the_person.outfit.tits_visible():
                         renpy.say("", "She pulls her " + the_item.name + " off and lets her tits fall free.")
                         renpy.say("", "She at the camera and shakes them for you.")
                     else:
                         renpy.say("","")
+                strip_list = None
             if the_person.has_large_tits():
                 "Tits out, she dances a little more for you, then blows a kiss and waves goodbye. Her breasts dangle directly in front of the camera as she turns it off."
             else:
@@ -311,7 +296,7 @@ label friends_help_friends_be_sluts_label():
         "When you peek in the break room you see [person_one.title] and [person_two.title] chatting with each other as they make coffee."
         $ the_group.draw_group()
         menu:
-            "Stop to listen.":
+            "Stop to listen":
                 person_one.char "... Following so far? Then he takes your..."
                 "You can't quite hear what they're talking about. [person_two.title] gasps and blushes."
                 $ the_group.draw_person(person_two)
@@ -338,7 +323,7 @@ label friends_help_friends_be_sluts_label():
                 "She hurries out of the room, blushing."
                 $ person_one.change_slut_temp(2)
                 person_one.char "She's so cute when she's embarrassed. See you around [person_two.mc_title]."
-            "Ignore them.":
+            "Ignore them":
                 "You leave them to their discussion and circle back to your desk."
 
     elif person_one.effective_sluttiness() < 60: #Our sluttiest is moderately slutty
@@ -347,7 +332,7 @@ label friends_help_friends_be_sluts_label():
         $ the_group.draw_group(position = "walking_away")
         "Intrigued, you peak your head in and see [person_one.title] and [person_two.title]. They are staring intently at [person_one.title]'s phone while they stand next to the coffee machine."
         menu:
-            "Investigate.":
+            "Investigate":
                 if person_two.effective_sluttiness() < 30: #But the other girl is low sluttiness.
                     # The sluttier is showing her friend some porn. She panics/is embarrassed when you walk in and see what it is
                     "You clear your throat and [person_two.title] yelps and spins around."
@@ -404,7 +389,7 @@ label friends_help_friends_be_sluts_label():
                     person_two.char "Uh, right. Talk to you later [person_two.mc_title]."
                     "You watch them walk out then get back to work."
 
-            "Ignore them.":
+            "Ignore them":
                 "You leave them to their discussion and circle back to your desk."
 
 
@@ -412,7 +397,7 @@ label friends_help_friends_be_sluts_label():
         "You decide to take a walk, both to stretch your legs and to make sure your staff are staying on task."
         "When you pass by the break room you overhear [person_one.title] and [person_two.title] chatting at the coffee machine."
         menu:
-            "Investigate.":
+            "Investigate":
                 "You stop at the door and listen for a moment."
                 if person_two.effective_sluttiness() < 20:
                     # The sluttier girl is talking about how horny she's feeling today when you walk in. Her friend seems embarrassed to be hearing about it.
@@ -482,7 +467,7 @@ label friends_help_friends_be_sluts_label():
                     $ the_group.draw_person(person_two)
                     person_two.char "Oh god, what are you getting us into."
                     menu:
-                        "[person_one.title] has nicer tits.": #She's already slutty, but gets a love boost
+                        "[person_one.title] has nicer tits": #She's already slutty, but gets a love boost
                             "You take a moment to consider, then nod towards [person_one.title]."
                             if rank_tits(person_one.tits) < rank_tits(person_two.tits):
                                 mc.name "I've got to give it to [person_one.title]. I like them perky."
@@ -495,7 +480,7 @@ label friends_help_friends_be_sluts_label():
                             $ the_group.draw_person(person_one)
                             person_one.char "I suppose. Thanks for the help [person_one.mc_title]."
 
-                        "[person_two.title] has nicer tits.": # She gets a sluttiness boost along with a small love boost.
+                        "[person_two.title] has nicer tits": # She gets a sluttiness boost along with a small love boost.
                             if rank_tits(person_one.tits) > rank_tits(person_two.tits):
                                 mc.name "I've got to give it to [person_two.title]. I like them perky."
                             else:
@@ -510,7 +495,7 @@ label friends_help_friends_be_sluts_label():
                             person_one.char "I suppose. Thanks for the help [person_one.mc_title]."
                             "She gives you a smile and a wink, then leaves the room with [person_two.title]."
 
-                        "I'm going to need a closer look." if not person_one.outfit.tits_visible() or not person_two.outfit.tits_visible(): #Requires high obedience, sluttiness, or a uniform policy for the less slutty girl.
+                        "I'm going to need a closer look" if not person_one.outfit.tits_visible() or not person_two.outfit.tits_visible(): #Requires high obedience, sluttiness, or a uniform policy for the less slutty girl.
                             mc.name "Hmm. It's a close call, I'm going to need to take a moment for this and get a better look."
                             $ the_group.draw_person(person_one)
                             if person_one.outfit.tits_visible():
@@ -535,8 +520,7 @@ label friends_help_friends_be_sluts_label():
                                 #                 renpy.say("",person_one.title + " pulls her " + clothing.display_name + " up and out of the way.")
 
                                 else: #We need to strip something off completely.
-                                    $ strip_list = person_one.outfit.get_tit_strip_list()
-                                    $ generalised_strip_description(person_one, strip_list, group_display = the_group)
+                                    $ generalised_strip_description(person_one, person_one.outfit.get_tit_strip_list(), group_display = the_group)
                                     # $ top_item = strip_list[0]
                                     # python:
                                     #     for clothing in strip_list:
@@ -646,7 +630,7 @@ label friends_help_friends_be_sluts_label():
                                 $ person_one.break_taboo("bare_tits")
                                 person_two.char "Hey, go easy on them! Well then [person_two.mc_title], who's your pick? Me or [person_one.title]?"
                             menu:
-                                "[person_one.title] has nicer tits.": #She's already slutty, but gets a love boost
+                                "[person_one.title] has nicer tits": #She's already slutty, but gets a love boost
                                     "You take a moment to consider both of their naked racks, then nod towards [person_one.title]."
                                     if rank_tits(person_one.tits) < rank_tits(person_two.tits):
                                         mc.name "I've got to give it to [person_one.title]. I like them perky."
@@ -663,7 +647,7 @@ label friends_help_friends_be_sluts_label():
                                     $ the_group.draw_person(person_one)
                                     person_two.char "Uh huh. Come on, you've had your fun. We need to get back to work."
 
-                                "[person_two.title] has nicer tits.": # She gets a sluttiness boost along with a small love boost.
+                                "[person_two.title] has nicer tits": # She gets a sluttiness boost along with a small love boost.
                                     if rank_tits(person_one.tits) > rank_tits(person_two.tits):
                                         mc.name "I've got to give it to [person_two.title]. I like them perky."
                                     else:
@@ -682,10 +666,10 @@ label friends_help_friends_be_sluts_label():
                             $ person_one.review_outfit()
                             $ person_two.review_outfit()
 
-                        "Punish them for inappropriate behaviour." if office_punishment.is_active():
+                        "Punish them for inappropriate behaviour" if office_punishment.is_active():
                             mc.name "[person_one.title], [person_two.title], this is completely inappropriate, even if you're on your break."
                             mc.name "I don't have any choice but to record this for disciplinary action later."
-                            $ person_one.add_infraction(infraction.inappropriate_behaviour_factory())
+                            $ person_one.add_infraction(Infraction.inappropriate_behaviour_factory())
                             $ person_two.add_infraction(Infraction.inappropriate_behaviour_factory())
                             $ the_group.draw_person(person_one)
                             person_one "Really? I..."
@@ -740,7 +724,7 @@ label friends_help_friends_be_sluts_label():
 
 
                     menu:
-                        "Let [person_one.title] give you a blowjob.":
+                        "Let [person_two.title] give you a blowjob":
                             mc.name "I'm not about to say no to an offer like that."
                             $ the_group.draw_person(person_one)
                             if girlfriend_role in person_one.special_role or affair_role in person_one.special_role:
@@ -771,7 +755,7 @@ label friends_help_friends_be_sluts_label():
                             $ person_two.review_outfit(dialogue = False)
                             "[person_two.possessive_title] takes a moment to get herself tidied up, then steps out of your office."
 
-                        "Decline her offer.":
+                        "Decline her offer":
                             mc.name "I'm flattered, but I'm not in the mood right now."
                             person_two.char "Of course, sorry I even brought it up [person_two.mc_title]!"
                             "She hurries out of your office. [person_one.title] shakes her head and sighs."
@@ -781,10 +765,10 @@ label friends_help_friends_be_sluts_label():
                             "She shrugs and leaves your office, following her friend."
 
 
-                        "Punish them for inappropriate behaviour." if office_punishment.is_active():
+                        "Punish them for inappropriate behaviour" if office_punishment.is_active():
                             mc.name "[person_one.title], [person_two.title], I expected better from both of you."
                             mc.name "This is completely inappropriate, I'm going to have to write both of you up for this."
-                            $ person_one.add_infraction(infraction.inappropriate_behaviour_factory())
+                            $ person_one.add_infraction(Infraction.inappropriate_behaviour_factory())
                             $ person_two.add_infraction(Infraction.inappropriate_behaviour_factory())
                             person_two "I... Of course, I'm sorry I even brought it up [person_two.mc_title]!"
                             "She hurries out of your office. [person_one.title] sighs and rolls her eyes."
@@ -795,12 +779,16 @@ label friends_help_friends_be_sluts_label():
                             person_one "Whatever, I need to go make sure [person_one.title] is fine."
                             "She turns and leaves your office, following after her friend."
 
-            "Ignore them.":
+            "Ignore them":
                 "You leave them to their discussion and circle back to your desk."
 
-
-
-    $ clear_scene()
+    python:
+        del person_one
+        del person_two
+        del the_relationship
+        clear_scene()
+        the_group = None
+        strip_list = None
     return
 
 init 1 python:
@@ -812,6 +800,17 @@ init 1 python:
         return False
     work_relationship_change_crisis = Action("Work Relationship Change Crisis", work_relationship_change_crisis_requirement, "work_relationship_change_label")
     crisis_list.append([work_relationship_change_crisis,12])
+
+    def work_relationship_get_friend_chance(person_one, person_two):
+        friend_chance = 50
+        for an_opinion in person_one.opinions:
+            if person_one.get_opinion_score(an_opinion) == person_two.get_opinion_score(an_opinion):
+                friend_chance += 10
+            elif (person_one.get_opinion_score(an_opinion) > 0 and person_two.get_opinion_score(an_opinion) < 0) or (person_two.get_opinion_score(an_opinion) > 0 and person_one.get_opinion_score(an_opinion) < 0):
+                friend_chance += -10
+
+        friend_chance += (person_one.get_opinion_score("small talk")*5) + (person_two.get_opinion_score("small talk")*5)
+        return friend_chance
 
 label work_relationship_change_label():
     $ the_relationship = get_random_from_list(town_relationships.get_business_relationships())
@@ -825,18 +824,7 @@ label work_relationship_change_label():
         $ person_one = the_relationship.person_b
         $ person_two = the_relationship.person_a
 
-    $ friend_chance = 50
-    python:
-        for an_opinion in person_one.opinions:
-            if person_one.get_opinion_score(an_opinion) == person_two.get_opinion_score(an_opinion):
-                friend_chance += 10
-            elif (person_one.get_opinion_score(an_opinion) > 0 and person_two.get_opinion_score(an_opinion) < 0) or (person_two.get_opinion_score(an_opinion) > 0 and person_one.get_opinion_score(an_opinion) < 0):
-                friend_chance += -10
-
-        friend_chance += (person_one.get_opinion_score("small talk")*5) + (person_two.get_opinion_score("small talk")*5)
-
-
-    if renpy.random.randint(0,100) < friend_chance:
+    if renpy.random.randint(0,100) < work_relationship_get_friend_chance(person_one, person_two):
         #Their relationship improves
         $ town_relationships.improve_relationship(person_one, person_two)
         if mc.is_at_work():
@@ -847,4 +835,8 @@ label work_relationship_change_label():
         if mc.is_at_work():
             "While working you notice [person_one.title] and [person_two.title] aren't getting along with each other. They seem to have developed an unfriendly rivalry."
 
+    python:
+        del person_one
+        del person_two
+        del the_relationship
     return

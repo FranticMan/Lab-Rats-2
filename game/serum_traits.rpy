@@ -124,14 +124,14 @@ init -1:
                 new_tits = get_larger_tits(the_person.tits)
                 if new_tits != the_person.tits: #Double check we don't already have them to avoid increasing breast weight infinitely
                     the_person.tits = new_tits
-                    the_person.personal_region_modifiers["breasts"] += 0.1 #Her breasts recieve a boost in region weight because they're natural.
+                    the_person.personal_region_modifiers["breasts"] += 0.1 #Her breasts receive a boost in region weight because they're natural.
 
         def breast_reduction_on_turn(the_person, add_to_log):
             if renpy.random.randint(0,100) < 25:
                 new_tits = get_smaller_tits(the_person.tits)
                 if new_tits != the_person.tits:
                     the_person.tits = new_tits
-                    the_person.personal_region_modifiers["breasts"] -= 0.1 #Her breasts recieve a boost in region weight because they're natural.
+                    the_person.personal_region_modifiers["breasts"] -= 0.1 #Her breasts receive a boost in region weight because they're natural.
 
         ## focus_enhancement_functions ##
         def focus_enhancement_on_apply(the_person, add_to_log):
@@ -189,21 +189,21 @@ init -1:
             if the_person.title:
                 display_name = the_person.title
             if add_to_log:
-                mc.log_event(the_person.title + ": +20 Fertility", "float_text_red")
+                mc.log_event(display_name + ": +20 Fertility", "float_text_red")
 
         def fertility_enhancement_on_remove(the_person, add_to_log):
-            the_person.fertility_percent += -20
+            the_person.fertility_percent -= 20
 
         def fertility_suppression_on_apply(the_person, add_to_log):
-            the_person.fertility_percent += -20
+            the_person.fertility_percent -= 20
             display_name = the_person.create_formatted_title("???")
             if the_person.title:
                 display_name = the_person.title
             if add_to_log:
-                mc.log_event(the_person.title + ": -20 Fertility", "float_text_red")
+                mc.log_event(display_name + ": -20 Fertility", "float_text_red")
 
         def fertility_suppression_on_remove(the_person, add_to_log):
-            the_person.fertility_percent += +20
+            the_person.fertility_percent += 20
 
         def birth_control_suppression_on_apply(the_person, add_to_log):
             the_person.bc_penalty += 40
@@ -214,7 +214,7 @@ init -1:
                 mc.log_event(display_name + ": Birth control effectiveness reduced by 40%", "float_text_grey")
 
         def birth_control_suppression_on_remove(the_person, add_to_log):
-            the_person.bc_penalty += -40
+            the_person.bc_penalty -= 40
 
         def lactation_hormones_on_apply(the_person, add_to_log):
             the_person.lactation_sources += 1
@@ -228,29 +228,32 @@ init -1:
                     mc.log_event(display_name + ": Lactation increases", "float_text_blue")
 
         def lactation_hormones_on_remove(the_person,add_to_log):
-            the_person.lactation_sources += -1
+            the_person.lactation_sources -= 1
 
         def massive_pregnancy_accelerator_on_turn(the_person, add_to_log):
-            the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) - 1
-            the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) - 1
-            the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) - 1
+            if pregnant_role in the_person.special_role: # only has effect when pregnant
+                the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) - 1
+                the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) - 1
+                the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) - 1
 
         def pregnancy_accelerator_on_day(the_person, add_to_log):
-            the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) - 1
-            the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) - 1
-            the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) - 1
+            if pregnant_role in the_person.special_role: # only has effect when pregnant
+                the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) - 1
+                the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) - 1
+                the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) - 1
 
         def pregnancy_decellerator_on_day(the_person, add_to_log):
-            the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) + 1
-            the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) + 1
-            the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) + 1
+            if pregnant_role in the_person.special_role: # only has effect when pregnant
+                the_person.event_triggers_dict["preg_tits_date"] = the_person.event_triggers_dict.get("preg_tits_date", day) + 1
+                the_person.event_triggers_dict["preg_transform_day"] = the_person.event_triggers_dict.get("preg_transform_day", day) + 1
+                the_person.event_triggers_dict["preg_finish_announce_day"] = the_person.event_triggers_dict.get("preg_finish_announce_day", day) + 1
 
         ## nora_serum_up_trait ##
         def nora_suggest_up_on_apply(the_person, add_to_log):
-            the_person.add_suggest_effect(50, add_to_log)
+            the_person.add_suggest_effect(40, add_to_log)
 
         def nora_suggest_up_on_remove(the_person, add_to_log):
-            the_person.remove_suggest_effect(50)
+            the_person.remove_suggest_effect(40)
 
         def nora_nightmares_on_day(the_person, add_to_log):
             the_person.change_happiness(-15, add_to_log)
@@ -319,12 +322,12 @@ init -1:
                 the_person.change_slut_core(amount, add_to_log)
 
         def nora_reward_genius_trait_on_apply(the_person, add_to_log):
-            if (the_person.charisma < 5):
-                the_person.charisma = 5
-            if (the_person.int < 5):
-                the_person.int = 5
-            if (the_person.focus < 5):
-                the_person.focus = 5
+            if (the_person.charisma < 7):
+                the_person.charisma = 7
+            if (the_person.int < 7):
+                the_person.int = 7
+            if (the_person.focus < 7):
+                the_person.focus = 7
 
         def nora_reward_hucow_trait_on_apply(the_person, add_to_log): #TODO Hook this up so it's possible to recieve this.
             the_person.bc_penalty += 75
@@ -341,26 +344,28 @@ init -1:
 
 
             if add_to_log:
-                mc.log_event(display_name + ": Birth control effectiveness reduced by 75%", "float_text_grey")
-                mc.log_event(the_person.title + ": +70 Fertility", "float_text_red")
-                mc.log_event(display_name + ": Begins instantly lactating", "float_text_blue")
+                mc.log_event(display_name + ": Human Breeding started", "float_text_grey")
                 if the_person in mc.location.people: #If you're here applying this trait in person it causes her to exclaim.
                     renpy.say(display_name,"Oh my god my tits feel... bigger!")
 
         def nora_reward_hucow_trait_on_remove(the_person, add_to_log):
-            the_person.bc_penalty += -75
-            the_person.fertility_percent += -70
-            the_person.lactation_sources += -3
+            the_person.bc_penalty -= 75
+            the_person.fertility_percent -= 70
+            the_person.lactation_sources -= 3
             the_person.tits = get_smaller_tits(the_person.tits) #Her tits start to swell.
             the_person.tits = get_smaller_tits(the_person.tits)
             the_person.personal_region_modifiers["breasts"] = the_person.personal_region_modifiers["breasts"] - 0.2 #As her tits get larger they also become softer, unlike large fake tits. (Although even huge fake tits get softer)
 
+            display_name = the_person.create_formatted_title("???")
+            if the_person.title:
+                display_name = the_person.title
 
-label instantiate_serum_traits(): #Creates all of the default LR2 serum trait objects.
-    python:
+            if add_to_log:
+                mc.log_event(display_name + ": Human Breeding ended", "float_text_grey")
+
 
         #####
-        # Serum Trait template. Copy and paste this, fill in the fields that are requried and add it to the list_of_traits list to add a serum trait to LR2.
+        # Serum Trait template. Copy and paste this, fill in the fields that are required and add it to the list_of_traits list to add a serum trait to LR2.
         #####
         #
         # the_serum = SerumTrait(name = "serum name",
@@ -426,7 +431,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             research_needed = 200)
 
         suggestion_drugs_trait = SerumTrait(name = "Suggestion Drugs",
-            desc = "Carefully selected mind altering agents amplify the preexisting effects of the serum, making the recipient more vulnurable to behavioural changes.",
+            desc = "Carefully selected mind altering agents amplify the preexisting effects of the serum, making the recipient more vulnerable to behavioral changes.",
             positive_slug = "+$15 Value, +10 Suggestibility",
             negative_slug = "+50 Serum Research.",
             value_added = 15,
@@ -450,7 +455,6 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             requires = [basic_med_app, suggestion_drugs_trait],
             research_needed = 150,
             exclude_tags = "Suggest")
-
         sedatives_trait = SerumTrait(name = "Low Concentration Sedatives",
             desc = "A low dose of slow release sedatives makes the recipient more obedient, but have a negative effect on productivity.",
             positive_slug = "+$15 Value, +10 Obedience",
@@ -472,7 +476,8 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             base_side_effect_chance = 20,
             on_apply = caffeine_trait_on_apply,
             on_remove = caffeine_trait_on_remove,
-            research_needed = 150)
+            research_needed = 150,
+            exclude_tags = "Energy")
 
         birth_control_suppression = SerumTrait(name = "Birth Control Suppression",
             desc = "Designed to interfere with the most common forms of oral birth control, reducing their effectiveness.",
@@ -545,8 +550,8 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             tier = 1,
             research_needed = 350)
 
-        aphrodisiac = SerumTrait(name = "Distilled Aprodisac",
-            desc = "Careful distilation can concentrate the active ingredient from common aprodisiacs, producing a sudden spike in sluttiness when consumed. The sexual frustration linked to this effect tends to make the recipient less obedient over time as well.",
+        aphrodisiac = SerumTrait(name = "Distilled Aphrodisiac",
+            desc = "Careful distillation can concentrate the active ingredient from common aphrodisiacs, producing a sudden spike in sluttiness when consumed. The sexual frustration linked to this effect tends to make the recipient less obedient over time as well.",
             positive_slug = "+$20 Value, +15 Sluttiness",
             negative_slug = "-2 Obedience/Turn, +60 Serum Research",
             value_added = 20,
@@ -562,7 +567,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
         love_potion = SerumTrait(name = "Love Potion",
             desc = "A carefully balanced combination of chemicals can replicate the brains response to loved ones. Produces an immediate but temporary feeling of love. This trait is particularly prone to introducing side effects.",
             positive_slug = "+$20 Value, +20 Love",
-            negative_slug = "+75 Seum Research",
+            negative_slug = "+75 Serum Research",
             value_added = 20,
             research_added = 75,
             base_side_effect_chance = 75,
@@ -620,7 +625,8 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             on_remove = refined_caffeine_trait_on_remove,
             requires = [caffeine_trait],
             tier = 1,
-            research_needed = 300)
+            research_needed = 300,
+            exclude_tags = "Energy")
 
         fertility_enhancement_trait = SerumTrait(name = "Fertility Enhancement",
             desc = "Targets and enhances a womans natural reproductive cycle, increasing the chance that she may become pregnant. If taken birth control will still prevent most pregnancies.",
@@ -780,7 +786,8 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             on_remove = slutty_caffeine_trait_on_remove,
             requires = [refined_caffeine_trait, aphrodisiac],
             tier = 2,
-            research_needed = 800)
+            research_needed = 800,
+            exclude_tags = "Energy")
 
         pregnancy_accelerator_trait = SerumTrait(name = "Pregnancy Acceleration Hormones",
             desc = "Encourages and supports the ongoing development of a fetus, increasing the effective speed at which a pregnancy develops.",
@@ -806,7 +813,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             tier = 2,
             research_needed = 800)
 
-        lactation_hormones = SerumTrait(name = "Lacation Promotion Hormones",
+        lactation_hormones = SerumTrait(name = "Lactation Promotion Hormones",
             desc = "Contains massive quantities of hormones normally found naturally in the body during late stage pregnancy. Triggers immediate breast lactation",
             positive_slug = "+$25 Value, Encourages Lactation",
             negative_slug = "+150 Serum Research",
@@ -825,7 +832,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
         # Tier 3 traits produce large effects at a cost or moderate ones for free.
 
         futuristic_serum_prod = SerumTrait(name = "Futuristic Serum Production",
-            desc = "Space age technology makes the serum incredibly versitle. Adds seven serum trait slots at an increased production cost.",
+            desc = "Space age technology makes the serum incredibly versatile. Adds seven serum trait slots at an increased production cost.",
             positive_slug = "7 Trait Slots, 3 Turn Duration, $2 Value",
             negative_slug = "+500 Serum Research, 135 Production/Batch",
             value_added = 2,
@@ -884,14 +891,14 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
         ### Nora research traits ###
         nora_suggest_up = SerumTrait(name = "Nora's Research Trait",
             desc = "The manufacturing details for a serum trait developed by Nora. Raises suggestibility significantly, but is guaranteed to generate a side effect and negatively effects value.",
-            positive_slug = "+50 Suggestibility",
+            positive_slug = "+40 Suggestibility",
             negative_slug = "+75 Serum Research, -$150 Value",
             value_added = -150,
             research_added = 75,
             base_side_effect_chance = 1000000,
             on_apply = nora_suggest_up_on_apply,
             on_remove = nora_suggest_up_on_remove,
-            tier = 2,
+            tier = 1,
             start_researched = False,
             research_needed = 1000000,
             exclude_tags = "Suggest")
@@ -903,7 +910,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             research_added = 75,
             base_side_effect_chance = 1000000,
             on_day = nora_nightmares_on_day,
-            tier = 2,
+            tier = 1,
             start_researched = False,
             research_needed = 1000000)
 
@@ -914,7 +921,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             research_added = 75,
             base_side_effect_chance = 1000000,
             on_turn = nora_obedience_swing_on_turn,
-            tier = 2,
+            tier = 1,
             start_researched = False,
             research_needed = 1000000)
 
@@ -927,7 +934,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             base_side_effect_chance = 1000000,
             on_apply = nora_sluttiness_boost_on_apply,
             on_remove = nora_sluttiness_boost_on_remove,
-            tier = 2,
+            tier = 1,
             start_researched = False,
             research_needed = 1000000)
 
@@ -970,7 +977,7 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             start_researched = False,
             research_needed = 750)
 
-        nora_reward_aunt_trait = SerumTrait(name = "Auntly Potential",
+        nora_reward_aunt_trait = SerumTrait(name = "Aunty Potential",
             desc = "A special serum trait developed by Nora after studying your aunt. Increases the number of traits a serum design may contain by 2.",
             positive_slug = "+2 Extra Trait Slots",
             negative_slug = "+300 Serum Research",
@@ -1045,8 +1052,8 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             research_needed = 750)
 
         nora_reward_genius_trait = SerumTrait(name = "Natural Talent",
-            desc = "A special serum trait developed by Nora after studying someone who was a genius. Instantly and permanetly sets the recipients Intelligence, Charisma, and Focus to 5.",
-            positive_slug = "Sets Charisma, Intelligence, Focus to 5, +$50 Value",
+            desc = "A special serum trait developed by Nora after studying someone who was a genius. Instantly and permanently sets the recipients Intelligence, Charisma, and Focus to 7.",
+            positive_slug = "Sets Charisma, Intelligence, Focus to 7, +$50 Value",
             negative_slug = "+1000 Serum Research",
             value_added = 50,
             research_added = 1000,
@@ -1068,7 +1075,11 @@ label instantiate_serum_traits(): #Creates all of the default LR2 serum trait ob
             tier = 2,
             research_needed = 750)
 
-    # Tier 0
+
+label instantiate_serum_traits(): #Creates all of the default LR2 serum trait objects.
+    python:
+
+        # Tier 0
         list_of_traits.append(primitive_serum_prod)
         list_of_traits.append(high_capacity_design)
         list_of_traits.append(basic_med_app)

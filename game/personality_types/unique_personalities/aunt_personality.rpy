@@ -10,31 +10,30 @@ init 1300:
             return valid_titles
 
         def aunt_possessive_titles(the_person):
-            valid_possessive_titles = []
-            valid_possessive_titles.append(the_person.name)
-            valid_possessive_titles.append("Your aunt")
+            valid_titles = []
+            valid_titles.append(the_person.name)
+            valid_titles.append("Your aunt")
 
             if the_person.love > 20:
-                valid_possessive_titles.append("Your loving aunt")
+                valid_titles.append("Your loving aunt")
 
 
             if the_person.love > 40 and the_person.sluttiness > 60:
-                valid_possessive_titles.append("Your personal MILF")
+                valid_titles.append("Your personal MILF")
 
             if the_person.sluttiness > 100:
-                valid_possessive_titles.append("Your cock hungry aunt")
-                valid_possessive_titles.append("Your cumdump aunt")
+                valid_titles.append("Your cock hungry aunt")
+                valid_titles.append("Your cumdump aunt")
 
-            return valid_possessive_titles
+            return valid_titles
 
         def aunt_player_titles(the_person):
-            valid_player_titles = []
-            valid_player_titles.append(mc.name)
+            valid_titles = [mc.name]
 
             if the_person.love > 20:
-                valid_player_titles.append("Sweetheart")
-                valid_player_titles.append("Sweety")
-            return valid_player_titles
+                valid_titles.append("Sweetheart")
+                valid_titles.append("Sweety")
+            return valid_titles
 
         aunt_personality = Personality("aunt", default_prefix = "wild",
             common_likes = ["small talk", "the colour pink", "makeup", "flirting"],
@@ -48,11 +47,12 @@ label aunt_sex_beg_finish(the_person):
     return
 
 label aunt_sex_review(the_person, the_report):
-    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
     $ comment_position = the_person.pick_position_comment(the_report)
-
     if comment_position is None:
         return #You didn't actually do anything, no need to comment.
+
+    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
+    $ the_person.draw_person()  # make sure she stands up for talking with you
 
     #She's worried about her SO finding out because it was in public
     if the_report.get("was_public", False) and (the_person.effective_sluttiness()+10*the_person.get_opinion_score("public sex") < comment_position.slut_cap):
@@ -62,6 +62,17 @@ label aunt_sex_review(the_person, the_report):
         else:
             the_person "[the_person.mc_title], everyone is watching us... We need to find somewhere private next time, alright?"
             the_person "People are going to start talking, and they just won't understand our special relationship."
+
+    # special condition - you fucked her brains out
+    elif the_report.get("girl orgasms", 0) > 2:
+        if used_obedience:
+            the_person "Wow, that was...so intense. I didn't think you could make me do that!"
+            "[the_person.possessive_title] seems a little embarrassed, but hides it well."
+        else:
+            the_person "Oh my... I never expected this to happen!"
+            the_person "Who would have thought that my nephew could do that. I hope I haven't made you uncomfortable [the_person.mc_title]."
+            mc.name "No, not at all [the_person.title]."
+            "She sighs and smiles."
 
     #No special conditions, just respond based on how orgasmed and how slutty the position was.
     elif the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0: #You both came
@@ -126,7 +137,7 @@ label aunt_sex_review(the_person, the_report):
             the_person "That's good. You're welcome [the_person.mc_title]."
 
         else:  # She's suprised she even tried that.
-            the_person "Oh my... that went a little furthur than I was planning, but you obviously enjoyed it!"
+            the_person "Oh my... that went a little further than I was planning, but you obviously enjoyed it!"
             the_person "Next time I should probably try and keep myself a little more in control. I don't think my sister would be very impressed by us."
 
     else: #Nobody came.
@@ -151,6 +162,10 @@ label aunt_sex_review(the_person, the_report):
             mc.name "No, of course not. That was fun."
             "She sighs, obviously relieved, and smiles."
             the_person "Good, I'm glad you had a good time. I don't think my sister would be very impressed with us right now."
+
+    # Gave creampie while she is not on birth control (extra dialog when she could get pregnant)
+    if the_report.get("creampies", 0) > 0 and not the_person.on_birth_control and not the_person.event_triggers_dict.get("preg_knows", False):
+        the_person "And how am I going to explain to my sister when you got me pregnant?"
     return
 
 label aunt_flirt_response_low(the_person):
@@ -176,7 +191,7 @@ label aunt_flirt_response_mid(the_person):
         the_person.char "I didn't think it would be my own nephew who thought so, but I'll take what I can get."
         "[the_person.possessive_title] smiles and runs her hands down her hips. She hesitates for a moment, then turns around and pats her ass."
         $ the_person.draw_person(position = "back_peek")
-        the_person.char "Do... Do you think my butt still looks good? I know I shouldn't ask you, but... I'm a little self-conicous and I trust you."
+        the_person.char "Do... Do you think my butt still looks good? I know I shouldn't ask you, but... I'm a little self-conscious and I trust you."
         mc.name "Your ass looks fantastic [the_person.title]."
         $ the_person.draw_person()
         "She turns back and sighs with relief."
@@ -199,7 +214,7 @@ label aunt_flirt_response_high(the_person):
             the_person.char "Maybe you need to convince me a little more."
 
             menu:
-                "Kiss her.":
+                "Kiss her":
                     mc.name "Alright, is this going to convince you?"
                     "You put an arm around [the_person.possessive_title]'s waist and pull her close."
 
@@ -210,19 +225,19 @@ label aunt_flirt_response_high(the_person):
                     else:
                         "You lean in and kiss her. She hesitates for a moment before responding, leaning her body against yours and kissing you back."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_59
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "How about you just jiggle your tits for me, and that'll be all. I always want to see that."
                     the_person.char "That's not so bad, right?"
                     $ the_person.draw_person(the_animation = blowjob_bob)
                     "[the_person.possessive_title] grabs her own tits and jiggles them up and down, alternating between her left and right boob."
-                    "She lets you watch for a few moments, then lets go and laughs self-conciously."
+                    "She lets you watch for a few moments, then lets go and laughs self-consciously."
                     the_person.char "You're such a bad influence on me, you know that?"
                     $ the_person.draw_person()
 
-        else: # Just high love flirt, she's not slutty enough to be sedueced by her own nephew.
+        else: # Just high love flirt, she's not slutty enough to be seduced by her own nephew.
             the_person.char "Oh [the_person.mc_title], stop! I want you to feel comfortable with me, but I'm still your aunt."
             mc.name "Relax, we're just joking around. Unless you want to get naked for me?"
             "She laughs and shakes her head in disbelief."
@@ -237,8 +252,8 @@ label aunt_flirt_response_high(the_person):
             "[the_person.possessive_title] glances around nervously."
             the_person.char "You can't say things like that when there are other people around! What if someone overheard?"
             menu:
-                "Find someplace quiet.":
-                    mc.name "Then let's find somehwere nobody will. Come on."
+                "Find someplace quiet":
+                    mc.name "Then let's find somewhere nobody will. Come on."
                     "You take her hand and start to lead her away. She takes a step to follow, then hesitates."
                     the_person.char "Wait, I... I shouldn't."
                     mc.name "Relax, we'll be alone and nobody will know."
@@ -251,10 +266,10 @@ label aunt_flirt_response_high(the_person):
                         the_person.char "Oh! Now what?"
                         "You kiss her. She holds back for a second, then returns the kiss eagerly."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_60
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "It's fine, nobody is going to overhear anything."
                     the_person.char "We should still be careful. If my sister found out we talked like this I wouldn't be able to see you any more."
                     the_person.char "Which would also mean..."
@@ -386,10 +401,10 @@ label aunt_touching_body_taboo_break(the_person):
         the_person.char "[the_person.mc_title], we can't be doing this..."
         mc.name "Why not? You want it too, right?"
         the_person.char "My sister would never talk to me again if she found out!"
-        the_person.char "I'm your aunt! I'm suppose to be looking after you, not letting you touch my..."
+        the_person.char "I'm your aunt! I'm supposed to be looking after you, not letting you touch my..."
         "She looks away and trails off, embarrassed."
         mc.name "We're both adults, we can do what we want. She never needs to know."
-        mc.name "Besides, if I can't figure all this stuff out with you how am I suppose to impress a girl when I meet one?"
+        mc.name "Besides, if I can't figure all this stuff out with you how am I supposed to impress a girl when I meet one?"
         "She hesitates for a long moment, then turns back to you and nods."
         the_person.char "As long as you understand it's just so you can learn. This isn't... This shouldn't go any further."
         mc.name "Okay [the_person.title]. I understand."
@@ -499,7 +514,7 @@ label aunt_sucking_cock_taboo_break(the_person):
         mc.name "Of course not."
         the_person.char "Alright. I'll..."
 
-    "[the_person.possessive_title] shakes her head and laughs self conciously."
+    "[the_person.possessive_title] shakes her head and laughs self-consciously."
     the_person.char "...This is so crazy! I'll give you a blowjob [the_person.mc_title]."
     return
 

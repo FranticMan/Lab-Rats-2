@@ -8,9 +8,17 @@ init 1300:
             return valid_titles
 
         def stephanie_possessive_titles(the_person):
-            return "Your friend"
+            valid_titles = [the_person.name]
+            if the_person.love > 10:
+                valid_titles.append("Study Buddy")
+            return valid_titles
+
         def stephanie_player_titles(the_person):
-            return mc.name
+            valid_titles = [mc.name]
+            if the_person.love > 20:
+                valid_titles.append("Teacher's pet")
+            return valid_titles
+
         stephanie_personality = Personality("stephanie", default_prefix = "wild",
         common_likes = ["pants", "research work", "Fridays", "makeup", "the colour red"],
         common_sexy_likes = ["giving blowjobs", "drinking cum","cheating on men"],
@@ -79,7 +87,7 @@ label stephanie_improved_serum_unlock(the_person):
     mc.name "[the_person.title], now that you've had some time in the lab there's something I wanted to talk to you about."
     the_person.char "Okay, how can I help?"
     mc.name "All of our research and development up until this point has been based on the limited notes you and I have from our days at the lab. I wanted to ask if you think there's more we could be doing."
-    "[the_person.title] smiles mischieviously."
+    "[the_person.title] smiles mischievously."
     the_person.char "I've got an idea then, I'm sure it's something you'll like."
     mc.name "What's your plan?"
     the_person.char "All of the testing that I've been doing so far focuses on not getting people killed, which is important, but I really need to know more about what subjective effects there are."

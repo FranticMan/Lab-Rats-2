@@ -88,7 +88,7 @@ init -15 python:
                     else:
                         file_name = mobile_zip_dict[self.position].filename
                         mobile_zip_dict[self.position].close()
-                        mobile_zip_dict[self.position] = zipfile.ZipFile(file_name, "a") #May have to convert to a renpy_file first, but I dthink Zipfile will have alreayd done that
+                        mobile_zip_dict[self.position] = zipfile.ZipFile(self.filename, "r") #May have to convert to a renpy_file first, but I dthink Zipfile will have alreayd done that
 
 
 

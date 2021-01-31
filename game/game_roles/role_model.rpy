@@ -11,21 +11,28 @@ init -2 python:
         elif mc.business.get_employee_workstation(the_person) is None:
             return False
         elif time_of_day >= 4:
-            return "Too late to start taking pictures."
+            return "Too late to shoot pictures"
         elif mc.business.event_triggers_dict.get("Last Ad Shot Day", -7) + 7 > day:
-            return "An ad is already running."
+            return "An ad is already running"
         else:
             return True
 
     def fire_model_requirment(the_person):
         return True
 
+    def create_add_space_and_expire_action():
+        mc.business.funds += -300
+        mc.business.add_sales_multiplier("Ad Campaign", ad_multiplier)
+        ad_expire_trigger = Action("Ad Expire", ad_expire_requirement, "ad_expire", args = ad_multiplier, requirement_args = day+7)
+        mc.business.mandatory_crises_list.append(ad_expire_trigger) #It'll expire in 7 days.
+        mc.business.event_triggers_dict["Last Ad Shot Day"] = day
+        return
+
 label fire_model_label(the_person):
     mc.name "I'm sorry [the_person.title], but I will no longer be needing you to star in our ad campaigns."
     $ the_person.change_happiness(-5)
     the_person.char "Oh... Okay."
-    $ mc.business.company_model = None
-    $ the_person.remove_role(company_model_role) #TODO: Investigate a crash where Alxia sometimes has this action but not the role itself??
+    $ mc.business.fire_company_model()
     return
 
 label model_photography_list_label(the_person):
@@ -47,13 +54,13 @@ label model_photography_list_label(the_person):
         the_person.char "I want to make sure I show my best side for the business."
 
     menu:
-        "Your outfit is fine.":
+        "Your outfit is fine":
             mc.name "You look great already, I don't think you need to change a thing."
             $ the_person.discover_opinion("skimpy uniforms")
             $ the_person.change_slut_temp(the_person.get_opinion_score("skimpy uniforms"))
             the_person.char "Okay, I think I'm ready to go then!"
 
-        "Put something else on for me.":
+        "Put something else on for me":
             mc.name "I think you could use something with a little more pop."
             if the_person.effective_sluttiness() < 20 and the_person.relationship != "Single":
                 the_person.char "Nothing too crazy though, okay? I don't want my boyfriend to freak out when he hears about this."
@@ -63,7 +70,7 @@ label model_photography_list_label(the_person):
 
             call outfit_master_manager(slut_limit = the_person.sluttiness, show_overwear = False, show_underwear = False) from _call_outfit_master_manager_7
             if _return:
-                if the_person.judge_outfit(the_person.outfit, _return.slut_requirement):
+                if the_person.judge_outfit(_return):
                     the_person.char "Yeah, I think that would look good. I'll go put that on."
 
                 $ clear_scene()
@@ -96,22 +103,22 @@ label model_photography_list_label(the_person):
 
     # These are "checkpoint" options for future passes through this event.
     menu:
-        "Be playful.":
+        "Be playful":
             call photo_be_playful(the_person) from _call_photo_be_playful
 
-        "Be flirty." if the_person.event_triggers_dict.get("camera_flirt", False) and slut_willingness+(5*the_person.get_opinion_score("skimpy uniforms")) >= 15:
+        "Be flirty" if the_person.event_triggers_dict.get("camera_flirt", False) and slut_willingness+(5*the_person.get_opinion_score("skimpy uniforms")) >= 15:
             mc.name "Be flirty for me. You're young and sexy, I want you to show that to the camera."
             call photo_be_sexy(the_person) from _call_photo_be_sexy
 
-        "Strip to your underwear." if the_person.event_triggers_dict.get("camera_flash", False) and outfit_state == 0 and slut_willingness+(5*the_person.get_opinion_score("skimpy uniforms")) >= 30:
+        "Strip to your underwear" if the_person.event_triggers_dict.get("camera_flash", False) and outfit_state == 0 and slut_willingness+(5*the_person.get_opinion_score("skimpy uniforms")) >= 30:
             mc.name "I want to take some sexy, bold photos of you in your underwear. I want you to strip down for the camera."
             call photo_flash(the_person) from _call_photo_flash
 
-        "Get naked." if the_person.event_triggers_dict.get("camera_naked", False) and outfit_state in [0,1] and slut_willingness+(5*the_person.get_opinion_score("not wearing anything")) >= 50:
+        "Get naked" if the_person.event_triggers_dict.get("camera_naked", False) and outfit_state in [0,1] and slut_willingness+(5*the_person.get_opinion_score("not wearing anything")) >= 50:
             mc.name "Strip everything off for me, I want to get some nude shots."
             call photo_naked(the_person) from _call_photo_naked
 
-        "Touch yourself." if the_person.event_triggers_dict.get("camera_masterbate", False) and slut_willingness+(5*the_person.get_opinion_score("masturbating")) >= 60:
+        "Touch yourself" if the_person.event_triggers_dict.get("camera_touch", False) and slut_willingness+(5*the_person.get_opinion_score("masturbating")) >= 60:
             if not outfit_state == 2:
                 mc.name "Get naked and lean against that wall. I want to get some shots of you touching yourself."
                 "[the_person.title] nods and starts to strip naked."
@@ -120,7 +127,7 @@ label model_photography_list_label(the_person):
                 mc.name "Lean up against that wall, I want to get some shots of you touching yourself."
             call photo_touch(the_person) from _call_photo_touch
 
-        "Suck my dick." if the_person.event_triggers_dict.get("camera_suck", False) and slut_willingness+(5*the_person.get_opinion_score("giving blowjobs")) >= 70:
+        "Suck my dick" if the_person.event_triggers_dict.get("camera_suck", False) and slut_willingness+(5*the_person.get_opinion_score("giving blowjobs")) >= 70:
             if not outfit_state == 2:
                 mc.name "Get naked and on your knees. I want to get some close ups of you sucking my cock."
                 "[the_person.title] nods and starts to strip naked."
@@ -129,7 +136,7 @@ label model_photography_list_label(the_person):
                 mc.name "Come and kneel down in front of me. I want to get some close ups of you sucking my cock."
             call photo_blowjob(the_person) from _call_photo_blowjob
 
-        "Get fucked on camera." if the_person.event_triggers_dict.get("camera_fuck", False) and slut_willingness+(5*the_person.get_opinion_score("vaginal sex")) >= 80:
+        "Get fucked on camera" if the_person.event_triggers_dict.get("camera_fuck", False) and slut_willingness+(5*the_person.get_opinion_score("vaginal sex")) >= 80:
             if not outfit_state == 2:
                 mc.name "Get naked first, then I'm going to lay you down and get some pictures of you getting fucked."
             else:
@@ -169,20 +176,16 @@ label model_photography_list_label(the_person):
 
     the_person.char "What do you think [the_person.mc_title]? Should I get this ad made up and sent out?"
     menu:
-        "Pay for the ad space. -$300" if mc.business.funds >=300:
-            mc.name "The picutres look good, get to work and get that pushed out as soon as possible."
+        "Pay for the ad space\n{color=#ff0000}{size=18}Costs: $300{/size}{/color}" if mc.business.funds >=300:
+            mc.name "The pictures look good, get to work and get that pushed out as soon as possible."
             the_person.char "You got it!"
-            $ mc.business.funds += -300
-            $ mc.business.add_sales_multiplier("Ad Campaign", ad_multiplier)
-            $ ad_expire_trigger = Action("Ad Expire", ad_expire_requirement, "ad_expire", args = ad_multiplier, requirement_args = day+7)
-            $ mc.business.mandatory_crises_list.append(ad_expire_trigger) #It'll expire in 7 days.
-            $ mc.business.event_triggers_dict["Last Ad Shot Day"] = day
 
+            $ create_add_space_and_expire_action()
 
-        "Pay for the ad space. -$300 (disabled)" if mc.business.funds < 300:
+        "Pay for the ad space\n{color=#ff0000}{size=18}Requires: $300{/size}{/color} (disabled)" if mc.business.funds < 300:
             pass
 
-        "Scrap the plan.":
+        "Scrap the plan":
             mc.name "I think our budget is better spent somewhere else. Sorry to put you through all that work."
             the_person.char "I understand. Maybe if we start selling more it'll be worth it."
 
@@ -199,14 +202,14 @@ label photo_be_playful(the_person):
     if the_person.obedience > 100:
         $ slut_willingness += the_person.obedience - 100
     menu:
-        "Push her to be flirty." if slut_willingness >= 15:
+        "Push her to be flirty" if slut_willingness >= 15:
             mc.name "That's great [the_person.title]. Give me a little more attitude now. You're sexy, you're young, let me feel it!"
             call photo_be_sexy(the_person) from _call_photo_be_sexy_1
 
-        "Push her to be flirty.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness < 15:
+        "Push her to be flirty\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness < 15:
             pass
 
-        "Finish the shoot.":
+        "Finish the shoot":
             "You take a few final pictures."
             mc.name "I think that's all we need. Good job [the_person.title], you look great."
             $ the_person.change_happiness(3)
@@ -247,29 +250,29 @@ label photo_be_sexy(the_person):
     else:
         $ outfit_state = 2 #She's practically naked with no clothing on.
     menu:
-        "Strip to your underwear." if slut_willingness+skimpy_uniform_bonus >= 30 and outfit_state == 0: #TODO: Also check to make sure she's got the right type of clothign TO strip down to her underwear
+        "Strip to your underwear" if slut_willingness+skimpy_uniform_bonus >= 30 and outfit_state == 0: #TODO: Also check to make sure she's got the right type of clothign TO strip down to her underwear
             #Into her flashing the camera.
             mc.name "These are looking great. Now let's trying something a little more bold. Get into your underwear for me [the_person.title]."
             call photo_flash(the_person) from _call_photo_flash_1
 
-        "Strip to your underwear.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness+skimpy_uniform_bonus < 30 and outfit_state == 0:
+        "Strip to your underwear\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness+skimpy_uniform_bonus < 30 and outfit_state == 0:
             pass
 
-        "Get naked for the camera." if slut_willingness+no_clothing_bonus >= 50 and outfit_state == 1: #If that's the only possible next step based on her outfit.
+        "Get naked for the camera" if slut_willingness+no_clothing_bonus >= 50 and outfit_state == 1: #If that's the only possible next step based on her outfit.
             mc.name "Let's kick it up another notch. Get completely naked for these next shots."
             call photo_naked(the_person) from _call_photo_naked_1
 
-        "Get naked for the camera.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness+skimpy_uniform_bonus < 50 and outfit_state == 1:
+        "Get naked for the camera\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness+skimpy_uniform_bonus < 50 and outfit_state == 1:
             pass
 
-        "Touch yourself." if slut_willingness+masturbate_bonus >= 60 and outfit_state == 2:
+        "Touch yourself" if slut_willingness+masturbate_bonus >= 60 and outfit_state == 2:
             mc.name "You're already undressed for the occasion, so lean against that wall and touch yourself for the camera. I want to see you really get into it."
             call photo_touch(the_person) from _call_photo_touch_1
 
-        "Touch yourself.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness+masturbate_bonus < 60 and outfit_state == 2:
+        "Touch yourself\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness+masturbate_bonus < 60 and outfit_state == 2:
             pass
 
-        "Finish the shoot.":
+        "Finish the shoot":
             "You take a few final pictures."
             mc.name "I think I got everything we need. Good job [the_person.title], you look great."
             $ the_person.change_happiness(3)
@@ -293,14 +296,18 @@ label photo_flash(the_person):
         "She takes a deep breath, then presses on and starts to take off her [first_item.name]."
 
     $ the_person.draw_animated_removal(first_item)
-    if not person.outfit.panties_covered():
+    $ first_item = None
+
+    if not the_person.outfit.panties_covered():
         "When she drops it she's wearing only her underwear."
     else:
-        $ covering_item = the_person.outfit.get_lower_top_layer()
+        $ the_clothing = the_person.outfit.get_lower_top_layer()
 
-        "She pulls it off and drops it to the ground, then starts to pull off her [covering_item.name]."
-        $ the_person.draw_animated_removal(covering_item)
+        "She pulls it off and drops it to the ground, then starts to pull off her [the_clothing.name]."
+        $ the_person.draw_animated_removal(the_clothing)
         "When that comes off she's left wearing only her underwear."
+
+        $ the_clothing = None
 
     if the_person.judge_outfit(the_person.outfit):
         the_person.char "Time for you to get those shots [the_person.mc_title]!"
@@ -323,14 +330,14 @@ label photo_flash(the_person):
     if the_person.obedience > 100:
         $ slut_willingness += the_person.obedience - 100
     menu:
-        "Strip naked." if slut_willingness >= 50:
+        "Strip naked" if slut_willingness >= 50:
             mc.name "That's great [the_person.title], this is great material. Next up I want to get some nude shots, so keep stripping for me."
             call photo_naked(the_person) from _call_photo_naked_2
 
-        "Strip naked.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness < 50:
+        "Strip naked\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness < 50:
             pass
 
-        "Finish the shoot.":
+        "Finish the shoot":
             mc.name "I think I've got all the pictures we need, we can call it there."
             the_person.char "Yay, glad to help!"
             $ the_person.change_slut_temp(1)
@@ -343,7 +350,7 @@ label photo_flash(the_person):
 label photo_naked(the_person):
     $ the_person.event_triggers_dict["camera_naked"] = True
     if the_person.effective_sluttiness(["bare_tits","bare_pussy"]) >= 40:
-        the_person.char "You got it [the_person.mc_title], I'm up for a little taseful nudity."
+        the_person.char "You got it [the_person.mc_title], I'm up for a little tasteful nudity."
         "You make sure to get some pictures as she strips off her underwear."
     else:
         the_person.char "Okay... I think I can do that..."
@@ -369,7 +376,7 @@ label photo_naked(the_person):
             $ the_person.draw_person()
             the_person.char "It's not like we're doing anything wrong, this is all just for work."
             menu:
-                "Reassure her.":
+                "Reassure her":
                     mc.name "If he was a reasonable person he'd be fine with this."
                     mc.name "You're using your, uh, natural talents to perform your job as well as you can. That's an admirable thing to do."
                     $ the_person.change_happiness(2)
@@ -377,7 +384,7 @@ label photo_naked(the_person):
                     "She smiles and nods."
                     the_person.char "Yeah, that's what I think too."
 
-                "Make her worry.":
+                "Make her worry":
                     mc.name "I don't know [the_person.title]. Some men would be very jealous that you were showing off your body to anyone but them."
                     mc.name "Me and you both know it's for the good of the company, but he might not see it that way."
                     $ the_person.change_happiness(-5)
@@ -403,14 +410,14 @@ label photo_naked(the_person):
     $ slut_willingness += the_person.get_opinion_score("masturbating") * 5
 
     menu:
-        "Touch yourself." if slut_willingness >= 45:
+        "Touch yourself" if slut_willingness >= 45:
             mc.name "I want to get some more sensual shots of you. Lean back against the wall and touch yourself."
             call photo_touch(the_person) from _call_photo_touch_2
 
-        "Touch yourself.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness < 60:
+        "Touch yourself\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness < 60:
             pass
 
-        "Finish the shoot.":
+        "Finish the shoot":
             mc.name "I think that's everything we need."
             $ the_person.change_obedience(2)
             $ the_person.change_slut_temp(2)
@@ -422,7 +429,7 @@ label photo_naked(the_person):
 label photo_touch(the_person):
     $ the_person.event_triggers_dict["camera_touch"] = True
     if the_person.effective_sluttiness() >= 45:
-        "[the_person.title] doesn't hesistate at all. She takes a step back and leans against the wall, spreading her legs slightly."
+        "[the_person.title] doesn't hesitate at all. She takes a step back and leans against the wall, spreading her legs slightly."
     else:
         the_person.char "Touch myself? What do you... what do you mean [the_person.mc_title]? I couldn't... do that in front of you."
         "[the_person.title] looks nervous. She seems suddenly self conscious, turning side-on to the camera to limit how much it can see."
@@ -459,7 +466,7 @@ label photo_touch(the_person):
     the_person.char "Ah..."
     "She hesitates for a second, then slips her middle finger into herself with a soft, throaty moan."
     "You take a few steps closer and take some more pictures."
-    "[the_person.title]'s other hand comes up subconciously and cradles a breast as she starts to slowly finger herself."
+    "[the_person.title]'s other hand comes up subconsciously and cradles a breast as she starts to slowly finger herself."
     "Without any prompting she starts to speed up. Her breathing gets louder and she slides a second finger inside."
 
     $ slut_willingness = the_person.effective_sluttiness("sucking_cock")
@@ -467,14 +474,14 @@ label photo_touch(the_person):
         $ slut_willingness += the_person.obedience - 100
     $ slut_willingness += the_person.get_opinion_score("giving blowjobs") * 5
     menu:
-        "Suck my cock." if slut_willingness >= 55:
+        "Suck my cock" if slut_willingness >= 55:
             mc.name "That's perfect [the_person.title]. Now just get onto your knees for me, we're going to get some hard core shots."
             call photo_blowjob(the_person) from _call_photo_blowjob_1
 
-        "Suck my cock.\n{color=#ff0000}Not slutty or obedient enough{/color} (disabled)" if slut_willingness < 70:
+        "Suck my cock\n{color=#ff0000}{size=18}Not slutty or obedient enough{/size}{/color} (disabled)" if slut_willingness < 55:
             pass
 
-        "Take photos as she climaxes.":
+        "Take photos as she climaxes":
             the_person.char "Ah... Hah..."
             "[the_person.possessive_title] turns her head away from the camera and closes her eyes to focus on the task at hand."
             "She moves both hands down to her pussy, fingering herself with one and rubbing her clit with the other."
@@ -545,12 +552,12 @@ label photo_blowjob(the_person):
         $ slut_willingness += the_person.obedience - 100
     $ slut_willingness += the_person.get_opinion_score("vaginal sex") * 5
     menu:
-        "Fuck her." if the_person.effective_sluttiness("vaginal_sex") >= 65:
+        "Fuck her" if the_person.effective_sluttiness("vaginal_sex") >= 65:
             mc.name "We've come this far, there's only one more thing we can do. Lie down so I can fuck you."
             $ the_person.draw_person(position = "blowjob")
             call photo_sex(the_person) from _call_photo_sex_1
 
-        "Take photos as you cum.":
+        "Take photos as you cum":
             mc.name "I'm going to cum, get ready!"
             $ the_person.draw_person(position = "blowjob")
             "You pull your cock out of [the_person.possessive_title]'s mouth and stroke it off with your left hand, working the camera with your right."
@@ -611,7 +618,7 @@ label photo_sex(the_person):
     $ the_person.change_slut_temp(5)
     $ came_inside_mod = 0
     menu:
-        "Cum on [the_person.title].":
+        "Cum on [the_person.title]":
             $ the_person.change_slut_temp(the_person.get_opinion_score("being covered in cum"))
             $ the_person.discover_opinion("being covered in cum")
             if mc.condom:
@@ -625,7 +632,7 @@ label photo_sex(the_person):
             $ the_person.draw_person(position = "missionary")
             "She gasps softly as she is spattered with your hot cum. For a few seconds you're both quiet as you catch your breath."
 
-        "Creampie her." if not mc.condom:
+        "Creampie her" if not mc.condom:
             $ the_person.change_slut_temp(the_person.get_opinion_score("creampies"))
             $ the_person.discover_opinion("creampies")
             "You pull on [the_person.title]'s hips one handed and thrust as deep as you can into her."
@@ -644,7 +651,7 @@ label photo_sex(the_person):
 
             $ came_inside_mod = 10
 
-        "Creampie her. (disabled)" if mc.condom:
+        "Creampie her (disabled)" if mc.condom:
             pass
 
     mc.name "I think I got all the pictures I'll need."
@@ -659,6 +666,7 @@ label photo_strip_naked(the_person): #A helper label that strips a girl until he
         $ the_item = the_person.outfit.remove_random_any(top_layer_first = True, exclude_feet = True, do_not_remove = True)
         $ the_person.draw_animated_removal(the_item)
         "" #Just so they can click through and see each thing removed.
+    $ the_item = None
     return
 
 label ad_expire(the_amount):

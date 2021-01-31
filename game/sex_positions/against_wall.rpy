@@ -2,8 +2,8 @@
     python:
         against_wall = Position(name = "Against the Wall", slut_requirement = 60, slut_cap = 80, requires_hard = True, requires_large_tits = False,
             position_tag = "against_wall", requires_location = "Lean", requires_clothing = "Vagina", skill_tag = "Vaginal",
-            girl_arousal = 20, girl_energy = 16,
-            guy_arousal = 18, guy_energy = 16,
+            girl_arousal = 20, girl_energy = 12,
+            guy_arousal = 18, guy_energy = 12,
             connections = [],
             intro = "intro_against_wall",
             scenes = ["scene_against_wall_1","scene_against_wall_2","scene_against_wall_3"],
@@ -12,7 +12,7 @@
             strip_description = "strip_against_wall", strip_ask_description = "strip_ask_against_wall",
             orgasm_description = "orgasm_against_wall",
             taboo_break_description = "taboo_break_against_wall",
-            opinion_tags = ["sex standing up"], record_class = "Vaginal Sex",
+            opinion_tags = ["sex standing up", "vaginal sex"], record_class = "Vaginal Sex",
             default_animation = blowjob_bob,
             associated_taboo = "vaginal_sex")
 
@@ -54,14 +54,15 @@ label scene_against_wall_1(the_girl, the_location, the_object):
     else:
         "[the_girl.title]'s cunt is tight and warm. She's still getting wet, so you take it easy on her."
     menu:
-        "Fondle her tits.":
+        "Fondle her tits":
             if the_girl.has_large_tits():
                 if the_girl.outfit.tits_available():
                     "You grab one of [the_girl.possessive_title]'s tits while you fuck her. Her [the_girl.tits]'s more than fill up your hand."
                     "You squeeze her breast and rub your thumb over her nipple a few time. It starts to harden in response."
                 else:
-                    $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
-                    "You cup one of [the_girl.possessive_title]'s [the_girl.tits] sized tits and fondle it through her [top_clothing.name]. It's pleasently soft and heavy in your hand."
+                    $ top_clothing = the_girl.outfit.get_upper_top_layer()
+                    "You cup one of [the_girl.possessive_title]'s [the_girl.tits] sized tits and fondle it through her [top_clothing.name]. It's pleasantly soft and heavy in your hand."
+                    $ top_clothing = None
 
                 if the_girl.arousal < 50:
                     the_girl.char "Rub them just like that... Do you like my breasts [the_girl.mc_title]? Do you like my nice, big tits?"
@@ -74,8 +75,9 @@ label scene_against_wall_1(the_girl, the_location, the_object):
                     "You grab one of [the_girl.title]'s tits while you fuck her against the [the_object.name]. Her small [the_girl.tits] cups don't give much to work with, but you enjoy them all the same."
                     "You rub your thumb over her nipple a few times and watch as it starts to harden in response."
                 else:
-                    $top_clothing = the_girl.outfit.get_upper_ordered()[-1]
+                    $ top_clothing = the_girl.outfit.get_upper_top_layer()
                     "[the_girl.title]'s small [the_girl.tits] cup tits don't give you much to work with, especially not with her [top_clothing.name] in the way, but you run your hand over them anyways."
+                    $ top_clothing = None
 
                 if the_girl.arousal < 50:
                     the_girl.char "Ah... Do you like my breasts [the_girl.mc_title]? I know they're not big, but they're all yours."
@@ -83,15 +85,15 @@ label scene_against_wall_1(the_girl, the_location, the_object):
                 else:
                     the_girl.char "Oh god, your hands... your cock... it feels so good!"
 
-        "Kiss her.":
+        "Kiss her":
             "You pin [the_girl.title] against the [the_object.name] with your body and press your lips against hers. You keep pumping your hips, fucking her while you make out."
             if the_girl.sex_skills["Foreplay"] > 2: #Experienced kisser
                 if the_girl.get_opinion_score("kissing") > 0:
                     $ the_girl.discover_opinion("kissing")
                     $ the_girl.change_arousal(the_girl.get_opinion_score("kissing"))
-                    the_girl.char "[the_girl.possessive_title] shivers with pleasure when your tongues meet. She bucks her hips against yours, suddenly desperate to have you deeper inside of her."
+                    "[the_girl.possessive_title] shivers with pleasure when your tongues meet. She bucks her hips against yours, suddenly desperate to have you deeper inside of her."
                 else:
-                    the_girl.char "[the_girl.possessive_title] returns your kiss, darting her tongue out to meet yours."
+                    "[the_girl.possessive_title] returns your kiss, darting her tongue out to meet yours."
                     if the_girl.outfit.tits_available():
                         "She wraps her arms around you and pulls you against her while you make out. You feel her tits pressed tight against your skin while you fuck her."
                     else:
@@ -127,7 +129,7 @@ label scene_against_wall_2(the_girl, the_location, the_object):
         "You hold [the_girl.title]'s hands while you slide your cock in and out of her tight pussy."
 
     menu:
-        "Fuck her harder.":
+        "Fuck her harder":
             "You lift [the_girl.possessive_title]'s hands up and pin them against the [the_object.name]. You lay into her, fucking her as hard as you can manage."
             if the_girl.get_opinion_score("being submissive"):
                 $ the_girl.discover_opinion("being submissive")
@@ -154,7 +156,7 @@ label scene_against_wall_2(the_girl, the_location, the_object):
 
 
 
-        "Talk dirty to her.":
+        "Talk dirty to her":
             mc.name "Do you like this, you dirty slut? Do you like getting fucked against the [the_object.name]?"
             if the_girl.get_opinion_score("being submissive") < 0:
                 $ the_girl.discover_opinion("being submissive")
@@ -186,7 +188,7 @@ label scene_against_wall_3(the_girl, the_location, the_object):
 
     "[the_girl.title] thrusts her hips forward to meet yours with each thrust. She closes her eyes and puts her head back against [the_object.name]."
     menu:
-        "Grab her ass.":
+        "Grab her ass":
             "You reach behind [the_girl.possessive_title] and grab her butt. You pull her against you and push yourself as deep as you can manage."
             if the_girl.sex_skills["Vaginal"] < 3:
                 the_girl.char "Oh my god, yes! Keep that cock deep inside of me!"
@@ -198,7 +200,7 @@ label scene_against_wall_3(the_girl, the_location, the_object):
 
             "You knead her ass cheeks while you fuck her. When she makes a happy yelp when you give them a slap."
 
-        "Let her take control.":
+        "Let her take control":
             "You stop pumping your cock into [the_girl.title] and let her hips do all the work."
             if the_girl.sex_skills["Vaginal"] < 3 or the_girl.get_opinion_score("taking control") < 0:
                 "After a second she stops too and looks at you."
@@ -236,7 +238,7 @@ label outro_against_wall(the_girl, the_location, the_object):
     mc.name "Fuck, I'm going to cum!"
     $ the_girl.call_dialogue("cum_pullout")
     menu:
-        "Cum inside of her.":
+        "Cum inside of her":
             if mc.condom:
                 "You push forward as you climax, thrusting your cock as deep inside of [the_girl.possessive_title] as you can manage. She pants quitly as you pulse your hot cum into the condom you're wearing."
                 $ the_girl.call_dialogue("cum_condom")
@@ -258,7 +260,7 @@ label outro_against_wall(the_girl, the_location, the_object):
                 "You wait until your orgasm has passed, then step back and sigh happily. [the_girl.title] stays leaning against the [the_object.name] for a few seconds as your semen drips down her leg."
 
 
-        "Cum on her stomach.":
+        "Cum on her stomach":
             $ the_girl.cum_on_stomach()
             $ against_wall.redraw_scene(the_girl)
             if mc.condom:
@@ -287,12 +289,12 @@ label strip_against_wall(the_girl, the_clothing, the_location, the_object):
 label strip_ask_against_wall(the_girl, the_clothing, the_location, the_object):
     the_girl.char "Sir, I'd like to take off my [the_clothing.name], would you mind?"
     menu:
-        "Let her strip.":
+        "Let her strip":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = against_wall.position_tag)
             "You slow the pace of your thrusts down while [the_girl.possessive_title] strips out of her [the_clothing.name]. When she drops it beside her you settle back into your rhythm."
 
-        "Leave it on.":
+        "Leave it on":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 70:
                 the_girl.char "Yeah? Do I look sexy in it?"

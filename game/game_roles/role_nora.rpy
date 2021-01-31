@@ -1,10 +1,10 @@
 # All of the role specific actions for Nora
 # Nora acts as an alternate way of unlocking serum research progress and allows the player to unlock special serum traits.
 
-# Nora needs the player to help her cut through beurocratic red tape and test serum traits that she can't.
+# Nora needs the player to help her cut through bureaucratic red tape and test serum traits that she can't.
 # She gives the player (temporary) access to a serum trait with a very high side effect chance, strange/extreme effects, and minimal sale value.
 # The player needs to raise the mastery value of the trait to a certain level, after which they can "turn in" the request for a reward.
-# Initially this reward will be acces to higher serum tech tiers or unlocks of other serum traits without having to research them.
+# Initially this reward will be access to higher serum tech tiers or unlocks of other serum traits without having to research them.
 # Later it may let you unlock unique serum traits.
 
 init -2 python:
@@ -14,12 +14,14 @@ init -2 python:
         elif mc.business.event_triggers_dict.get("nora_trait_researched",None) is None:
             return False
         elif time_of_day== 0:
-            return "Too early to visit [nora.title]."
+            return "Too early to visit [nora.title]"
         elif time_of_day == 4:
-            return "Too late to visit [nora.title]."
-        elif round(mc.business.event_triggers_dict.get("nora_trait_researched").mastery_level) < 2:
+            return "Too late to visit [nora.title]"
+        elif not nora.get_destination() is university:
+            return "[nora.title] does not work now"
+        elif __builtin__.round(mc.business.event_triggers_dict.get("nora_trait_researched").mastery_level, 1) < 2:
             trait_name = mc.business.event_triggers_dict.get("nora_trait_researched").name
-            return "Trait Mastery Level of " + trait_name + " must be 2 or higher."
+            return "Requires: " + trait_name + " Mastery >= 2"
         else:
             return True
 
@@ -38,67 +40,105 @@ init -2 python:
             return False
         elif mc.business.event_triggers_dict.get("nora_trait_researched", None) is None and not mc.business.event_triggers_dict.get("nora_cash_research_trigger", False):
             return False
-        elif mc.business.is_weekend():
-            return "[nora.title] does not work on the weekend."
         elif time_of_day == 0:
-            return "Too early to talk to [nora.title] about business."
+            return "Too early to talk to [nora.title] about business"
         elif time_of_day == 4:
-            return "Too late to talk to [nora.title] about business."
-        else:
-            return True
+            return "Too late to talk to [nora.title] about business"
+        elif not nora.get_destination() is university:
+            return "[nora.title] does not work now"
+        return True
 
     def nora_research_cash_requirement(the_person):
         if mc.business.event_triggers_dict.get("nora_cash_research_trait", None) is None:
             return False
         elif time_of_day == 0:
-            return "Too early to visit [nora.title]."
+            return "Too early to visit [nora.title]"
         elif time_of_day == 4:
-            return "Too late to visit [nora.title]."
-        elif round(mc.business.event_triggers_dict.get("nora_cash_research_trait").mastery_level) < 2:
+            return "Too late to visit [nora.title]"
+        elif not nora.get_destination() is university:
+            return "[nora.title] does not work now"
+        elif __builtin__.round(mc.business.event_triggers_dict.get("nora_cash_research_trait").mastery_level, 1) < 2:
             trait_name = mc.business.event_triggers_dict.get("nora_cash_research_trait").name
-            return "Trait Mastery Level of " + trait_name + " must be 2 or higher."
+            return "Requires: " + trait_name + " Mastery >= 2"
         else:
             return True
+
+    def get_nora_research_subject():
+        subject = mc.business.event_triggers_dict.get("nora_research_subject", None)
+        if isinstance(subject, basestring):
+            return next((x for x in all_people_in_the_game() if x.identifier == subject), None)
+        return subject
 
     def special_research_requirement(the_person):
-        if mc.business.event_triggers_dict.get("nora_research_subject", None) is None:
-            return "No new research to turn in."
-        elif mc.business.is_weekend():
-            return "[nora.title] does not work on the weekend."
+        if get_nora_research_subject() is None:
+            return "No new research to turn in"
         elif time_of_day == 0:
-            return "Too early to visit [nora.title]."
+            return "Too early to visit [nora.title]"
         elif time_of_day == 4:
-            return "Too late to visit [nora.title]."
+            return "Too late to visit [nora.title]"
+        elif not nora.get_destination() is university:
+            return "[nora.title] does not work now"
         else:
             return True
-
 
     def study_person_requirement(the_person):
         if time_of_day == 4:
-            return "Not enough time."
+            return "Not enough time"
         return True
 
+    def add_nora_university_research_actions():
+        university_research_action = Action("Present your research to [nora.title]", nora_research_up_requirement, "nora_research_up_label", args = nora,
+            menu_tooltip = "Deliver your field research to [nora.title] in exchange for her theoretical research notes.")
+        mc.business.event_triggers_dict["nora_research_up"] = university_research_action
+        university.actions.append(university_research_action)
 
+        nora_research_visit = Action("Visit Nora's lab", visit_lab_intro_requirement, "nora_research_cash_first_time", args = nora, requirement_args = nora,
+            menu_tooltip = "Visit your old lab and talk to Nora about serum research.")
+        university.actions.append(nora_research_visit) #Prepare this so if we visit the university again under the proper conditions we can start studying traits for her for money.
 
+        university.visible = True
+        return
 
-label nora_intro_label(the_steph):
+    def add_study_person_for_nora_actions(the_person):
+        study_person_action = Action("Study her for Nora {image=gui/heart/Time_Advance.png}", study_person_requirement, "nora_profile_person",
+            menu_tooltip = "Work through the research questionnaire provided to you by Nora. After you can give it to Nora to see if she notices any interesting properties.")
+        mc.main_character_actions.append(study_person_action)
+
+        turn_in_person_research_action = Action("Turn in a research questionnaire", special_research_requirement, "nora_special_research", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Turn in the research questionnaire you had filled out. If the person is particularly unique or extreme she may be able to discover unique serum traits for you to research.")
+        university.actions.append(turn_in_person_research_action)
+        return
+
+    def add_nora_research_intro_action(the_person):
+        nora_research_cash_intro_action = Action("Nora cash research intro", nora_research_cash_intro_requirement, "nora_research_cash_intro", args = the_person, requirement_args = [the_person, day + renpy.random.randint(3,6)])
+        mc.business.mandatory_crises_list.append(nora_research_cash_intro_action)
+        return
+
+    def add_nora_research_cash_action(the_person):
+        mc.business.event_triggers_dict["nora_cash_research_trigger"] = False #Reset this trigger so the event is hidden properly again in the future (TODO: Just remove it from the list)
+        nora_research_cash_action = Action("Turn in your finished research", nora_research_cash_requirement, "nora_research_cash", args = the_person, requirement_args = the_person,
+            menu_tooltip = "Turn in your completed trait research to Nora, in exchange for payment.")
+        university.actions.append(nora_research_cash_action)
+        return
+
+label nora_intro_label(the_person):
     $ the_nora = nora
-    $ mc.business.event_triggers_dict["intro_nora"] = False #We've already intro'd her, so we don't have to do this again.
-    mc.name "[the_steph.title], have you talked to [the_nora.title] yet?"
+    $ mc.business.event_triggers_dict["intro_nora"] = False #We've already introduced her, so we don't have to do this again.
+    mc.name "[the_person.title], have you talked to [the_nora.title] yet?"
     "She nods."
-    the_steph.char "I did, she said we would be welcome by any time."
+    the_person.char "I did, she said we would be welcome by any time."
     mc.name "Excellent, I want to pay her a visit and want you to come along."
-    the_steph.char "Sure thing. It's going to be strange being back there, but I'm looking forward to it!"
+    the_person.char "Sure thing. It's going to be strange being back there, but I'm looking forward to it!"
     "The two of you head to the university. Being on campus again triggers a wave of nostalgia that you hadn't expected."
 
     $ university.show_background()
     "You navigate to the old lab and knock on the door. You hear the click of high heels approaching from the other side."
-    "Your old lab director opens the door and smiles at you and [the_steph.title]. Inside the room is bustling with activity."
+    "Your old lab director opens the door and smiles at you and [the_person.title]. Inside the room is bustling with activity."
     $ the_nora.draw_person(emotion = "happy")
-    the_nora.char "[the_nora.mc_title], [the_steph.title], I'm glad you stopped by."
+    the_nora.char "[the_nora.mc_title], [the_person.title], I'm glad you both stopped by."
     mc.name "It's nice to see you [the_nora.title]."
-    $ the_steph.draw_person(emotion = "happy")
-    the_steph.char "Hey [the_nora.title]. Good to be back."
+    $ the_person.draw_person(emotion = "happy")
+    the_person.char "Hey [the_nora.title]. Good to be back."
     $ the_nora.draw_person(emotion = "happy")
     "[the_nora.possessive_title] steps out into the hallway and closes the lab door behind her."
     the_nora.char "I'm sorry I can't invite you in; the lab is a high security space now."
@@ -110,20 +150,20 @@ label nora_intro_label(the_steph):
 
     "The three of you return to ground level and go to a coffee shop near the center of campus."
     $ the_nora.draw_person(position = "sitting")
-    "When you get there [the_steph.title] pulls out a folder containing a synopsis of your research and slides it over to [the_nora.title]."
+    "When you get there [the_person.title] pulls out a folder containing a synopsis of your research and slides it over to [the_nora.title]."
     "[the_nora.possessive_title] looks through the notes, sipping thoughtfully at her coffee."
     the_nora.char "Hmm... Yes... Ah, I see what's going on. I ran into this same roadblock."
-    $ the_steph.draw_person(position = "sitting")
-    the_steph.char "Excellent, so you know where to go from here?"
+    $ the_person.draw_person(position = "sitting")
+    the_person.char "Excellent, so you know where to go from here?"
     "[the_nora.title] looks up from her notes."
     $ the_nora.draw_person(position = "sitting")
     the_nora.char "Do I know? Of course! I haven't just been twiddling my thumbs since you two left!"
-    the_nora.char "The problem is that all of my research is suppose to be kept within the university now. No sharing with outside organisations."
+    the_nora.char "The problem is that all of my research is supposed to be kept within the university now. No sharing with outside organizations."
     the_nora.char "I wish I could help, but it's my job at risk."
     mc.name "Come on [the_nora.title], we're counting on you here."
-    $ the_steph.draw_person(position = "sitting")
-    the_steph.char "Think of the science, we shouldn't let bureaucrats get in the way of progress! That's what you always taught me, at least."
-    "She leans forward in her chair, thinking intensely. You and [the_steph.title] wait while she comes to a decision."
+    $ the_person.draw_person(position = "sitting")
+    the_person.char "Think of the science, we shouldn't let bureaucrats get in the way of progress! That's what you always taught me, at least."
+    "She leans forward in her chair, thinking intensely. You and [the_person.title] wait while she comes to a decision."
     $ the_nora.draw_person(position = "sitting")
     the_nora.char "Okay, I'll help. But I'll need something in return."
     "You breath a sigh of relief."
@@ -131,38 +171,34 @@ label nora_intro_label(the_steph):
     the_nora.char "I have some effects that might be achievable, but I'm running into nothing but red tape getting them approved for human testing."
     the_nora.char "I will provide you with some of my research. I need you to develop it into a complete package, test it, and return the results to me."
     the_nora.char "Once I have your results back I'll give you my old notes, which should be enough to keep you moving forward."
-    $ the_steph.draw_person(position = "sitting", emotion = "happy")
-    the_steph.char "That's perfect, that's all I need."
+    $ the_person.draw_person(position = "sitting", emotion = "happy")
+    the_person.char "That's perfect, that's all I need."
     mc.name "We'll make it happen [the_nora.title]. Send the plans for the trait you need researched and we'll get started right away."
     $ the_nora.draw_person()
     "[the_nora.title] stands up and pushes her chair in."
     the_nora.char "I hope to hear from you soon. Good luck."
-    "She hugs [the_steph.title] goodbye, and you go your separate ways."
+    "She hugs [the_person.title] goodbye, and you go your separate ways."
 
-    $ randomly_selected_trait = get_random_from_list(list_of_nora_traits)
-    $ mc.business.event_triggers_dict["nora_trait_researched"] = randomly_selected_trait
+    $ the_trait = get_random_from_list(list_of_nora_traits)
+    $ the_trait.researched = True
+    $ mc.business.event_triggers_dict["nora_trait_researched"] = the_trait
+    $ list_of_traits.append(the_trait)
+    $ del the_trait
 
-    $ list_of_traits.append(randomly_selected_trait)
-    $ randomly_selected_trait.researched = True
-    $ the_steph.draw_person()
-    "When you get back to the office [the_steph.title] has a new file detailing an untested serum trait."
-    the_steph.char "Without [the_nora.title]'s research notes all we'll be able to do is put this trait into a serum and manufacture it."
-    the_steph.char "You'll need to test a serum containing this trait on someone to raise it's mastery level."
-    the_steph.char "We should bring it up to at least mastery level 2 before we go back to [the_nora.title]."
+    $ the_person.draw_person()
+    "When you get back to the office [the_person.title] has a new file detailing an untested serum trait."
+    the_person.char "Without [the_nora.title]'s research notes all we'll be able to do is put this trait into a serum and manufacture it."
+    the_person.char "You'll need to test a serum containing this trait on someone to raise it's mastery level."
+    the_person.char "We should bring it up to at least mastery level 2 before we go back to [the_nora.title]."
 
     mc.name "Understood. I'll be back once the testing is done."
     $ clear_scene()
 
-    $ university_research_action = Action("Present your research to [nora.title].", nora_research_up_requirement, "nora_research_up_label", args = nora, menu_tooltip = "Deliver your field research to [nora.title] in exchange for her theoretical research notes.")
-    $ mc.business.event_triggers_dict["nora_research_up"] = university_research_action
-    $ university.actions.append(university_research_action)
-    $ university.visible = True
+    $ the_nora.set_schedule(university, days=[0, 1, 2, 3, 4], times =[1,2,3])
+    $ the_nora.set_schedule(university, days=[5], times =[1,2])
 
-    $ nora_research_visit = Action("Vist Nora's lab.", visit_lab_intro_requirement, "nora_research_cash_first_time", args = the_nora, requirement_args = the_nora,
-        menu_tooltip = "Visit your old lab and talk to Nora about serum research.")
-
-    $ university.actions.append(nora_research_visit) #Prepare this so if we visit the university again under the proper conditions we can start studying traits for her for money.
-
+    $ the_nora = None
+    $ add_nora_university_research_actions()
     $ mc.location.show_background()
     return
 
@@ -192,19 +228,18 @@ label nora_research_up_label(the_person):
     $ mc.log_event("Tier 2 Research Unlocked","float_text_grey")
     the_person.char "I may have more testing for you to do soon. I'll get in touch when I do."
     "You finish your coffees and say goodbye. The notes [the_person.title] has given you provide all of the details you need to pursue a number of new serum traits."
-    $ university.actions.remove(mc.business.event_triggers_dict.get("nora_research_up"))
-    $ the_trait = mc.business.event_triggers_dict.get("nora_trait_researched")
-    $ mc.business.event_triggers_dict["nora_trait_researched"] = None
-    $ list_of_traits.remove(the_trait)
-    $ list_of_nora_traits.remove(the_trait)
-    $ nora.set_schedule(university, times = [1,2,3])
-    $ clear_scene()
 
+    python:
+        university.actions.remove(mc.business.event_triggers_dict.get("nora_research_up"))
+        the_trait = mc.business.event_triggers_dict.get("nora_trait_researched")
+        mc.business.event_triggers_dict["nora_trait_researched"] = None
+        list_of_traits.remove(the_trait)
+        list_of_nora_traits.remove(the_trait)
+        del the_trait
 
-    # Prepare the event that triggers the next phase
-    $ nora_research_cash_intro_action = Action("Nora cash research intro", nora_research_cash_intro_requirement, "nora_research_cash_intro", args = the_person, requirement_args = [the_person, day + renpy.random.randint(3,6)])
-    $ mc.business.mandatory_crises_list.append(nora_research_cash_intro_action)
+        clear_scene()
 
+        add_nora_research_intro_action(the_person)
     return
 
 label nora_research_cash_intro(the_person):
@@ -237,11 +272,12 @@ label nora_research_cash_first_time(the_person):
         "You think the offer over. It's a good amount of money for the amount of work, as long as you have someone to test these serums on."
         mc.name "I can make that work."
         the_person.char "Good. I'll send you the manufacturing details that we have prepared right away. Come and see me when your report is complete."
-        $ the_trait = get_random_from_list(list_of_nora_traits)
-        $ the_trait.researched = True
-        $ mc.business.event_triggers_dict["nora_cash_research_trait"] = the_trait
-        $ list_of_traits.append(the_trait)
-
+        python:
+            the_trait = get_random_from_list(list_of_nora_traits)
+            the_trait.researched = True
+            mc.business.event_triggers_dict["nora_cash_research_trait"] = the_trait
+            list_of_traits.append(the_trait)
+            del the_trait
 
     else:
         the_person.char "Do you have your finished research for me?"
@@ -257,13 +293,8 @@ label nora_research_cash_first_time(the_person):
         $ mc.business.event_triggers_dict["nora_cash_research_trait"] = mc.business.event_triggers_dict.get("nora_trait_researched") #The old research trait is now the cash goal trait
         $ mc.business.event_triggers_dict["nora_trait_researched"] = None #Clear this so we can use it as a flag to not show future events related to the research up quest.
 
-    $ mc.business.event_triggers_dict["nora_cash_research_trigger"] = False #Reset this trigger so the event is hidden properly again in the future (TODO: Just remove it from the list)
 
-
-    $ nora_research_cash_action = Action("Turn in your finished research.", nora_research_cash_requirement, "nora_research_cash", args = the_person, requirement_args = the_person,
-        menu_tooltip = "Turn in your completed trait research to Nora, in exchange for payment.")
-
-    $ university.actions.append(nora_research_cash_action)
+    $ add_nora_research_cash_action(the_person)
     $ clear_scene()
     return
 
@@ -286,18 +317,20 @@ label nora_research_cash(the_person):
 
     $ list_of_traits.remove(the_trait)
     $ list_of_nora_traits.remove(the_trait) #Clear it from Nora's list as well so it cannot be randomly obtained again.
+    $ del the_trait
 
     mc.name "I have your research report prepared. The effects of the trait you designed were... {i}interesting{/i}."
-    "You hand her a folder you've put together containing the information you collected from your test subjects. She takes it and tuckes it under her arm."
+    "You hand her a folder you've put together containing the information you collected from your test subjects. She takes it and tucks it under her arm."
     the_person.char "Thank you, I'll look through this later and send your payment if everything is in order."
 
     if list_of_nora_traits:
         #There are still items in the list, get one, give it to the player to study.
-        the_person.char "I have another trait I would like studied, if you are still interested. I will send you the production details." #I'll mark the location of the setlement on your mp
-        $ the_new_trait = get_random_from_list(list_of_nora_traits)
-        $ mc.business.event_triggers_dict["nora_cash_research_trait"] = the_new_trait
-        $ the_new_trait.researched = True
-        $ list_of_traits.append(the_new_trait)
+        the_person.char "I have another trait I would like studied, if you are still interested. I will send you the production details." #I'll mark the location of the settlement on your mp
+        $ the_trait = get_random_from_list(list_of_nora_traits)
+        $ the_trait.researched = True
+        $ mc.business.event_triggers_dict["nora_cash_research_trait"] = the_trait
+        $ list_of_traits.append(the_trait)
+        $ del the_trait
         mc.name "Okay, I'll see what I can do. Thank you for your business, [the_person.title]."
         "You say goodbye to [the_person.possessive_title] and split up. Your payment is sent soon after."
 
@@ -305,31 +338,25 @@ label nora_research_cash(the_person):
         #Unlock the boss trait phase
         the_person.char "I also have some good news. Thanks in part to your assistance I have been given a long term grant to continue my research."
         mc.name "Congratulations [the_person.title], after all your hard work you deserve it."
-        the_person.char "Thank you. I had to pressure on my boss but I was able to... Well, I was able to convince him, let's leave it at that."
+        the_person.char "Thank you. I had to pressure my boss, but I was able to... Well, I was able to convince him, let's leave it at that."
         the_person.char "This money relieves the pressure on me to produce results quickly, and means I will not need you to perform any more field tests."
         the_person.char "But I have an idea we may both benefit from."
         mc.name "Go on, you always have interesting ideas for me."
         the_person.char "In my studies I have found that people with extreme personalities, mindsets, backgrounds, or beliefs can offer insights into new serum traits."
-        the_person.char "I will provide you with a detailed questionnaire. Have an intersting person fill it out, or interview them and fill it out yourself, and bring it back to me."
+        the_person.char "I will provide you with a detailed questionnaire. Have an interesting person fill it out, or interview them and fill it out yourself, and bring it back to me."
         the_person.char "If I find any hints pointing towards a trait I will share the research with you. I improve my research, and you may discover useful applications for your business."
         mc.name "That sounds like a good deal for both of us."
         the_person.char "My thoughts exactly, I'm glad you agree."
         "You say goodbye to [the_person.possessive_title] and split up. She sends your final payment and her research questionnaire soon after."
 
-        $ study_person_action = Action("Study her for Nora. {image=gui/heart/Time_Advance.png}", study_person_requirement, "nora_profile_person",
-            menu_tooltip = "Work through the research questionnaire provided to you by Nora. After you can give it to Nora to see if she notices any interesting properties.")
-        $ mc.main_character_actions.append(study_person_action)
-
-        $ turn_in_person_research_action = Action("Turn in a research questionnaire.", special_research_requirement, "nora_special_research", args = the_person, requirement_args = the_person,
-            menu_tooltip = "Turn in the research questionnaire you had filled out. If the person is particularly unique or extreme she may be able to discover unqiue serum traits for you to research.")
-        $ university.actions.append(turn_in_person_research_action)
+        $ add_study_person_for_nora_actions(the_person)
     $ mc.business.funds += 2000
     $ clear_scene()
     return
 
 label nora_special_research(the_person):
     # Bring a report about a special person to Nora and she generates a special serum trait for them.
-    $ the_subject = mc.business.event_triggers_dict.get("nora_research_subject") #This is guaranteed to exist thanks to the pre action checks.
+    $ the_subject = get_nora_research_subject() #This is guaranteed to exist thanks to the pre action checks.
 
     mc.name "I have a research profile for you to take a look at [the_person.title]. Let me know if you can find anything interesting out."
     "You give [the_person.possessive_title] the report you have prepared on [the_subject.title]."
@@ -367,15 +394,19 @@ label nora_special_research(the_person):
 
     elif nora_role in the_subject.special_role and the_subject.core_sluttiness > 75 and nora_reward_nora_trait not in list_of_traits:
         the_person.char "Well I suppose your out-of-the-box thinking is why I appreciate your scientific input, [the_person.mc_title]."
-        the_person.char "I ran your report on myself, and much to my suprise I think there may be something here for us both to study."
+        the_person.char "I ran your report on myself, and much to my surprise I think there may be something here for us both to study."
         the_person.char "My own sexual drive seems to be linked quite heavily to the intelligence of the person I am talking to."
         the_person.char "It may be possible to develop a serum that replicates this in another person, with the effect being more pronounced the larger the intelligence difference."
         "She hands you her research on the matter, unlocking a new serum trait for you to research."
         $ list_of_traits.append(nora_reward_nora_trait)
 
     elif pregnant_role in the_subject.special_role and the_subject.event_triggers_dict.get("preg_transform_day",day) < day and the_subject.core_sluttiness > 75 and nora_reward_hucow_trait not in list_of_traits:
-        the_person.char "First off, congratulations [the_person.mc_title]. You're the father."
-        the_person.char "Second, I have an interesting development and possible path forward."
+        # Change for mod to exclude girls who didn't get pregnant by MC
+        if the_person.event_triggers_dict.get("preg_mc_father", True):
+            the_person.char "First off, congratulations [the_person.mc_title]. You're the father."
+            the_person.char "Second, I have an interesting development and possible path forward."
+        else:
+            the_person.char "I have an interesting development and possible path forward."
         the_person.char "My testing has revealed a number of major differences between the test subject's hormonal balance and what is expected."
         the_person.char "I believe this is the bodies natural response to her noticeably intense desire for sexual satisfaction."
         the_person.char "If most women have a biological clock ticking, this one has a church bell."
@@ -387,7 +418,7 @@ label nora_special_research(the_person):
     elif the_subject.love > 85 and nora_reward_high_love_trait not in list_of_traits:
         the_person.char "This was certainly an interesting case, and I have a development for you."
         the_person.char "The subject reported an intense love for you, to the exclusion of all others."
-        the_person.char "Moral objections aside, this effect would have obvious appplications if you could find a way to apply it to others."
+        the_person.char "Moral objections aside, this effect would have obvious applications if you could find a way to apply it to others."
         "She hands you her research on the matter, unlocking a new serum trait for you to research."
         $ list_of_traits.append(nora_reward_high_love_trait)
 
@@ -423,20 +454,21 @@ label nora_special_research(the_person):
         the_person.char "There doesn't seem to be anything of particular interest about your subject, unfortunately."
 
     $ mc.business.event_triggers_dict["nora_research_subject"] = None
+    $ the_subject = None
 
     return
 
 label nora_profile_person(the_person):
-    if mc.business.event_triggers_dict.get("nora_research_subject", None) is not None:
-        $ the_other_person = mc.business.event_triggers_dict.get("nora_research_subject")
+    if get_nora_research_subject() is not None:
+        $ the_other_person = get_nora_research_subject()
         "Studying [the_person.title] will replace your information about [the_other_person.title]."
         menu:
-            "Discard the report and continue.":
+            "Discard the report and continue":
                 pass
 
-            "Keep the report on [the_other_person.title].":
+            "Keep the report on [the_other_person.title]":
                 return
-
+        $ del the_other_person
 
     if the_person.love < 0:
         "[the_person.title]'s obvious dislike of you makes it difficult to fill out the survey [nora.title] gave to you, but with a little guess work and some clever questions you fill it all in."
@@ -449,7 +481,7 @@ label nora_profile_person(the_person):
         "All that is left now is to take it back to her and see if she finds anything interesting."
 
 
-    $ mc.business.event_triggers_dict["nora_research_subject"] = the_person
+    $ mc.business.event_triggers_dict["nora_research_subject"] = the_person.identifier
     $ clear_scene()
     call advance_time from _call_advance_time_24
     return

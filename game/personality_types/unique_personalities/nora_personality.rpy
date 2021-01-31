@@ -8,6 +8,8 @@ init 1300:
         def nora_possessive_titles(the_person):
             valid_titles = [the_person.name]
             valid_titles.append("Your old boss")
+            if the_person.sluttiness > 60:
+                valid_titles.append("Lab Slut")
             return valid_titles
 
         def nora_player_titles(the_person):

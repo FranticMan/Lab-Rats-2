@@ -2,10 +2,10 @@
 init 1300:
     python:
         def reserved_titles(the_person):
-            if the_person.love > 10:
-                return the_person.name
+            if the_person.love < 20:
+                return "Mrs." + the_person.last_name #If she doesn't like you she's much more formal.
             else:
-                return "Mrs."+the_person.last_name
+                return the_person.name
         def reserved_possessive_titles(the_person):
             return reserved_titles(the_person)
         def reserved_player_titles(the_person):
@@ -14,7 +14,7 @@ init 1300:
         common_likes = ["pants", "research work", "HR work", "Mondays", "working", "makeup", "the colour blue", "conservative outfits","jazz","classical"],
         common_sexy_likes = ["missionary style sex", "kissing", "lingerie", "being submissive", "vaginal sex", "creampies", "giving tit fucks"],
         common_dislikes = ["the colour red", "marketing work", "flirting"],
-        common_sexy_dislikes = ["masturbating", "giving head", "getting head", "doggy style sex", "public sex", "not wearing underwear", "not wearing anything", "bareback sex", "cum facials"],
+        common_sexy_dislikes = ["masturbating", "giving blowjobs", "getting head", "doggy style sex", "public sex", "not wearing underwear", "not wearing anything", "bareback sex", "cum facials"],
         titles_function = reserved_titles, possessive_titles_function = reserved_possessive_titles, player_titles_function = reserved_player_titles)
 
         list_of_personalities.append(reserved_personality)
@@ -174,7 +174,7 @@ label reserved_sex_responses_anal(the_person):
     else:
         if the_person.sluttiness > 50:
             if the_person.relationship == "Single":
-                the_person.char "You're cock feels so stuffed inside me! Keep going, I might actually climax!"
+                the_person.char "Your cock feels so good, stuffed deep inside me! Keep going, I might actually climax!"
             else:
                 $ so_title = SO_relationship_to_title(the_person.relationship)
                 the_person.char "My [so_title] always wanted to try anal, but I told him it would never happen. My ass belongs to you , [the_person.mc_title]!"
@@ -264,9 +264,9 @@ label reserved_strip_obedience_accept(the_person, the_clothing, strip_type = "Fu
 label reserved_grope_body_reject(the_person):
     if the_person.effective_sluttiness("touching_body") < 5: #Fail point for touching shoulder
         "She shoots you a cold look and steps back, away from your touch."
-        the_person "I'm sorry, I'd prefer if you didn't touch me without permission."
+        the_person.char "I'm sorry, I'd prefer if you didn't touch me without permission."
         mc.name "Of course, I was just trying to be friendly."
-        the_person "I understand, it just makes me... Uncomfortable."
+        the_person.char "I understand, it just makes me... Uncomfortable."
         "She seems more guarded, but you both try and move past the awkward moment."
     else: #Fail point for touching waist
         "[the_person.title] shifts and tries to move away from you."
@@ -380,7 +380,7 @@ label reserved_seduction_refuse(the_person):
 label reserved_flirt_response(the_person):
     if the_person.obedience > 130:
         if the_person.sluttiness > 50:
-            the_person.char "It would be so improper, but for you I'm sure I could arange something special."
+            the_person.char "It would be so improper, but for you I'm sure I could arrange something special."
         else:
             the_person.char "Thank you for the compliment, [the_person.mc_title], I appreciate it."
 
@@ -432,7 +432,7 @@ label reserved_flirt_response_low(the_person):
 
             elif the_person.outfit.underwear_visible():
                 # Her underwear is visible.
-                the_person.char "Thank you. I always feel a touch self-concious when I put it on. I wish it kept me a little more covered."
+                the_person.char "Thank you. I always feel a touch self-conscious when I put it on. I wish it kept me a little more covered."
                 mc.name "I know it can take some getting use to, but you look fantastic in it. You're a perfect fit for it."
                 "[the_person.possessive_title] doesn't seem so sure, but she smiles and nods anyways."
 
@@ -448,7 +448,7 @@ label reserved_flirt_response_low(the_person):
         "[the_person.possessive_title] seems caught off guard by the compliment."
         the_person.char "Oh, thank you! I'm not wearing anything special, it's just one of my normal outfits."
         mc.name "Well, you make it look good."
-        "She smiles and laughs self-conciously."
+        "She smiles and laughs self-consciously."
         the_person.char "Oh stop."
     return
 
@@ -487,7 +487,7 @@ label reserved_flirt_response_mid(the_person):
             the_person.char "You're right, of course. If you think it's the best option for the company I trust you."
     else:
         if the_person.effective_sluttiness() < 20 and mc.location.get_person_count() > 1:
-            "[the_person.possessive_title] smiles, then glances around self-conciously."
+            "[the_person.possessive_title] smiles, then glances around self-consciously."
             the_person.char "Keep your voice down [the_person.mc_title], there are other people around."
             mc.name "I'm sure they're all thinking the same thing."
             "She rolls her eyes and laughs softly."
@@ -501,7 +501,7 @@ label reserved_flirt_response_mid(the_person):
             the_person.char "What do you think of it from the back? It's hard for me to get a good look."
             $ the_person.draw_person(position = "back_peek")
             "She turns and bends over a little bit, accentuating her butt."
-            if not the_person.outfit.wearing_panties() and not the_person.outfit.vagina_visible(): #Not wearing underwear, but you cna't see so she coments on it.
+            if not the_person.outfit.wearing_panties() and not the_person.outfit.vagina_visible(): #Not wearing underwear, but you can't see so she coments on it.
                 the_person.char "My panties were always leaving unpleasant lines, so I had to stop wearing them. I hope you can't tell."
             else:
                 the_person.char "Well?"
@@ -516,7 +516,7 @@ label reserved_flirt_response_high(the_person):
         "She bites her lip and leans close to you, whispering in your ear."
         the_person.char "But if we were alone, maybe we could figure something out..."
         menu:
-            "Find someplace quiet.":
+            "Find someplace quiet":
                 mc.name "Follow me."
                 "[the_person.possessive_title] nods and follows a step behind you."
                 "After searching for a couple of minutes you find a quiet, private space."
@@ -530,13 +530,13 @@ label reserved_flirt_response_high(the_person):
                 else:
                     "You answer with a kiss. She closes her eyes and leans her body against yours."
                 call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_51
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
 
-            "Just flirt.":
+            "Just flirt":
                 mc.name "I'll just have to figure out how to get you alone then. Any thoughts?"
                 the_person.char "You're a smart man, you'll figure something out."
-                "She leans away from you again and smiles mischeviously."
+                "She leans away from you again and smiles mischievously."
 
     else:
         if mc.location.get_person_count() == 1: #She's shy but you're alone
@@ -558,7 +558,7 @@ label reserved_flirt_response_high(the_person):
             the_person.char "Well? What do you want to do?"
 
         menu:
-            "Kiss her.":
+            "Kiss her":
                 $ the_person.draw_person()
                 "You step close to [the_person.title] and put an arm around her waist."
 
@@ -568,11 +568,11 @@ label reserved_flirt_response_high(the_person):
                     "You lean in and kiss her. She presses her body up against yours."
                 else:
                     "When you lean in and kiss her she responds by pressing her body tight against you."
-                call fuck_person(the_person, start_position = kissing, skip_intro = True) from _call_fuck_person_52
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                call fuck_person(the_person, start_position = kissing, private = mc.location.get_person_count() < 2, skip_intro = True) from _call_fuck_person_52
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
 
-            "Just flirt.":
+            "Just flirt":
                 $ the_person.draw_person()
                 mc.name "Nothing right now, but I've got a few ideas for later."
                 "If [the_person.title] is disappointed she does a good job hiding it. She nods and smiles."
@@ -590,7 +590,7 @@ label reserved_flirt_response_girlfriend(the_person):
             "She leans in and gives you a quick peck on the cheek."
             the_person.char "I wish we had a little more privacy. Oh well, maybe later."
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "Why wait until later? Come on."
                     "You take [the_person.possessive_title]'s hand. She hesitates for a moment, then follows as you lead her away."
                     "After a few minutes of searching you find a quiet spot. You put your arm around [the_person.title]'s waist and pull her close to you."
@@ -598,31 +598,31 @@ label reserved_flirt_response_girlfriend(the_person):
                     the_person.char "Oh, a few things. Let's start with this..."
                     "She leans in and kisses you passionately while rubbing her body against you."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_66
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "Aw, you're going to make me wait? That's so cruel."
                     "You reach around and place a hand on [the_person.possessive_title]'s ass, rubbing it gently."
-                    "She sighs and bites her lip, then clears her thraot and glances around to see if anyone else noticed."
+                    "She sighs and bites her lip, then clears her throat and glances around to see if anyone else noticed."
                     the_person.char "I'll make sure to make it worth the wait, but let's take it easy while other people are around."
                     "You give her butt one last squeeze, then slide your hand off."
 
         else:
-            # the_person.char "Oh [the_person, mc_title], you're so sweet. Come on, kiss me!"
+            # the_person.char "Oh [the_person.mc_title], you're so sweet. Come on, kiss me!"
             "She smiles and sighs happily."
             the_person.char "Ahh, you're so sweet. Here..."
             "[the_person.possessive_title] leans in and kisses you. Her lips lingering against yours for a few long seconds."
             the_person.char "Was that nice? You're very nice to kiss."
             menu:
-                "Make out.":
+                "Make out":
                     "You respond by putting your arm around her waist and pulling her tight against you."
                     "You kiss her, and she eagerly grinds her body against you."
-                    call fuck_person(the_person, start_position = kissing, skip_intro = True) from _call_fuck_person_67
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    call fuck_person(the_person, start_position = kissing, private = False, skip_intro = True) from _call_fuck_person_67
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "It was very nice. I've got some other nice things for you to kiss too, if you'd like."
                     if the_person.effective_sluttiness("sucking_cock") >= 60 or the_person.get_opinion_score("giving blowjobs") > 0:
                         "She bites her lip and runs her eyes up and down your body."
@@ -640,14 +640,14 @@ label reserved_flirt_response_girlfriend(the_person):
         the_person.char "Oh, well thank you [the_person.mc_title]. I'm lucky to have you too."
         "[the_person.possessive_title] leans in and kisses you. Her lips linger against yours for a few seconds."
         menu:
-            "Kiss her more.":
+            "Kiss her more":
                 "You put your arm around her waist and pull her against you, returning her sensual kiss."
                 "She presses her body against you and hugs you back. Her hands run down your hips and grab at your ass as you make out."
                 call fuck_person(the_person, start_position = kissing, skip_intro = True) from _call_fuck_person_68
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
 
-            "Just flirt.":
+            "Just flirt":
                 "You reach around [the_person.title] and place a hand on her ass, rubbing it gently. She sighs and leans her body against you."
                 the_person.char "Mmm, that's nice... Maybe when we have some more time together we can take this further."
                 mc.name "That sounds like fun. I'm looking forward to it."
@@ -664,17 +664,17 @@ label reserved_flirt_response_affair(the_person):
             mc.name "And what would be so bad about that?"
             the_person.char "It would be so frustrating being in public and not being able to do anything to get my satisfaction."
             menu:
-                "Find someplace quiet.":
+                "Find someplace quiet":
                     mc.name "Then let's go find someplace that isn't public. Come on, follow me."
                     "[the_person.possessive_title] glances around, then follows behind you as you search for a quiet spot."
                     "Soon enough you find a place where you and [the_person.title] can be alone."
                     "Neither of you say anything as you put your hands around her and pull her into a tight embrace."
                     "You kiss her, slowly and sensually. She moans and presses her body against you in return."
                     call fuck_person(the_person, private = True, start_position = kissing, skip_intro = True) from _call_fuck_person_69
-                    $ the_report = _return
-                    $ the_person.call_dialogue("sex_review", the_report = the_report)
+                    $ the_person.call_dialogue("sex_review", the_report = _return)
+                    $ the_person.review_outfit()
 
-                "Just flirt.":
+                "Just flirt":
                     mc.name "Well that would just be cruel of me..."
                     "You put your arm around [the_person.possessive_title] and rest your hand on her ass."
                     mc.name "...If I got you all excited thinking about the next time I'm going to fuck you."
@@ -692,16 +692,16 @@ label reserved_flirt_response_affair(the_person):
         the_person.char "Oh is that so [the_person.mc_title]? Well, maybe you need to work out some of those naughty instincts..."
         "She stands close to you and runs her hand teasingly along your chest."
         menu:
-            "Feel her up.":
+            "Feel her up":
                 mc.name "That sounds like a good idea. Come here."
                 "You wrap your arms around [the_person.possessive_title]'s waist, resting your hands on her ass."
                 "Then you pull her tight against you, squeezing her tight butt. She sighs happily and starts to kiss your neck."
                 "You massage her ass for a moment, then spin her around and cup a tit with one hand. You move your other hand down to caress her inner thigh."
                 call fuck_person(the_person, private = True, start_position = standing_grope, skip_intro = True) from _call_fuck_person_70
-                $ the_report = _return
-                $ the_person.call_dialogue("sex_review", the_report = the_report)
+                $ the_person.call_dialogue("sex_review", the_report = _return)
+                $ the_person.review_outfit()
 
-            "Just flirt.":
+            "Just flirt":
                 mc.name "I want to, but I'm going to have to wait until we have more time together for that."
                 "Her hand moves lower down, brushing over your crotch and sending a brief shiver up your spine."
                 the_person.char "I understand. When we have the chance we'll take our time and really enjoy each other."
@@ -899,33 +899,34 @@ label reserved_sex_strip(the_person):
     return
 
 label reserved_sex_watch(the_person, the_sex_person, the_position):
+    $ title = the_person.title if the_person.title else "The stranger"
     if the_person.sluttiness < the_position.slut_requirement - 20:
         $ the_person.draw_person(emotion = "angry")
         the_person.char "Oh my god, I can't believe you're doing that here in front of everyone. Don't either of you have any decency?"
         $ the_person.change_obedience(-2)
         $ the_person.change_happiness(-1)
-        "[the_person.title] looks away while you and [the_sex_person.name] [the_position.verb]."
+        "[title] looks away while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement - 10:
         $ the_person.draw_person()
         $ the_person.change_happiness(-1)
-        "[the_person.title] shakes her head and tries to avoid watching you and [the_sex_person.name] [the_position.verb]."
+        "[title] shakes her head and tries to avoid watching you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness < the_position.slut_requirement:
         $ the_person.draw_person()
         $ change_report = the_person.change_slut_temp(1)
-        "[the_person.title] tries to avert her gaze, but keeps glancing over while you and [the_sex_person.name] [the_position.verb]."
+        "[title] tries to avert her gaze, but keeps glancing over while you and [the_sex_person.name] [the_position.verb]."
 
     elif the_person.sluttiness > the_position.slut_requirement and the_person.sluttiness < the_position.slut_cap:
         $ the_person.draw_person()
         the_person.char "Oh my..."
         $ change_report = the_person.change_slut_temp(2)
-        "[the_person.title] watches quietly while you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches quietly while you and [the_sex_person.name] [the_position.verb]."
 
     else:
         $ the_person.draw_person(emotion = "happy")
         the_person.char "Glad to see you two are having a good time. [the_person.mc_title], careful you aren't too rough with her."
-        "[the_person.title] watches quietly while you and [the_sex_person.name] [the_position.verb]."
+        "[title] watches quietly while you and [the_sex_person.name] [the_position.verb]."
     return
 
 label reserved_being_watched(the_person, the_watcher, the_position):
@@ -937,7 +938,7 @@ label reserved_being_watched(the_person, the_watcher, the_position):
 
     elif the_person.sluttiness >= the_position.slut_cap and the_watcher.sluttiness < the_position.slut_requirement:
         #She's super slutty and doesn't care what people think.
-        "[the_person.title] ignores [the_watcher.title] and keeps [the_position.verb] you."
+        "[the_person.title] ignores [the_watcher.title] and keeps [the_position.verbing] you."
 
     elif the_person.sluttiness >= the_position.slut_cap and the_watcher.sluttiness < the_position.slut_cap:
         #She's super slutty and encourages the watcher to be slutty.
@@ -1110,11 +1111,12 @@ label reserved_sex_beg_finish(the_person):
     return
 
 label reserved_sex_review(the_person, the_report):
-    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
     $ comment_position = the_person.pick_position_comment(the_report)
-
     if comment_position is None:
         return #You didn't actually do anything, no need to comment.
+
+    $ used_obedience = the_report.get("obedience_used", False) #True if a girl only tried a position because you ordered her to.
+    $ the_person.draw_person()  # make sure she stands up for talking with you
 
     #She's worried about her SO finding out because it was in public
     if the_report.get("was_public", False) and the_person.relationship != "Single" and the_person.get_opinion_score("cheating on men") <= 0: #It was public and she cares.
@@ -1146,6 +1148,19 @@ label reserved_sex_review(the_person, the_report):
             mc.name "Relax, nobody here cares what we were doing. It isn't a big deal."
             "She scowls, seeming unconvinced."
             the_person "I hope you're right. Can we find somewhere more private next time?"
+
+    # special condition - you fucked her brains out
+    elif the_report.get("girl orgasms", 0) > 2:
+        if used_obedience:
+            "[the_person.possessive_title] looks away, embarrassed by what she's done with you."
+            the_person "Are we done now? It was nice, but a little too much for me..."
+            mc.name "Really, so that multi-orgasmic train you were riding is your default setting?"
+            the_person "Well not that...perhaps we could give it another try, someday."
+        else:
+            "[the_person.possessive_title] looks away, embarrassed by her own actions."
+            the_person "Oh my...my apologies, it seems I lost control of myself."
+            mc.name "Don't worry, I really enjoyed giving you the time of your life."
+            the_person "Indeed, that was quite a feat, I didn't even know I could do that."
 
     #No special conditions, just respond based on how orgasmed and how slutty the position was.
     elif the_report.get("girl orgasms", 0) > 0 and the_report.get("guy orgasms", 0) > 0: #You both came
@@ -1203,7 +1218,7 @@ label reserved_sex_review(the_person, the_report):
 
         elif used_obedience: #She only did it because she was commanded
             the_person "Finished? Good."
-            "She looks away, embarassed by what you've just done."
+            "She looks away, embarrassed by what you've just done."
             mc.name "Yeah, all done for now."
 
         else:  # She's suprised she even tried that.
@@ -1213,7 +1228,7 @@ label reserved_sex_review(the_person, the_report):
 
     else: #Nobody came.
         if the_person.effective_sluttiness() > comment_position.slut_cap: #She's sluttier than the position
-            the_person "That's all? Well, that's a little dissapointing. I was just getting excited."
+            the_person "That's all? Well, that's a little disappointing. I was just getting excited."
             the_person "Make it up to me next time, okay?"
             mc.name "Yeah, sure thing."
 
@@ -1230,6 +1245,10 @@ label reserved_sex_review(the_person, the_report):
 
         else:  # She's suprised she even tried that.
             the_person "You're right, we should stop. I'm getting far too excited, I might do something I regret."
+
+    # Gave creampie while she is not on birth control (extra dialog when she could get pregnant)
+    if the_report.get("creampies", 0) > 0 and not the_person.on_birth_control and not the_person.event_triggers_dict.get("preg_knows", False):
+        the_person "Oh [the_person.mc_title], you should really be more careful, I could get pregnant."
     return
 
 
@@ -1254,7 +1273,7 @@ label reserved_kissing_taboo_break(the_person):
     else:
         the_person.char "I don't know if this is a good idea [the_person.mc_title]..."
         mc.name "Let's just see how it feels. Trust me."
-        "[the_person.title] eyes you warely, but you watch her resolve break down."
+        "[the_person.title] eyes you warily, but you watch her resolve break down."
         the_person.char "Okay... Just one kiss, to start."
     return
 
@@ -1575,7 +1594,11 @@ label reserved_body_cum_taboo_break(the_person):
 
 label reserved_creampie_taboo_break(the_person):
     if the_person.wants_creampie():
-        if the_person.on_birth_control:
+        if the_person.event_triggers_dict.get("preg_knows", False):
+            the_person.char "Ah yes, I love getting your cum deep inside me."
+            "She sighs happily."
+
+        elif the_person.on_birth_control:
             if the_person.relationship != "Single":
                 $ so_title = girl_relationship_to_title(the_person.relationship)
                 the_person.char "Oh... I feel like such a bad [so_title], but I think I needed this. I'm sure he would understand."
@@ -1607,6 +1630,9 @@ label reserved_creampie_taboo_break(the_person):
             the_person.char "I'll just have to hope you haven't gotten me pregnant. We shouldn't do this again, it's too risky."
 
     else:
+        if the_person.event_triggers_dict.get("preg_knows", False):
+            the_person.char "Oh my, did you just shoot your cum deep inside me."
+
         if not the_person.on_birth_control:
             the_person.char "Oh no, did you just finish [the_person.mc_title]?"
             "She sighs unhappily."

@@ -1,7 +1,7 @@
 ﻿#Aunt Role Action Requirements
 init -2 python:
     def aunt_intro_requirement(day_trigger):
-        if day >= day_trigger and time_of_day == 4:
+        if day >= day_trigger and day%7!=4 and time_of_day == 4:
             return True
         return False
 
@@ -16,16 +16,16 @@ init -2 python:
     def aunt_intro_moving_apartment_requirement(the_person):
         if aunt.event_triggers_dict.get("moving_apartment",-1) >= 0:
             if aunt.event_triggers_dict.get("moving_apartment") >= 4:
-                return "Everything has already been moved."
+                return "Everything has already been moved"
 
             elif time_of_day == 0:
-                return "Too early in the day to start moving."
+                return "Too early to start moving"
 
             elif time_of_day == 4:
-                return "Too late in the day to start moving."
+                return "Too late to start moving"
 
             elif aunt.event_triggers_dict.get("day_of_last_move",-1) == day:
-                return "Too tired to move anything more today."
+                return "Already moved today"
 
             else:
                 return True
@@ -49,9 +49,9 @@ init -2 python:
         elif the_person not in aunt_apartment.people:
             return False
         elif time_of_day < 3:
-            return "Too early for drinks."
+            return "Too early for drinks"
         elif time_of_day > 3:
-            return "Too late for drinks."
+            return "Too late for drinks"
         else:
             return True
 
@@ -85,12 +85,47 @@ init -2 python:
         else:
             return True
 
+    def add_aunt_intro_phase_two_action():
+        aunt_intro_phase_two = Action("Aunt introduction phase two", aunt_intro_phase_two_requirement, "aunt_intro_phase_two_label")
+        mc.business.mandatory_morning_crises_list.append(aunt_intro_phase_two) #Aunt and cousin will be visiting tomorrow in the morning
+        return
 
+    def add_aunt_phase_three_action():
+        aunt.home.move_person(aunt, hall)
+        aunt.set_schedule(hall, times = [0,1,2,3,4])
 
+        aunt_intro_phase_three = Action("aunt_intro_phase_three", aunt_intro_phase_three_requirement, "aunt_intro_phase_three_label", requirement_args = day + renpy.random.randint(18,24))
+        mc.business.mandatory_morning_crises_list.append(aunt_intro_phase_three)
+        return
+
+    def add_cousin_phase_one_action():
+        cousin.home.move_person(cousin,lily_bedroom)
+        cousin.set_schedule(lily_bedroom, times = [0,4])
+        cousin.set_schedule(None, times = [1,2,3])
+
+        cousin_intro_phase_one = Action("cousin_intro_phase_one", cousin_intro_phase_one_requirement, "cousin_intro_phase_one_label", requirement_args = day + renpy.random.randint(2,5))
+        mc.business.mandatory_crises_list.append(cousin_intro_phase_one)
+        return
+
+    def add_aunt_moving_actions():
+        aunt.event_triggers_dict["moving_apartment"] = 0 #If it's a number it's the number of times you've helped her move. If it doesn't exist or is negative the event isn't enabled
+        moving_finished_action = Action("Moving finished", aunt_intro_phase_five_requirement, "aunt_intro_phase_final_label", requirement_args = day + 7)
+        mc.business.mandatory_morning_crises_list.append(moving_finished_action)
+        return
+
+    def add_cousin_at_house_phase_one_action():
+        cousin_at_house_phase_one_action = Action("Cousin changes schedule", cousin_house_phase_one_requirement, "cousin_house_phase_one_label", args = cousin, requirement_args = day+renpy.random.randint(2,5))
+        mc.business.mandatory_crises_list.append(cousin_at_house_phase_one_action) #This event changes the cousin's schedule so she shows up at your house.
+        return
+
+    def add_aunt_share_drink_intro():
+        aunt_share_drink_intro = Action("Aunt drink intro", aunt_drink_intro_requirement, "aunt_share_drink_intro_label")
+        aunt.on_talk_event_list.append(aunt_share_drink_intro)
+        return
 
 ###AUNT ACTION LABELS###
 label aunt_intro_label():
-    #NOTE: Doesn't technically countain the aunt, but intoduces the concept of her when she appears the next day
+    #NOTE: Doesn't technically contain the aunt, but introduces the concept of her when she appears the next day
     $ bedroom.show_background()
     mom.char "Hey [mom.mc_title], do you have a moment?"
     $ mom.draw_person()
@@ -107,7 +142,7 @@ label aunt_intro_label():
     mom.char "That's so nice to hear [mom.mc_title], thank you. [cousin.possessive_title] will be sharing [lily.title]'s room with her and [aunt.title] will be on the couch in the living room."
     mom.char "They're going to be here in the morning. If you have a few minutes, could you help me pull out some sheets and get their beds made?"
     menu:
-        "Help [mom.possessive_title] set up.":
+        "Help [mom.possessive_title] set up":
             mc.name "Sure, let's go get it done."
             $ mom.change_happiness(3)
             $ mom.change_love(2)
@@ -124,7 +159,7 @@ label aunt_intro_label():
 
 
 
-        "Make [lily.possessive_title] do it.":
+        "Make [lily.possessive_title] do it":
             mc.name "Sorry [mom.title], I've got an early morning tomorrow and really need to get to bed. I think [lily.title]'s free though."
             $ lily.change_obedience(2)
             $ lily.change_love(-1)
@@ -132,8 +167,7 @@ label aunt_intro_label():
             "[mom.possessive_title] gives you one last smile as she closes your door. You hear her talking to your sister outside while you get ready for bed."
 
     $ clear_scene()
-    $ aunt_intro_phase_two = Action("Aunt introduction phase two", aunt_intro_phase_two_requirement, "aunt_intro_phase_two_label")
-    $ mc.business.mandatory_morning_crises_list.append(aunt_intro_phase_two) #Aunt and cousin will be visiting tomorrow in the morning
+    $ add_aunt_intro_phase_two_action()
     return
 
 label aunt_intro_phase_two_label():
@@ -202,24 +236,10 @@ label aunt_intro_phase_two_label():
     "[aunt.possessive_title] finds her purse, pulls out her wallet, and hands you and [lily.possessive_title] $20."
     aunt.char "Now I think your mother wanted to talk with me. I'm sure you both have busy days, so don't let me keep you!"
     #Their temporary homes are at your place. Later we will restore them to their normal homes.
-    python:
-        aunt.home.move_person(aunt, hall)
-        aunt.home = hall
-        cousin.home.move_person(cousin,lily_bedroom)
-        cousin.home = lily_bedroom
-
-        aunt.set_schedule(aunt.home, times = [0,1,2,3,4]) #Hide them in their bedroom off the map until they're ready.
-        cousin.set_schedule(cousin.home, times = [0,1,2,3,4])
-
-        #Your aunt is a homebody, but your cousin goes wandering during the day (Eventually to be repalced with going to class sometimes.)
-        cousin.set_schedule(None, times = [1,2,3])
-
-    $ aunt_intro_phase_three = Action("aunt_intro_phase_three", aunt_intro_phase_three_requirement, "aunt_intro_phase_three_label", requirement_args = day + renpy.random.randint(6,10))
-    $ mc.business.mandatory_morning_crises_list.append(aunt_intro_phase_three)
-
-    $ cousin_intro_phase_one = Action("cousin_intro_phase_one", cousin_intro_phase_one_requirement, "cousin_intro_phase_one_label", requirement_args = day + renpy.random.randint(2,5))
-    $ mc.business.mandatory_crises_list.append(cousin_intro_phase_one)
+    $ add_aunt_phase_three_action()
+    $ add_cousin_phase_one_action()
     $ clear_scene()
+    $ the_group = None
     return
 
 label aunt_intro_phase_three_label():
@@ -244,11 +264,8 @@ label aunt_intro_phase_three_label():
     aunt.char "Well, never mind that. Thank you."
     "She leans in, gives you a warm, familial hug, and then leaves you to get on with your day."
     $ clear_scene()
-    $ aunt.event_triggers_dict["moving_apartment"] = 0 #If it's a number it's the number of times you've helped her move. If it doesn't exist or is negative the event isn't enabled
 
-    $ moving_finished_action = Action("Moving finished", aunt_intro_phase_five_requirement, "aunt_intro_phase_final_label", requirement_args = day + 7)
-    $ mc.business.mandatory_morning_crises_list.append(moving_finished_action)
-
+    $ add_aunt_moving_actions()
     return
 
 label aunt_intro_moving_apartment_label(the_person):
@@ -274,13 +291,13 @@ label aunt_intro_moving_apartment_label(the_person):
         mc.name "Your mom's going to rent a truck. I'm helping you guys move your stuff over to your new place."
         cousin.char "Why?"
         menu:
-            "Because it's a nice thing to do.":
+            "Because it's a nice thing to do":
                 mc.name "Because it's a nice thing to do, that's all."
 
-            "Because I want to impress her.":
+            "Because I want to impress her":
                 mc.name "Because I want to make a good impression. I want her to like me."
 
-            "Because I'm hoping she'll pay me.":
+            "Because I'm hoping she'll pay me":
                 mc.name "Because I'm hoping when we're done she'll pay me for the help."
 
         cousin.char "That's dumb, but whatever."
@@ -333,14 +350,14 @@ label aunt_intro_moving_apartment_label(the_person):
         $ aunt.change_happiness(5)
         $ aunt.change_love(1)
         menu:
-            "Offer to help.":
+            "Offer to help":
                 mc.name "Here, let me help with that. Just tell me where to put things."
                 $ aunt.change_love(1)
                 aunt.char "My sister raised such a perfect gentleman! Here, this goes in the top drawer over there."
                 "You clear out a couple of boxes, putting away shirts, skirts, and pants for [aunt.title]. [aunt.possessive_title] reaches for the last box, marked \"Private,\" then hesitates."
                 aunt.char "I can go through this one myself. It's all my underwear and that's probably the last thing you want to be digging through."
                 mc.name "We're both adults, it's no big deal."
-                "[aunt.possessive_title] shrugs, opens the box, and starts to sort through it. She hands you a pile of colourful panties."
+                "[aunt.possessive_title] shrugs, opens the box, and starts to sort through it. She hands you a pile of colorful panties."
                 aunt.char "Okay, put these in that drawer on the left..."
                 "You slide the garments into their drawer. Next [aunt.title] hands you a stack of lacey bras and small thongs."
                 aunt.char "This goes to the side... and then... Oh my."
@@ -358,7 +375,7 @@ label aunt_intro_moving_apartment_label(the_person):
                 aunt.char "You know what, keep all this stuff near the front. Maybe I'll get a chance to wear it for someone who'll appreciate it."
                 "You put away [aunt.title]'s sexy underwear and finish your work for the day."
 
-            "Take a break.":
+            "Take a break":
                 mc.name "Alright, I'm going to go get a glass of water and catch my breath."
                 aunt.char "Go ahead, you've certainly earned it!"
                 $ aunt.change_obedience(1)
@@ -403,7 +420,7 @@ label aunt_intro_moving_apartment_label(the_person):
         cousin.char "Don't touch my stuff."
         $ clear_scene()
         menu:
-            "Touch her stuff.":
+            "Touch her stuff":
                 "She's not the boss of you. You wait a couple of minutes then start snooping around."
                 "Most of the boxes are clearly labeled, but you find one that just says \"Keep Out!\" on the side."
                 "You open the box and find it filled with all of [cousin.title]'s underwear, all black, purple, or blue."
@@ -422,13 +439,13 @@ label aunt_intro_moving_apartment_label(the_person):
                 "[cousin.title] gives you a strange, mischievous smile."
                 cousin.char "Do you want to see me try some of it on? I won't tell anyone."
                 menu:
-                    "Yes.":
+                    "Yes":
                         "You nod your head. [cousin.title] laughs."
                         $ cousin.change_happiness(10)
                         $ cousin.change_slut_temp(1)
                         cousin.char "Ha! You wish you pervert. Now get out of here before I tell my mom."
 
-                    "No.":
+                    "No":
                         mc.name "What? No, you're being weird now."
                         "She shrugs."
                         cousin.char "Your loss. You'll just have to imagine it now. Now get out of here before I tell my mom you're digging through my things."
@@ -436,7 +453,7 @@ label aunt_intro_moving_apartment_label(the_person):
                 "You get up off of [cousin.title]'s bed and leave."
 
 
-            "Don't touch her stuff.":
+            "Don't touch her stuff":
                 "Not wanting to bring down [cousin.title]'s wrath, you focus on bringing up the rest of the boxes from the car."
                 "Twenty minutes later, [aunt.title] and [cousin.title] come back just after you're done moving the last box."
                 $ cousin.draw_person()
@@ -453,7 +470,7 @@ label aunt_intro_moving_apartment_label(the_person):
 
 
     elif aunt.event_triggers_dict.get("moving_apartment") == 3:
-        #You help them move their kitcehn stuff in. Your aunt gets dirty/sweaty and wants to chance now that her clothes are here. She asks you to wait around whlie hse takes a shower, then
+        #You help them move their kitchen stuff in. Your aunt gets dirty/sweaty and wants to chance now that her clothes are here. She asks you to wait around while she takes a shower, then
         #the landlord shows up and needs some documents from her, so you have to come into her bathroom and get a chance to see her naked/just in her underwear or something.
         #mc.name "Okay, I'm going to get a drink and catch my breath."
         #$ clear_scene()
@@ -483,7 +500,7 @@ label aunt_intro_moving_apartment_label(the_person):
         "Pizza Guy" "Hey, this is for you. One large."
         "He hands it over, then waits for you to pay."
         menu:
-            "Pay for the pizza.\n-$25" if mc.business.funds >= 25:
+            "Pay for the pizza\n{color=#ff0000}{size=18}Costs: $25{/size}{/color}" if mc.business.funds >= 25:
                 mc.name "Thanks, here you go."
                 $ mc.business.funds += -25
                 "Pizza Guy" "Thanks man, enjoy."
@@ -493,15 +510,16 @@ label aunt_intro_moving_apartment_label(the_person):
                 $ aunt.change_love(1)
                 aunt.char "Well thank you. Give me a slice of that, I'm starving now too!"
 
-            "Pay for the pizza.\n-$25 (disabled)" if mc.business.funds < 25:
+            "Pay for the pizza\n{color=#ff0000}{size=18}Not enough money{/size}{/color} (disabled)" if mc.business.funds < 25:
                 pass
 
-            "Get the money from [aunt.title].":
+            "Get the money from [aunt.title]":
                 mc.name "Thanks, I just have to get the money. One sec."
                 "The pizza guy nods and hangs out in the doorway while you head to the bathroom door and knock."
                 aunt.char "Hmm? What is it?"
                 mc.name "The pizza guy's here."
                 aunt.char "Oh! I didn't think he would be here so soon! Just, uh... just come in and get it, it's in my purse."
+                $ home_bathroom.show_background()
                 "You open the door to the bathroom. [aunt.possessive_title]'s shower has a clear glass door that doesn't hide anything. She turns away as you come in."
                 $ aunt.apply_outfit(Outfit("Nude"))
                 #$ aunt.outfit = default_wardrobe.get_outfit_with_name("Nude 1") changed v0.24.1
@@ -509,6 +527,7 @@ label aunt_intro_moving_apartment_label(the_person):
                 $ aunt.change_slut_temp(2)
                 aunt.char "It's right over there. Just grab it and go."
                 "She nods her head towards her purse. You hurry inside, grab it, then retreat. You pull the cash out of her wallet and give it to the pizza guy."
+                $ mc.location.show_background()
                 $ clear_scene()
                 "Pizza Guy" "Thanks man, enjoy."
                 $ aunt.apply_outfit()
@@ -522,6 +541,7 @@ label aunt_intro_moving_apartment_label(the_person):
 
     $ aunt.event_triggers_dict["moving_apartment"] += 1
     $ aunt.event_triggers_dict["day_of_last_move"] = day
+    $ the_group = None
     call advance_time() from _call_advance_time_16
     return
 
@@ -559,7 +579,7 @@ label aunt_intro_phase_final_label():
         $ the_group.draw_person(mom, position = "sitting", emotion = "happy")
         $ mom.change_love(3)
         $ mom.change_happiness(8)
-        mom.char "[aunt.title] has been telling me all morning how helpful you've been. I'm so proud of you [mom.mc_title].:"
+        mom.char "[aunt.title] has been telling me all morning how helpful you've been. I'm so proud of you [mom.mc_title]."
         $ the_group.draw_person(aunt, position = "sitting", emotion = "happy")
         aunt.char "He was a godsend, he really was."
 
@@ -596,22 +616,17 @@ label aunt_intro_phase_final_label():
         aunt_apartment.visible = True
         cousin_bedroom.visible = True
 
-        aunt.set_schedule(aunt.home, times = [0,1,2,3,4]) #Hide them in their bedroom off the map until they're ready.
-        cousin.set_schedule(cousin.home, times = [0,1,2,3,4])
+        #Your aunt is a homebody, but your cousin goes wandering during the day (Eventually to be replaced with going to class sometimes.)
+        aunt.set_schedule(aunt.home, times = [0, 1, 4])
+        aunt.set_schedule(aunt_apartment, times = [2, 3])
 
-        #Your aunt is a homebody, but your cousin goes wandering during the day (Eventually to be repalced with going to class sometimes.)
-        aunt.set_schedule(aunt_apartment, times = [2,3])
+        cousin.set_schedule(cousin.home, times = [0, 4])
+        cousin.set_schedule(None, times = [1, 2, 3])
 
-        cousin.set_schedule(None, times = [1,2,3])
+        add_cousin_at_house_phase_one_action()
 
-        cousin_at_house_phase_one_action = Action("Cousin changes schedule", cousin_house_phase_one_requirement, "cousin_house_phase_one_label", args = cousin, requirement_args = day+renpy.random.randint(2,5))
-        mc.business.mandatory_crises_list.append(cousin_at_house_phase_one_action) #This event changes the cousin's schedule so she shows up at your house.
-
-        cousin_at_house_phase_two_action = Action("Cousin at house", cousin_house_phase_two_requirement, "cousin_house_phase_two_label")
-        cousin.on_room_enter_event_list.append(cousin_at_house_phase_two_action)
-
-        aunt_share_drink_intro = Action("Aunt drink intro", aunt_drink_intro_requirement, "aunt_share_drink_intro_label")
-        aunt.on_talk_event_list.append(aunt_share_drink_intro)
+        add_aunt_share_drink_intro()
+        the_group = None
     return
 
 
@@ -645,19 +660,19 @@ label aunt_share_drinks_label(the_person):
     "[the_person.possessive_title] takes a sip, then leans back on the couch. She crosses her legs and turns to you."
     the_person.char "So what's been going on with your life? It's been so long!"
     menu:
-        "Talk about work.":
+        "Talk about work":
             mc.name "Well, work's been keeping me busy lately..."
             "You talk to [the_person.possessive_title] about your work. She nods politely but doesn't understand most of it."
             $ the_person.change_obedience(1)
             the_person.char "It sounds like you're a very important person, doing some very important work. I'm proud of you [the_person.mc_title]"
 
-        "Talk about girls.":
+        "Talk about girls":
             mc.name "Well, I've been trying to meet someone lately..."
             "You talk to [the_person.possessive_title] about your love life. She listens intently."
             $ the_person.change_slut_temp(1)
             the_person.char "I've always thought it's important to be adventurous. You might connect with someone you wouldn't expect."
 
-        "Talk about her.":
+        "Talk about her":
             mc.name "Oh, it's been pretty quiet lately. What about you? I know you've been through a lot."
             "You get [the_person.possessive_title] talking about herself. She tells you about her failed marriage."
             $ the_person.change_love(1)
@@ -668,7 +683,7 @@ label aunt_share_drinks_label(the_person):
     "[the_person.title] finishes off the last of her wine."
     the_person.char "Well that was a lovely chat [the_person.mc_title]. I won't keep you here any longer."
     menu:
-        "Convince her to have another glass.":
+        "Convince her to have another glass":
             mc.name "It's really no trouble. I can go pour you another glass, if you'd like."
             if the_person.love >= 20: #Can be convinced
                 the_person.char "Oh, I really shouldn't. It's getting a little late, you probably have important places to be..."
@@ -676,17 +691,19 @@ label aunt_share_drinks_label(the_person):
                 the_person.char "Okay, okay, you've twisted my arm. I'm not to blame for any of my actions beyond this point though!"
                 "She hands you her glass and you head to the kitchen to uncork her bottle of wine."
                 menu:
-                    "Add a dose of serum to her wine.":
+                    "Add a dose of serum to her wine" if mc.inventory.get_any_serum_count() > 0:
                         call give_serum(the_person) from _call_give_serum_13
 
-                    "Leave her drink alone.":
+                    "Add a dose of serum to her wine\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
+                        pass
+
+                    "Leave her drink alone":
                         pass
                 "You top up your own drink while you're in the kitchen and head back to [the_person.title]. You hand over her new drink and sit down."
                 the_person.char "Now, where were we..."
                 "You and [the_person.possessive_title] keep talking. After her first glass she seems more relaxed, and the second one is already having its effect."
-                $ the_person.add_situational_slut("Drunk", 20, "More than a little tipsy.")
-                $ decision_score = the_person.sluttiness + renpy.random.randint(0,25) #Her choice in this check is up to 25 points more slutty than she is.
-                if decision_score <= 35:
+                $ the_person.add_situational_slut("Drunk", 10, "More than a little tipsy.")
+                if the_person.sluttiness <= 35:
                     # She talks about her ex and then falls asleep.
                     "As [the_person.title] gets deeper into her drink she starts to rant about her now ex-husband."
                     the_person.char "I don't even know what he saw in that little skank... You've never seen her, but she was this flat chested little thing."
@@ -697,19 +714,20 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "Oh, this wine really has just knocked me out. I'm just going to... rest my eyes while we talk, okay?"
                     "She closes her eyes and leans her head back on the arm rest. She manages a few minutes of mumbled conversation before falling asleep completely."
                     menu:
-                        "Get her a blanket.":
+                        "Get her a blanket":
                             "You go to [the_person.title]'s room and take the blanket off her bed."
                             "You lay the blanket over [the_person.possessive_title]. She grabs onto it and rolls over, mumbling something you can't understand."
                             $ the_person.change_love(2)
                             "You take your wine glasses to the kitchen and leave them in the sink, then see yourself out."
 
-                        "Grope her tits.":
+                        "Grope her tits":
                             "Seizing the opportunity, you kneel down in front of [the_person.possessive_title]."
                             if the_person.outfit.tits_available():
                                 "Her nicely shaped breasts are already there for the taking. You move slowly and cup them in your hands."
                             else:
                                 $ the_clothing = the_person.outfit.get_upper_top_layer()
                                 "You move slowly and cup her nicely shaped breasts, feeling them through her [the_clothing.name]."
+                                $ the_clothing = None
                             the_person.char "Mmm..."
                             "[the_person.possessive_title] moans softly and tilts her head to the side."
                             $ the_person.change_slut_temp(2)
@@ -718,7 +736,7 @@ label aunt_share_drinks_label(the_person):
                             mc.name "No problem, I'll clean up our glasses and head out."
                             "She rolls over on the couch and is asleep again before you're out the door."
 
-                        "Grope her pussy.":
+                        "Grope her pussy":
                             "Seizing the opportunity, you kneel down in front of [the_person.possessive_title]."
                             if the_person.outfit.vagina_available():
                                 "Her pussy is out on display for you, there for the taking. You move slowly and slide your hand along her inner thigh, working upward."
@@ -726,6 +744,7 @@ label aunt_share_drinks_label(the_person):
                                 $ the_clothing = the_person.outfit.get_lower_top_layer()
                                 "You move slowly, sliding your hand along her inner thigh and working upward."
                                 "When you reach her waist, you slide your hand inside of her [the_clothing.name]."
+                                $ the_clothing = None
 
                             if mc.sex_skills["Foreplay"] >= 3:
                                 the_person.char "Mmm..."
@@ -743,7 +762,7 @@ label aunt_share_drinks_label(the_person):
                             mc.name "No problem, I'll clean up our glasses and head out."
                             "She rolls over on the couch and is asleep again before you're out the door."
 
-                elif decision_score <= 45:
+                elif the_person.sluttiness <= 45:
                     # She talks to you about stuff she finds sexy. Reveal a sex opinion
                     "[the_person.title] talks more about herself, and it seems like being a little drunk seems to have removed any inhibitions she might have had."
                     $ her_opinion = the_person.get_random_opinion(include_known = False, include_sexy = True, include_normal = False)
@@ -763,7 +782,7 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "That's a good boy. Now I think I should stop drinking this wine while I still can. It was nice talking, come by any time and we can do it again."
                     "She walks you to the door and you say goodbye."
 
-                elif decision_score <= 55:
+                elif the_person.sluttiness <= 55:
                     # She wants your opinion on some outfits
                     the_person.char "So [the_person.mc_title], now that I'm back on the market I think I need your help with something."
                     mc.name "With what?"
@@ -771,12 +790,11 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "Would you help me? It'll just take a few minutes."
                     mc.name "Of course. Come on, show me what you've got."
                     "She smiles, drinks the last of her wine, and leads you into her bedroom."
-                    call change_location(aunt_bedroom) from _call_change_location_1 #Changbe our location so that the background is correct,
+                    call change_location(aunt_bedroom) from _call_change_location_1 #Change our location so that the background is correct,
                     the_person.char "Okay, so here's what I have to work with. Tell me what you think."
                     "She opens her wardrobe and stands back, giving you room to look around."
                     call outfit_master_manager() from _call_outfit_master_manager_10
-                    #call screen outfit_creator(Outfit("New Outfit"))
-                    if _return:
+                    if _return != "Not_New":
                         $ created_outfit = _return
                         "You pull out a few pieces of clothing and lay them out on [the_person.possessive_title]'s bed."
                         "She looks at the outfit you've laid out for her and seems to think for a second."
@@ -802,9 +820,10 @@ label aunt_share_drinks_label(the_person):
                             mc.name "Of course not."
                             $ the_person.change_slut_temp(2)
                             the_person.char "I didn't think so. Just don't tell my sister."
-                            $ strip_list = the_person.outfit.get_full_strip_list()
-                            $ generalised_strip_description(the_person, strip_list)
 
+                            $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
+
+                            $ strip_choice = None
                             "Once she's stripped out of her clothing, [the_person.possessive_title] puts on the outfit you've made for her."
                             $ the_person.apply_outfit(created_outfit, update_taboo = True)
                             #$ the_person.outfit = created_outfit.get_copy() changed v0.24.1
@@ -824,22 +843,21 @@ label aunt_share_drinks_label(the_person):
                                 the_person.char "What about my ass? Does it look good?"
 
                             menu:
-                                "Add it to her wardrobe.":
+                                "Add it to her wardrobe":
                                     mc.name "It looks really good on you. You should wear it more often."
                                     the_person.char "You really think so? Okay then, that's why I wanted your opinion in the first place!"
                                     $ the_person.change_obedience(2)
                                     $ the_person.draw_person()
                                     $ the_person.wardrobe.add_outfit(created_outfit)
-                                "Don't add it to her wardrobe.":
+                                "Don't add it to her wardrobe":
                                     mc.name "Now that I'm seeing it, I don't think it really suits you."
                                     the_person.char "That's a shame. Well, that's why I wanted your opinion in the first place!"
                                     $ the_person.change_obedience(1)
                                     "[the_person.title] starts to get naked again to put on her old outfit."
 
-                                    $ strip_list = the_person.outfit.get_full_strip_list()
-                                    $ generalised_strip_description(the_person, strip_list)
-                                    $ the_person.apply_outfit(the_person.planned_outfit)
-                                    #$ the_person.outfit = the_person.planned_outfit.get_copy() changed v0.24.1
+                                    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
+                                    $ strip_choice = None
+                                    $ the_person.apply_outfit()
                                     $ the_person.draw_person()
                             the_person.char "This was really fun [the_person.mc_title], but I think that extra glass of wine is starting to get to me."
                             "She yawns dramatically and lies down on her bed."
@@ -867,7 +885,7 @@ label aunt_share_drinks_label(the_person):
                             "She sits down on her bed and sighs."
                             the_person.char "I think I just need to have a rest. You can help me out with this some other day, okay?"
                             "[the_person.title] lies down and seems to be drifting off to sleep almost instantly. You say goodbye and head to the door."
-
+                        $ created_outfit = None
 
                     else:
                         mc.name "Sorry [the_person.title], I don't have any ideas right now."
@@ -880,7 +898,7 @@ label aunt_share_drinks_label(the_person):
                     $ clear_scene()
                     call change_location(aunt_apartment) from _call_change_location_3
 
-                elif decision_score <= 65:
+                elif the_person.sluttiness <= 65:
                     # She wants your opinion about some underwear
                     the_person.char "So [the_person.mc_title], since you're here I could use some help with something. It's a little... delicate."
                     mc.name "What do you need?"
@@ -888,18 +906,17 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "I've got plenty of lingerie, but I need to know what looks good on me. Can I trust you to give me an honest opinion?"
                     mc.name "Of course, I'll tell you exactly what I think."
                     "She smiles, drinks the last of her wine, and leads you into her bedroom."
-                    call change_location(aunt_bedroom) from _call_change_location_2 #Changbe our location so that the background is correct,
+                    call change_location(aunt_bedroom) from _call_change_location_2 #Change our location so that the background is correct,
                     the_person.char "Okay, so I have a few things I want your opinion on. You just tell me what looks good and what I should keep around."
                     "She starts to strip down, then pauses and looks at you."
                     the_person.char "Don't tell my sister I'm doing this with you. We're both adults, but I don't think she'd understand."
                     "She rolls her eyes and keeps going."
                     $ the_person.change_slut_temp(1)
 
-                    $ strip_list = the_person.outfit.get_full_strip_list()
-                    $ generalised_strip_description(the_person, strip_list)
+                    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
                     the_person.char "Okay, first one."
-                    $ lingerie = default_wardrobe.get_random_appropriate_underwear(the_person.sluttiness, the_person.sluttiness-30, guarantee_output = True)
+                    $ lingerie = default_wardrobe.get_random_appropriate_underwear(the_person.sluttiness - 10, the_person.sluttiness - 40, guarantee_output = True)
                     $ the_person.apply_outfit(lingerie, update_taboo = True)
                     #$ the_person.outfit = lingerie.get_copy() changed v0.24.1
                     $ the_person.draw_person()
@@ -907,22 +924,21 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "Okay, what do you think? Keep or toss?"
                     $ the_person.draw_person(position="back_peek")
                     menu:
-                        "Add it to her wardrobe.":
+                        "Add it to her wardrobe":
                             mc.name "Keep, definitely."
                             $ the_person.draw_person()
                             the_person.char "Okay, keep it is! Let's see what's up next..."
                             $ the_person.wardrobe.add_underwear_set(lingerie)
-                        "Don't add it to her wardrobe.":
+                        "Don't add it to her wardrobe":
                             mc.name "Toss, I think you can do better."
                             $ the_person.draw_person()
                             the_person.char "I think so too. Let's see what's up next..."
 
                     $ the_person.change_slut_temp(1)
 
-                    $ strip_list = the_person.outfit.get_full_strip_list()
-                    $ generalised_strip_description(the_person, strip_list)
+                    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
-                    $ lingerie = default_wardrobe.get_random_appropriate_underwear(the_person.sluttiness, the_person.sluttiness-25, guarantee_output = True)
+                    $ lingerie = default_wardrobe.get_random_appropriate_underwear(the_person.sluttiness - 5, the_person.sluttiness - 35, guarantee_output = True)
                     $ the_person.apply_outfit(lingerie, update_taboo = True)
                     #$ the_person.outfit = lingerie.get_copy() changed v0.24.1
                     $ the_person.draw_person()
@@ -930,20 +946,19 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "What about this one? Keep or toss?"
                     $ the_person.draw_person(position="back_peek")
                     menu:
-                        "Add it to her wardrobe.":
+                        "Add it to her wardrobe":
                             mc.name "Keep."
                             $ the_person.draw_person()
                             the_person.char "We've got a winner! Okay, one more..."
                             $ the_person.wardrobe.add_underwear_set(lingerie)
-                        "Don't add it to her wardrobe.":
+                        "Don't add it to her wardrobe":
                             mc.name "Toss."
                             $ the_person.draw_person()
                             the_person.char "Tough customer. Okay, one more..."
 
                     $ the_person.change_slut_temp(1)
 
-                    $ strip_list = the_person.outfit.get_full_strip_list()
-                    $ generalised_strip_description(the_person, strip_list)
+                    $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
                     $ lingerie = default_wardrobe.get_random_appropriate_underwear(the_person.sluttiness, the_person.sluttiness-20, guarantee_output = True)
                     $ the_person.apply_outfit(lingerie, update_taboo = True)
@@ -953,17 +968,17 @@ label aunt_share_drinks_label(the_person):
                     $ the_person.draw_person(position="back_peek")
                     the_person.char "Well?"
                     menu:
-                        "Add it to her wardrobe.":
+                        "Add it to her wardrobe":
                             mc.name "Keep it."
                             $ the_person.draw_person()
                             the_person.char "I thought you'd like this one. Okay, I'll hold onto it!"
                             $ the_person.wardrobe.add_underwear_set(lingerie)
-                        "Don't add it to her wardrobe.":
+                        "Don't add it to her wardrobe":
                             mc.name "Toss it, you've got nice stuff you could wear."
                             $ the_person.draw_person()
                             the_person.char "Yeah, I think you're right. Let's get this off then!"
-                            $ strip_list = the_person.outfit.get_full_strip_list()
-                            $ generalised_strip_description(the_person, strip_list)
+
+                            $ generalised_strip_description(the_person, the_person.outfit.get_full_strip_list())
 
                     $ the_person.change_love(2)
                     $ the_person.change_slut_temp(2)
@@ -972,11 +987,11 @@ label aunt_share_drinks_label(the_person):
                     the_person.char "Stop by again sometime soon though, we can do this again."
                     mc.name "Sure thing [the_person.title], I'll be by again soon."
 
-
                     $ clear_scene()
+                    $ del lingerie
                     call change_location(aunt_apartment) from _call_change_location_4
                     # Same as above but she strips down and asks you for underwear sets.
-                elif decision_score <= 75:
+                elif the_person.sluttiness <= 75:
                     # She wants to strip for you.
                     the_person.char "[the_person.mc_title], does it feel warm in here or is it just me?"
                     "[the_person.title] takes a sip from her glass of wine and stands up."
@@ -988,14 +1003,15 @@ label aunt_share_drinks_label(the_person):
                         mc.name "No, go right ahead."
                         if the_person.outfit.remove_random_lower(do_not_remove = True):
                             $ strip_choice = the_person.outfit.remove_random_lower(top_layer_first = True, do_not_remove = True)
-                            $ the_person.draw_animated_removal(strip_choice)
-                            "She takes off her [strip_choice.name] next and throws it onto the couch too."
+                            if not strip_choice is None:
+                                $ the_person.draw_animated_removal(strip_choice)
+                                "She takes off her [strip_choice.name] next and throws it onto the couch too."
                     the_person.char "[the_person.mc_title], can I ask you a question? Do you think I'm still attractive?"
                     $ the_person.draw_person(position = "back_peek")
                     "She spins around in front of you, showing you her butt."
                     the_person.char "I mean, would you be attracted to me if I wasn't your aunt?"
                     menu:
-                        "Encourage her." if the_person.outfit.remove_random_any(exclude_feet = True, do_not_remove = True):
+                        "Encourage her" if the_person.outfit.remove_random_any(exclude_feet = True, do_not_remove = True):
                             mc.name "Keep taking your clothes off and maybe I'll tell you."
                             $ the_person.change_slut_temp(2)
                             $ the_person.change_obedience(1)
@@ -1009,7 +1025,7 @@ label aunt_share_drinks_label(the_person):
                             $ the_person.draw_person()
                             the_person.char "We should keep this our little secret, okay?"
 
-                        "Compliment her.":
+                        "Compliment her":
                             mc.name "Of course you're attractive [the_person.title], look at you! You've got a hot ass and a killer rack."
                             the_person.char "Oh [the_person.mc_title], you know just what I wanted to hear..."
                             "She wiggles her ass just for you."
@@ -1025,7 +1041,7 @@ label aunt_share_drinks_label(the_person):
                                 "She turns back around and leans over to give you a hug on the couch."
                             the_person.char "It's been so long since I felt wanted... I think I just needed to feel like I was, even if it's only by you..."
 
-                        "Insult her.":
+                        "Insult her":
                             mc.name "Attractive? Sure, but you've got to accept you're past your prime."
                             $ the_person.change_happiness(-5)
                             the_person.char "What?"
@@ -1040,6 +1056,7 @@ label aunt_share_drinks_label(the_person):
                             "She seems to think long and hard about this for a few seconds."
                             the_person.char "I guess I understand. Thank you for being honest with me."
 
+                    $ strip_choice = None
                     $ the_person.draw_person(position="sitting")
                     "She sits down on the couch again and sighs."
                     the_person.char "I'm sorry but that extra glass of wine is just knocking me out. I think I'm going to lie down for a bit."
@@ -1054,7 +1071,7 @@ label aunt_share_drinks_label(the_person):
                     if the_person.has_taboo("vaginal_sex") or the_person.has_taboo("anal_sex"):
                         the_person "We won't take it too far, I just really need this..."
                     menu:
-                        "Fool around.":
+                        "Fool around":
                             call fuck_person(the_person) from _call_fuck_person_22
                             $ the_report = _return
                             "[the_person.possessive_title] lies down on the couch when you're finished."
@@ -1082,7 +1099,6 @@ label aunt_share_drinks_label(the_person):
                                 the_person "If you want there to be. I have years of experience I need to pass on to the next generation."
                                 "She puts her head down and sighs happily."
 
-
                             else:
                                 the_person "We should, uh... It's probably a good idea we stop. I think I've had too much wine, I'm not thinking straight."
                                 "She looks up at you and smiles."
@@ -1093,7 +1109,7 @@ label aunt_share_drinks_label(the_person):
                             "You move to the bathroom to get yourself cleaned up, and when you come back [the_person.title] is fast asleep."
 
 
-                        "Turn her down.":
+                        "Turn her down":
                             mc.name "I don't think that's a good idea right now [the_person.title]. You're in no state to make that kind of decision."
                             "You gently take her hand off you. She seems to snap to her senses and looks away."
                             the_person.char "Right, of course. I didn't mean... I didn't mean anything, okay?"
@@ -1103,7 +1119,7 @@ label aunt_share_drinks_label(the_person):
                             mc.name "That may be for the best. Maybe we can do this again some other time though."
                             "You take the glasses of wine to the kitchen for [the_person.possessive_title] and say goodbye."
 
-
+                $ the_person.apply_outfit()
                 $ the_person.clear_situational_slut("Drunk")
 
             else:
@@ -1112,7 +1128,7 @@ label aunt_share_drinks_label(the_person):
                 "[the_person.title] waits until you've finished your glass of wine, then escorts you to the door."
                 mc.name "See you soon [the_person.title]."
                 the_person.char "I hope so! See you around."
-        "Say goodbye.":
+        "Say goodbye":
             "[the_person.title] waits until you've finished your glass of wine, then escorts you to the door."
             mc.name "See you soon [the_person.title]."
             the_person.char "I hope so! See you around."
@@ -1128,7 +1144,7 @@ label family_games_night_intro(the_person): # Triggered as an on-talk event in h
     the_person.char "... Well speak of the devil, he's just come by for a visit."
     "She gives you a smile and waves you into the living room, closing the door behind you."
     the_person.char "Oh no, he's no trouble... No, I don't mind at all... Don't worry, he's a wonderful kid."
-    "You sit down on the couch and relax while she finishes her phonecall."
+    "You sit down on the couch and relax while she finishes her phone call."
     the_person.char "Yeah... I'll tell him. Talk to you soon. Love you sis."
     "[the_person.title] dramatic kissing noise before hanging up and turning her attention to you."
     the_person.char "Hi [the_person.mc_title], I'm glad you've stopped by."
@@ -1139,11 +1155,11 @@ label family_games_night_intro(the_person): # Triggered as an on-talk event in h
     the_person.char "We'll probably have some drinks, chat about what we've been doing, maybe play some cards."
     the_person.char "If you don't have anything better to do than hang out with a couple of old women you're welcome to join us."
     menu:
-        "Promise to join.":
+        "Promise to join":
             mc.name "I'd love to spend time with both of you. I'll do my best to make it."
             the_person.char "I'm looking forward to it even more now!"
 
-        "You'll think about it.":
+        "You'll think about it":
             mc.name "It sounds like fun, but I'm not sure if I'll be free."
             the_person.char "I understand, you're a busy boy."
 
@@ -1153,14 +1169,14 @@ label family_games_night_intro(the_person): # Triggered as an on-talk event in h
 
 label family_games_night_setup(the_mom, the_aunt): # Triggered as a mandatory crisis right before the
     python:
-        if the_mom.get_desination(specified_time = 4) in [the_mom.home, None, hall] and the_aunt.get_desination(specified_time = 4) in [the_aunt.home, None, hall]: #Change their schedule if they aren't explicitly suppose to be somewhere else.
+        if the_mom.get_destination(specified_time = 4) in [the_mom.home, None, hall] and the_aunt.get_destination(specified_time = 4) in [the_aunt.home, None, hall]: #Change their schedule if they aren't explicitly suppose to be somewhere else.
             the_mom.set_schedule(hall, [2], [4]) #She is in the hall on wednesdays in the evening.
             the_aunt.set_schedule(hall, [2], [4]) #She is in the hall on wednesdays in the evening.
 
-        elif the_mom.get_desination(specified_time = 4) == hall: #She's in the hall but her sister can't make it.
+        elif the_mom.get_destination(specified_time = 4) == hall: #She's in the hall but her sister can't make it.
             the_mom.set_schedule(the_mom.home, [2], [4])
 
-        elif the_aunt.get_desination(specified_time = 4) == hall: #She's in the hall but her sister can't make it.
+        elif the_aunt.get_destination(specified_time = 4) == hall: #She's in the hall but her sister can't make it.
             the_aunt.set_schedule(the_aunt.home, [2], [4])
 
 
@@ -1184,13 +1200,24 @@ init -1 python:
         family_games_night_LTE = Limited_Time_Action(family_games_night_action, 2)
         mom.on_room_enter_event_list.append(family_games_night_LTE)
 
+    def get_opponents_with_info(mom, aunt, sister, partner):
+        opponents = [mom, aunt, sister]
+        opponents.remove(partner)
+        opp_int = 0
+        for x in opponents:
+            opp_int += x.int
+
+        win_chance = 50 + ((mc.int + partner.int - opp_int))*10
+
+        return (opponents[0], opponents[1], win_chance)
+
+
 
 label family_games_night_start(the_aunt, the_mom): # Triggered as an on enter event
     # Girls ask if you want to have some drinks, and then play cards some cards.
 
     $ the_group = GroupDisplayManager([the_mom, the_aunt], the_mom)
     $ the_group.draw_group(position = "sitting", emotion = "happy")
-    $ first_time = mc.business.event_triggers_dict.get("family_games_cards",0) == 0
 
     # Ensure neither of them have shown up with outfits too slutty for the other to consider appropriate.
     $ highest_slut = the_aunt.effective_sluttiness()
@@ -1200,7 +1227,7 @@ label family_games_night_start(the_aunt, the_mom): # Triggered as an on enter ev
     $ the_mom.apply_outfit(the_mom.wardrobe.get_random_appropriate_outfit(sluttiness_limit = highest_slut, guarantee_output = True))
 
     "[the_mom.title] and [the_aunt.title] are sitting on the couch, chatting happily to each other when you enter the living room."
-    if first_time:
+    if mc.business.event_triggers_dict.get("family_games_cards",0) == 0:
         the_mom.char "Welcome home [the_mom.mc_title]. [the_aunt.title] is here to visit for the evening."
         $ the_group.draw_person(the_aunt, position = "sitting", emotion = "happy")
         the_aunt.char "Hi [the_aunt.mc_title]. We were just about to have some drinks, do you want to join us?"
@@ -1210,11 +1237,11 @@ label family_games_night_start(the_aunt, the_mom): # Triggered as an on enter ev
         the_aunt.char "Hi [the_aunt.mc_title]. We're having some drinks first, do you want to join us?"
 
     menu:
-        "Join them.":
+        "Join them":
             call family_games_night_drinks(the_mom, the_aunt) from _call_family_games_night_drinks
             $ mc.business.event_triggers_dict["family_games_drink"] += 1
 
-        "Say you're busy.":
+        "Say you're busy":
             mc.name "Sorry, but I'll have to take a rain check tonight. Maybe next time."
             $ the_group.redraw_person(the_mom)
             the_mom.char "Have a good evening sweetheart. We'll try not to make too much noise."
@@ -1230,12 +1257,11 @@ label family_games_night_start(the_aunt, the_mom): # Triggered as an on enter ev
 
     # Otherwise they just ask you to go get your sister, it's becoming a routine.
     # Opportunity to drop out early here if all you wanted to do was dose them.
-
+    $ the_group = None
     $ clear_scene()
     return
 
-label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the drink serving section to keep things organised.
-    $ first_time = mc.business.event_triggers_dict.get("family_games_cards",0) == 0
+label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the drink serving section to keep things organized.
     mc.name "I'd love to. What are you drinking?"
     the_aunt.char "I brought over a bottle of wine for us. It's in the kitchen, would you mind pouring us some?"
     $ the_group.redraw_person(the_mom)
@@ -1243,7 +1269,7 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
     $ the_group.redraw_person(the_aunt)
     the_aunt.char "He's getting free drinks. He should be pampering us like the refined wine moms we are."
     menu: #TODO: Have an option for Aunt at high obedience where you command her to do it for you.
-        "Pour the drinks yourself.":
+        "Pour the drinks yourself":
             mc.name "Don't worry about it [the_mom.title], I'll be back with drinks in a moment."
             $ the_group.redraw_person(the_mom)
             the_mom.char "You're so sweet. Thank you."
@@ -1251,38 +1277,38 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
             $ kitchen.show_background()
             "You find the bottle of wine easily in the kitchen and pour three glasses."
             menu:
-                "Add a dose of serum to [the_mom.title]'s wine." if mc.inventory.get_any_serum_count() > 1:
+                "Add a dose of serum to [the_mom.title]'s wine" if mc.inventory.get_any_serum_count() > 1:
                     call give_serum(the_mom) from _call_give_serum_29
                     if _return:
                         "You add a dose of serum into [the_mom.title]'s wine and swirl the glass, mixing it in thoroughly."
                     else:
                         "You reconsider, and decide not to add anything to [the_mom.title]'s drink."
 
-                "Add a dose of serum to [the_mom.title]'s wine.\nRequires: Serum (disabled)" if mc.inventory.get_any_serum_count() == 0:
+                "Add a dose of serum to [the_mom.title]'s wine\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
                     pass
 
-                "Leave her drink alone.":
+                "Leave her drink alone":
                     pass
 
             menu:
-                "Add a dose of serum to [the_aunt.title]'s wine." if mc.inventory.get_any_serum_count() > 1:
+                "Add a dose of serum to [the_aunt.title]'s wine" if mc.inventory.get_any_serum_count() > 1:
                     call give_serum(the_aunt) from _call_give_serum_30
                     if _return:
                         "You add a dose of serum into [the_aunt.title]'s wine and swirl the glass, mixing it in thoroughly."
                     else:
                         "You reconsider, and decide not to add anything to [the_aunt.title]'s drink."
 
-                "Add a dose of serum to [the_aunt.title]'s wine.\nRequires: Serum (disabled)" if mc.inventory.get_any_serum_count() == 0:
+                "Add a dose of serum to [the_aunt.title]'s wine\n{color=#ff0000}{size=18}Requires: Serum{/size}{/color} (disabled)" if mc.inventory.get_any_serum_count() == 0:
                     pass
 
-                "Leave her drink alone.":
+                "Leave her drink alone":
                     pass
 
             $ hall.show_background()
             $ the_group.redraw_group()
             "You return to the living room and hand [the_mom.possessive_title] and [the_aunt.possessive_title] their drinks and sit back down beside them."
 
-        "Let [mom.title] pour the drinks.":
+        "Let [mom.title] pour the drinks":
             mc.name "You're right [the_mom.title], I could really use a break."
             "[the_mom.possessive_title] stands up and motions to the couch as she walks towards the kitchen."
             $ the_group.draw_person(the_mom, emotion = "happy")
@@ -1306,7 +1332,7 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
     "[the_mom.possessive_title] and [the_aunt.possessive_title] chat about their week, happily trading stories and opinions."
     "You sip at your own glass of wine, content to just listen."
     "After a half an hour of drinking and gossip [the_mom.title] puts her finished glass aside."
-    if first_time:
+    if mc.business.event_triggers_dict.get("family_games_cards",0) == 0:
         the_mom.char "Would you two like to play something while we drink? I have a pack of cards in the kitchen."
         $ the_group.redraw_person(the_aunt)
         the_aunt.char "Oh my god, we use to play cards every night after school. Do you play cards often [the_aunt.mc_title]?"
@@ -1319,8 +1345,8 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
         the_aunt.char "Cards sound like a lot of fun. What do you think [the_aunt.mc_title]?"
 
     menu:
-        "Play cards.\n{image=gui/heart/Time_Advance.png}":
-            if first_time:
+        "Play cards\n{image=gui/heart/Time_Advance.png}":
+            if mc.business.event_triggers_dict.get("family_games_cards",0) == 0:
                 mc.name "Cards sound like like fun, but you'll have to teach me how to play."
                 the_aunt.char "First we'll need a fourth player, so we can split up into teams."
                 $ the_group.redraw_person(the_mom)
@@ -1336,7 +1362,7 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
                 lily.char "It's open!"
                 $ lily.draw_person()
                 lily.char "What's up [lily.mc_title]?"
-                if first_time:
+                if mc.business.event_triggers_dict.get("family_games_cards",0) == 0:
                     mc.name "[the_mom.title] and [the_aunt.title] want to play some cards, and we need a fourth player."
                     mc.name "Do you want to come and play?"
                     "She sighs and rolls her eyes."
@@ -1374,7 +1400,7 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
                 #TODO: Add a mom and aunt event specifically if Lily is busy (or she doesn't want to play/you don't invite her.)
 
 
-        "Call it a night.":
+        "Call it a night":
             mc.name "I'm going to have to pass this time, I have some business to attend to."
             $ the_group.redraw_person(the_aunt)
             the_aunt.char "Then the drinking will continue! Pour me another glass sis!"
@@ -1385,7 +1411,7 @@ label family_games_night_drinks(the_mom, the_aunt): #Breakout function for the d
     # Get Lily and bring her back, gather around the kitchen table to play.
     return
 
-label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout function for the card game to keep things organised (and support adding new varients later)
+label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout function for the card game to keep things organized (and support adding new varients later)
 
     $ the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], the_mom)
     $ the_group.draw_group()
@@ -1395,8 +1421,7 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
     "You sit down around the table while [the_mom.possessive_title] shuffles the deck."
     $ partner = None
 
-    $ first_time = mc.business.event_triggers_dict.get("family_games_cards",0) == 0
-    if first_time:
+    if mc.business.event_triggers_dict.get("family_games_cards",0) == 0:
         the_mom.char "Alright, so have either of you two ever played euchre?"
         "[the_sister.title] shakes her head."
         the_mom.char "It's a card game that was popular back when me any my sister were in school."
@@ -1425,7 +1450,7 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
         $ the_group.redraw_person(the_mom)
         the_mom.char "[the_mom.mc_title], [the_sister.title], what do you want to do?"
     else:
-        the_mom.char "Okay then, we need to pick teams. [the_person.mc_title], you can pick first."
+        the_mom.char "Okay then, we need to pick teams. [the_mom.mc_title], you can pick first."
         call screen person_choice([the_mom, the_aunt, the_sister], person_prefix = "Pick", person_suffix = "as your partner.")
         $ partner = _return
         "You pick [partner.title] and move seats so you are sitting across from each other."
@@ -1448,21 +1473,19 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
 
 
     menu:
-        "Play for fun.":
+        "Play for fun":
             # standard, always enabled
-            $ first_time_fun = mc.business.event_triggers_dict.get("family_games_fun", 0) == 0
-            if first_time_fun:
+            if mc.business.event_triggers_dict.get("family_games_fun", 0) == 0:
                 mc.name "Let's just play for fun. I could use some more practice before I put anything more on the line."
             else:
                 mc.name "Let's just play for fun, I don't want to put anything more on the line."
             $ the_group.redraw_person(the_mom)
-            the_mom.char "That's a very reponsible decision [the_mom.mc_title]."
+            the_mom.char "That's a very responsible decision [the_mom.mc_title]."
             call family_games_night_fun(the_mom, the_aunt, the_sister, partner) from _call_family_games_night_fun
             $ mc.business.event_triggers_dict["family_games_fun"] += 1
 
-        "Play for cash." if the_mom.love >= 30 and the_aunt.love >= 30 and the_sister.love >= 30:
-            $ first_time_cash = mc.business.event_triggers_dict.get("family_games_cash", 0) == 0
-            if first_time_cash:
+        "Play for cash" if the_mom.love >= 30 and the_aunt.love >= 30 and the_sister.love >= 30:
+            if mc.business.event_triggers_dict.get("family_games_cash", 0) == 0:
                 mc.name "Let's make it interesting and play for a little bit of cash."
                 $ the_group.redraw_person(the_aunt)
                 the_aunt.char "Sounds like fun!"
@@ -1473,22 +1496,21 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
             call family_games_night_cash(the_mom, the_aunt, the_sister, partner) from _call_family_games_night_cash
             $ mc.business.event_triggers_dict["family_games_cash"] += 1
 
-        "Play for cash.\nRequires: 30 Love, All (disabled)" if the_mom.love < 30 or the_aunt.love < 30 or the_sister.love < 30:
+        "Play for cash\n{color=#ff0000}{size=18}Requires: 30 Love, All{/size}{/color} (disabled)" if the_mom.love < 30 or the_aunt.love < 30 or the_sister.love < 30:
             pass
 
 
-        "Play strip euchre." if the_mom.sluttiness >= 30 and the_sister.sluttiness >= 30 and the_aunt.sluttiness >= 30:
-            $ first_time_strip = mc.business.event_triggers_dict.get("family_games_strip", 0) == 0
-            if first_time_strip:
+        "Play strip euchre" if the_mom.sluttiness >= 30 and the_sister.sluttiness >= 30 and the_aunt.sluttiness >= 30:
+            if mc.business.event_triggers_dict.get("family_games_strip", 0) == 0:
                 mc.name "I know something that will make the game very interesting."
                 mc.name "[the_mom.title], [the_aunt.title], have you two ever played strip poker?"
                 $ the_group.redraw_person(the_mom)
                 "[the_mom.possessive_title] gasps quietly and shakes her head."
                 the_mom.char "[the_mom.mc_title], I would never..."
-                "She's interupted by her sister."
+                "She's interrupted by her sister."
                 $ the_group.redraw_person(the_aunt)
                 the_aunt.char "Yeah, I have."
-                "[the_mom.title] turns to [the_aunt.possessive_title], looking suprised."
+                "[the_mom.title] turns to [the_aunt.possessive_title], looking surprised."
                 $ the_group.redraw_person(the_mom)
                 the_mom.char "You have? When?"
                 "[the_aunt.title] giggles and shrugs."
@@ -1504,7 +1526,7 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
                 "You sit back, happy to let [the_aunt.possessive_title] do the convincing for you."
                 $ the_group.redraw_person(the_aunt)
                 the_aunt.char "That's why you try and win! Don't be such a stick in the mud, it'll be fun!"
-                "[the_mom.possessive_title] considers it for a long moment, then sighs and srugs."
+                "[the_mom.possessive_title] considers it for a long moment, then sighs and shrugs."
                 $ the_group.redraw_person(the_mom)
                 the_mom.char "Fine, but I don't want anyone taking this further than they're comfortable with. Okay?"
                 $ the_group.redraw_person(the_aunt)
@@ -1517,7 +1539,7 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
             call family_games_night_strip(the_mom, the_aunt, the_sister, partner) from _call_family_games_night_strip
             $ mc.business.event_triggers_dict["family_games_strip"] += 1
 
-        "Play strip euchre.\nRequires: 30 Sluttiness, All (disabled)" if the_mom.sluttiness < 30 or the_sister.sluttiness < 30 or the_aunt.sluttiness < 30:
+        "Play strip euchre\n{color=#ff0000}{size=18}Requires: 30 Sluttiness, All{/size}{/color} (disabled)" if the_mom.sluttiness < 30 or the_sister.sluttiness < 30 or the_aunt.sluttiness < 30:
             pass
 
         #TODO: Figure out if we want an even higher tier (Maybe not yet, since we've avoided most inter-family stuff.
@@ -1525,7 +1547,7 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
 
 
     if mc.business.event_triggers_dict.get("family_games_cards", 0) == 0:
-        the_mom.char "This was a lot of fun [the_aunt.title]. Should we do it again next week."
+        the_mom.char "This was a lot of fun [the_aunt.title]. Should we do it again next week?"
         $ the_group.redraw_person(the_aunt)
         the_aunt.char "That sounds great. I'll bring the wine again."
     else:
@@ -1537,22 +1559,27 @@ label family_games_night_cards(the_mom, the_aunt, the_sister): #Breakout functio
 
     "[the_mom.possessive_title] walks [the_aunt.possessive_title] to the door while you and [the_sister.title] clean up the kitchen."
     "It's already late, so when you're finished you go back to your room and go to bed."
+
+    python:
+        the_group = None
+        partner = None
+        mc.change_location(bedroom)
+        mc.location.show_background()
+
     return
 
 label family_games_night_fun(the_mom, the_aunt, the_sister, partner):
-    # Describes a game where you're playing for fun.
-    $ still_playing = True
-    $ round_count = 1
-    $ max_rounds = 5
+    python:
+        # Describes a game where you're playing for fun.
+        still_playing = True
+        round_count = 1
+        max_rounds = 5
 
-    $ opponents = [the_mom, the_aunt, the_sister]
-    $ opponents.remove(partner)
-    $ opponent_a = opponents[0]
-    $ opponent_b = opponents[1]
+        opponent_a, opponent_b, win_chance = get_opponents_with_info(the_mom, the_aunt, the_sister, partner)
 
-    $ the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
-    $ clear_scene()
-    $ the_group.draw_group(position = "sitting")
+        the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
+        clear_scene()
+        the_group.draw_group(position = "sitting")
 
     while still_playing:
         call card_round_description(the_mom, the_aunt, the_sister, partner, round_count) from _call_card_round_description
@@ -1594,22 +1621,23 @@ label family_games_night_fun(the_mom, the_aunt, the_sister, partner):
 
         $ round_count += 1 #The only thing that stops us is if we're over our round count.
 
+    python:
+        opponent_a = None
+        opponent_b = None
     return
 
 label family_games_night_cash(the_mom, the_aunt, the_sister, partner):
-    # Describes a game where you're playing for cash.
-    $ still_playing = True
-    $ round_count = 1
-    $ max_rounds = 5
+    python:
+        # Describes a game where you're playing for cash.
+        still_playing = True
+        round_count = 1
+        max_rounds = 5
 
-    $ opponents = [the_mom, the_aunt, the_sister]
-    $ opponents.remove(partner)
-    $ opponent_a = opponents[0]
-    $ opponent_b = opponents[1]
+        opponent_a, opponent_b, win_chance = get_opponents_with_info(the_mom, the_aunt, the_sister, partner)
 
-    $ the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
-    $ clear_scene()
-    $ the_group.draw_group(position = "sitting")
+        the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
+        clear_scene()
+        the_group.draw_group(position = "sitting")
     while still_playing:
         call card_round_description(the_mom, the_aunt, the_sister, partner, round_count) from _call_card_round_description_1
         if _return:
@@ -1667,7 +1695,7 @@ label family_games_night_cash(the_mom, the_aunt, the_sister, partner):
         $ round_count += 1 #The only thing that stops us is if we're over our round count.
 
     # Outro dialogue. Assumes you've already talked about why you're stopping.
-    if first_time: #TODO: Hook this up
+    if mc.business.event_triggers_dict.get("family_games_cards",0) == 0: #TODO: Hook this up
         the_mom.char "This was a lot of fun [the_aunt.title]. Should we do it again next week."
         $ the_group.redraw_person(the_aunt)
         the_aunt.char "That sounds great. I'll bring the wine again."
@@ -1677,26 +1705,29 @@ label family_games_night_cash(the_mom, the_aunt, the_sister, partner):
         the_aunt.char "Same time next week?"
         $ the_group.redraw_person(the_mom)
         the_mom.char "As long as you bring the wine!"
+
+    python:
+        opponent_a = None
+        opponent_b = None
     return
 
 label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
     # Describes a game where you're playing to strip each other down.
     #TODO: All of this
-    $ still_playing = True
-    $ round_count = 1
-    $ max_rounds = 5
+    python:
+        still_playing = True
+        round_count = 1
+        max_rounds = 5
 
-    $ player_wins = 0 #AKA girl losses
-    $ player_losses = 0
+        player_wins = 0 #AKA girl losses
+        player_losses = 0
 
-    $ opponents = [the_mom, the_aunt, the_sister]
-    $ opponents.remove(partner)
-    $ opponent_a = opponents[0]
-    $ opponent_b = opponents[1]
+        opponent_a, opponent_b, win_chance = get_opponents_with_info(the_mom, the_aunt, the_sister, partner)
 
-    $ the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
-    $ clear_scene()
-    $ the_group.draw_group(position = "sitting")
+        the_group = GroupDisplayManager([the_mom, the_aunt, the_sister], partner)
+        clear_scene()
+        the_group.draw_group(position = "sitting")
+
     while still_playing:
         $ still_playing = True
         call card_round_description(the_mom, the_aunt, the_sister, partner, round_count) from _call_card_round_description_2
@@ -1716,7 +1747,7 @@ label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
                     the_item = person.outfit.remove_random_any(top_layer_first = True, exclude_feet = True, do_not_remove = True)
                     if the_item:
                         something_to_strip = True
-
+                person = None
 
             if something_to_strip:
                 mc.name "Good try girls, but that round is ours."
@@ -1743,10 +1774,10 @@ label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
                 $ the_group.redraw_person(partner)
                 partner.char "What do you think [partner.mc_title]? Should we let them off easy?"
                 menu:
-                    "Let them get dressed.":
+                    "Let them get dressed":
                         mc.name "Good game everyone, now let's get dressed and get everything cleaned up."
 
-                    "Give us a dance.": #TODO: Decide on any requirements. Maybe sluttiness or obedience for the two dancers
+                    "Give us a dance": #TODO: Decide on any requirements. Maybe sluttiness or obedience for the two dancers
                         mc.name "I don't think so [partner.title]. I think we should get a little reward for winning."
                         $ the_group.redraw_person(opponent_a)
                         opponent_a.char "What do you want?"
@@ -1793,6 +1824,7 @@ label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
                         $ opponent_b.change_slut_temp(2)
                         $ opponent_a.change_obedience(5)
                         $ opponent_b.change_obedience(5)
+                        $ still_playing = False
 
 
 
@@ -1870,7 +1902,7 @@ label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
                         $ the_group.redraw_person(the_mom)
                         "[the_mom.title] leans closer to her sister and half-whispers."
                         the_mom.char "[the_aunt.title], he's clearly... excited. Isn't this going a little too far?"
-                        $ the_aunt.redraw_person(the_aunt)
+                        $ the_group.redraw_person(the_aunt)
                         the_aunt.char "You're worrying way too much. Go ahead [the_aunt.mc_title], take it off!"
                     else:
                         the_mom.char "No need to be embarrassed [the_mom.mc_title], we're all family here."
@@ -1925,24 +1957,20 @@ label family_games_night_strip(the_mom, the_aunt, the_sister, partner):
 
 
         $ round_count += 1
+
+
+    python:
+        opponent_a = None
+        opponent_b = None
     return
 
 label card_round_description(the_mom, the_aunt, the_sister, partner, round_count):
     # Describes a technical round of cards and picks a winner (returns True if player).
-    $ opponents = [the_mom, the_aunt, the_sister]
-    $ opponents.remove(partner)
-    $ opponent_a = opponents[0]
-    $ opponent_b = opponents[1]
+    python:
+        opponent_a, opponent_b, win_chance = get_opponents_with_info(the_mom, the_aunt, the_sister, partner)
 
     "The cards are dealt. You look at your hand and take a moment to formulate a plan."
 
-    $ opponents_int = 0
-    python:
-        for opp in opponents:
-            opponents_int += opp.int
-
-    $ team_int = mc.int + partner.int
-    $ win_chance = 50 + ((team_int - opponents_int))*10
     if win_chance > 90:
         $ win_chance = 90 #Cap this so there's always some chance of failing
     $ win_roll = renpy.random.randint(0,100)
@@ -1967,7 +1995,7 @@ label card_round_description(the_mom, the_aunt, the_sister, partner, round_count
             "It doesn't take long for [opponent_a.possessive_title] and [opponent_b.possessive_title] to win the round."
         else:  #Barely lost
             "Your hand looks strong, but as the cards start to fall you see that [partner.possessive_title] has a much weaker set of cards."
-            "It's a close round, but by working together [opponent_a.possessive_title] and [opponent_b.possessive_title] are beat you and secure the win."
+            "It's a close round, but by working together [opponent_a.possessive_title] and [opponent_b.possessive_title] beat you and secure the win."
 
     return player_win
 
