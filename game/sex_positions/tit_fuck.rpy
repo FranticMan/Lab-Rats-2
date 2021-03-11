@@ -2,17 +2,16 @@ init:
     python:
         tit_fuck = Position(name = "Tit Fuck", slut_requirement = 30, slut_cap = 55, requires_hard = True, requires_large_tits = True,
             position_tag = "blowjob", requires_location = "Kneel", requires_clothing = "Tits", skill_tag = "Foreplay",
-            girl_arousal = 5, girl_energy = 14,
-            guy_arousal = 15, guy_energy = 3,
+            girl_arousal = 5, girl_energy = 20,
+            guy_arousal = 15, guy_energy = 5,
             connections = [],
             intro = "intro_tit_fuck",
-            scenes = ["scene_tit_fuck_1","scene_tit_fuck_2", "scene_tit_fuck_3"],
+            scenes = ["scene_tit_fuck_1","scene_tit_fuck_2"],
             outro = "outro_tit_fuck",
             transition_default = "transition_default_tit_fuck",
             strip_description = "strip_tit_fuck", strip_ask_description = "strip_ask_tit_fuck",
             orgasm_description = "orgasm_tit_fuck",
             taboo_break_description = "taboo_break_tit_fuck",
-            verb = "tit fuck",
             opinion_tags = ["giving tit fucks"], record_class = "Tit Fucks",
             default_animation = tit_bob,
             associated_taboo = "touching_body")
@@ -46,8 +45,7 @@ label taboo_break_tit_fuck(the_girl, the_location, the_object):
     $ the_girl.call_dialogue(tit_fuck.associated_taboo+"_taboo_break")
     "She lets go of your hands and you slide them over her breasts. They're soft and heavy with a pleasant jiggle to them."
     mc.name "These feel amazing. Could you use them to take care of this?"
-    if not mc.recently_orgasmed:
-        "You grind your erection against [the_girl.title]'s thigh while you squeeze her tits."
+    "You grind your erection against [the_girl.title]'s thigh while you squeeze her tits."
     #TODO: Maybe also a taboo break for touching your penis
     if the_girl.effective_sluttiness(tit_fuck.associated_taboo) > tit_fuck.slut_cap:
         the_girl.char "Of course I can. You're going to have to let go of these first though."
@@ -96,7 +94,7 @@ label outro_tit_fuck(the_girl, the_location, the_object):
     "You nod and she speeds up."
     the_girl.char "Cum for me [the_girl.mc_title], cum for me!"
     menu:
-        "Cum between her tits":
+        "Cum between her tits.":
             "You close your eyes and focus on the sensation of [the_girl.possessive_title]'s warm, soft breasts massaging your cock."
             "Your orgasm builds to a peak and you grunt, blasting your load up between [the_girl.title]'s tits and out the top of her cleavage."
             $ blocker = the_girl.outfit.get_upper_top_layer()
@@ -104,11 +102,11 @@ label outro_tit_fuck(the_girl, the_location, the_object):
                 "Your cum splatters down over [the_girl.title]'s [blocker.name]. She gasps as the warm liquid covers her and drips back down between her tits."
             else:
                 "Your cum splatters down over the top of [the_girl.title]'s tits. She gasps as the warm liquid covers her and drips back down between her tits."
-            $ del blocker
-            $ the_girl.cum_on_tits()
+
+            $ the_person.cum_on_tits()
             $ tit_fuck.redraw_scene(the_girl)
 
-        "Cum on her face":
+        "Cum on her face.":
             "You close your eyes and focus on the sensation of [the_girl.possessive_title]'s warm, soft breasts massaging your cock."
             "As your orgasm builds to it's peak you step back, sliding your cock out from her cleavage and take it up in your own hand."
             if the_girl.effective_sluttiness() > 40 or the_girl.get_opinion_score("cum facials") > 0:
@@ -137,17 +135,17 @@ label strip_tit_fuck(the_girl, the_clothing, the_location, the_object):
     return
 
 label strip_ask_tit_fuck(the_girl, the_clothing, the_location, the_object):
-    the_girl.char "[the_girl.mc_title], would you like me to take off my [the_clothing.name]?"
+    the_person.char "[the_person.mc_title], would you like me to take off my [the_clothing.name]?"
     "She works her tits up and down while she waits for you to respond."
     menu:
-        "Let her strip":
+        "Let her strip.":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = tit_fuck.position_tag)
             "[the_girl.title] leans back, letting your cock slide out of her cleavage, and pulls off her [the_clothing.name]."
-            the_girl.char "Ah, so much better. Now, where were we..."
+            the_person.char "Ah, so much better. Now, where were we..."
             "She leans back and engulfs your hard cock in her breasts again."
 
-        "Leave it on":
+        "Leave it on.":
             mc.name "I think you look cute in it, leave it on."
             "She nods and keeps working her tits up and down."
     return

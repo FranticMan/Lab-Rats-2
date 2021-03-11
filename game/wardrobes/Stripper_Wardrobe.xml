@@ -44,7 +44,7 @@
             </Feet>
             <Accessories />
         </Outfit>
-        <Outfit name="Stripper Pink 2">
+        <Outfit name="Stripper Pink">
             <UpperBody>
                 <Item alpha="1.0" blue="0.27" green="0.27" name="Corset" palpha="1.0" pattern="Pattern_1" pblue="0.4" pgreen="0.4" pred="0.92" red="0.77" />
             </UpperBody>

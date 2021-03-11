@@ -2,8 +2,8 @@
     python:
         deepthroat = Position(name = "Deepthroat", slut_requirement = 55, slut_cap = 80, requires_hard = True, requires_large_tits = False,
             position_tag = "blowjob", requires_location = "Kneel", requires_clothing = "None", skill_tag = "Oral",
-            girl_arousal = 3, girl_energy = 13,
-            guy_arousal = 23, guy_energy = 3,
+            girl_arousal = 3, girl_energy = 20,
+            guy_arousal = 23, guy_energy = 5,
             connections = [],
             intro = "intro_deepthroat",
             scenes = ["scene_deepthroat_1","scene_deepthroat_2","scene_deepthroat_3"],
@@ -83,7 +83,7 @@ label scene_deepthroat_1(the_girl, the_location, the_object):
     if the_girl.sex_skills["Oral"] < 3: #Inexperienced
         "[the_girl.title] tries to look up at you while she goes down on your cock. You feel her throat spasm around you as she gags, struggling to take your length."
         menu:
-            "You're doing a great job":
+            "You're doing a great job.":
                 mc.name "God that feels good, you're doing a great job [the_girl.title]."
                 "She gags one more time then slides off your cock, gasping for air when she comes free."
                 $ deepthroat.current_modifier = None
@@ -91,12 +91,12 @@ label scene_deepthroat_1(the_girl, the_location, the_object):
                 the_girl.char "Ah... Thank... Thank you... I'm trying my best. It feels so big when I try to slide it down..."
 
 
-            "You can do better than that":
+            "You can do better than that.":
                 mc.name "Come on, I know you're a better cocksucker than that. Show me what you've really got."
                 "[the_girl.title] tries to slide you deeper into her mouth and gags hard. She pulls back and gasps for air as soon as your dick is out of the way."
                 $ deepthroat.current_modifier = None
                 $ deepthroat.redraw_scene(the_girl)
-                if the_girl.obedience > 120:
+                if the_person.obedience > 120:
 
                     the_girl.char "I'm... I swear I'm trying, it's just so... so big when I try and go deeper."
                 else:
@@ -114,7 +114,7 @@ label scene_deepthroat_1(the_girl, the_location, the_object):
         "She pushes you just a little bit deeper, then slides back and off. She pauses for a moment, panting while she tries to catch her breath."
         the_girl.char "Ah... Glad you like it."
         menu:
-            "Stroke it for me":
+            "Stroke it for me.":
                 mc.name "Don't just leave me standing here with my dick out, stroke me off."
                 the_girl.char "Oh, right"
                 if the_girl.sex_skills["Foreplay"] > 4:
@@ -123,10 +123,10 @@ label scene_deepthroat_1(the_girl, the_location, the_object):
                     "She looks at your dick and gives it a light kiss on the side, then looks back up at you."
                     the_girl.char "Look how big it is... and I'm going to slide it all down my throat. I'll take every last inch, just for you."
                 else:
-                    "[the_girl.possessive_title] wraps her hand around your wet cock and starts to stroke you off. You enjoy the sound of her heavy breathing and the quiet, wet slop of her hand job."
+                    "[the_girl.possessive_title] wraps her hand around your wet cock and starts to stroke you off. You enjoy the sound of her heavy breathing and the quiet, wet slop of her handjob."
 
 
-            "Bounce your cock on her face":
+            "Bounce your cock on her face.":
                 "You hold onto the base of your shaft and tap the tip against [the_girl.title]'s cheek. She looks up into your eyes."
                 if the_girl.obedience > 120 or the_girl.get_opinion_score("being submissive") > 0:
                     $ the_girl.discover_opinion("being submissive")
@@ -156,7 +156,7 @@ label scene_deepthroat_2(the_girl, the_location, the_object):
     if the_girl.sex_skills["Oral"] < 3:
         "[the_girl.possessive_title] tries to slow down and go shallower on your cock."
         menu:
-            "Give her a break":
+            "Give her a break.":
                 "You move your hand off of the back of her head, and cradle her chin instead. She pauses and looks up at you, the tip of your dick still in her mouth."
                 mc.name "How about you take a break, I think you've earned one."
                 $ deepthroat.current_modifier = None
@@ -169,7 +169,7 @@ label scene_deepthroat_2(the_girl, the_location, the_object):
                 $ deepthroat.redraw_scene(the_girl)
                 "You pull your thumb from her mouth and replace it with the tip of your cock. She licks at it then bobs her head forward and tries to take your length back down her throat."
 
-            "Force her deeper":
+            "Force her deeper.":
                 mc.name "Come on, no slacking off..."
                 "You pull hard on the back of [the_girl.title]'s head, forcing her to bottom out on your cock. She puts her her hands on your thighs and tries to pull back but you hold her in place."
                 if the_girl.get_opinion_score("being submissive") > 0:
@@ -210,14 +210,13 @@ label scene_deepthroat_2(the_girl, the_location, the_object):
             "[the_girl.title] closes her eyes and focuses entirely on throating your long cock."
 
         menu:
-            "Compliment her cock sucking":
+            "Compliment her cock sucking.":
                 mc.name "God, you're good at that [the_girl.title]. Do you have a lot of practice or are you just a natural at throating big dicks?"
                 if the_girl.get_opinion_score("giving blowjobs") > 0:
                     "In response she bottoms out on your dick. She rocks her head left and right, grinding her face into your crotch to take as much of your length as possible."
                     "She tenses and and relaxes her throat rhythmically, gently massaging your shaft with it."
                     mc.name "Oh... maybe it's both then. A talent and a passion for gagging on dick. Either way, you're a perfect little cock sucker, aren't you."
-                    "After a long moment she bobs her head back and breathes deeply through her nose."
-                    "You let her recover before putting pressure on the back of her head to encourage her to go back to sucking you off."
+                    "After a long moment she bobs her head back and breathes deeply through her nose. You let her recover before putting pressure on the back of her head to encourage her to go back to sucking you off."
                 elif the_girl.get_opinion_score("giving blowjobs") < 0:
                     $ deepthroat.current_modifier = None
                     $ deepthroat.redraw_scene(the_girl)
@@ -235,10 +234,10 @@ label scene_deepthroat_2(the_girl, the_location, the_object):
                     "She pulls off your dick and shrugs."
                     the_girl.char "No more practice than other girls, I guess."
                     mc.name "Uh huh, and how much dick do you think other girls suck? You don't get this good by accident."
-                    "You press the tip of your cock against her lips and put a little bit of pressure on the back of her head. She takes the hint and goes back to sucking you off."
+                    "You press the tip of your cock against her lips and put a litttle bit of pressure on the back of her head. She takes the hint and goes back to sucking you off."
 
 
-            "Force her even deeper":
+            "Force her even deeper.":
                 mc.name "Do you need a little help?"
                 "When [the_girl.title] reaches the bottom of her next stroke you push down on the back of her head and hold her in place."
                 mc.name "That's it, hold it right there for a moment."
@@ -295,17 +294,17 @@ label scene_deepthroat_3(the_girl, the_location, the_object):
             $ second_duration = __builtin__.str(renpy.random.randint(10,20))
             "Another [second_duration] seconds pass by before you feel her start to pull her head back."
             menu:
-                "Hold her in place" if the_girl.obedience >= 110:
+                "Hold her in place." if the_girl.obedience >= 110:
                     mc.name "Not yet, you can do better than that."
                     "You pull [the_girl.title]'s head against your crotch. She doesn't resist."
                     "After a few more seconds [the_girl.title] tries to pull off again, forcing you put on light but constant pressure."
                     menu:
-                        "Hold her in place" if the_girl.obedience >= 120:
+                        "Hold her in place." if the_girl.obedience >= 120:
                             "A little more force and [the_girl.title] stays where she is. Her eyes are closed tight as she struggles to stay in control."
                             "More time passes. [the_girl.title] starts to squirm on her knees."
                             $ the_girl.change_arousal(the_girl.get_opinion_score("being submissive"))
                             menu:
-                                "Hold her in place" if the_girl.obedience >= 130:
+                                "Hold her in place." if the_girl.obedience >= 130:
                                     mc.name "Don't give up now [the_girl.title], you're doing great."
                                     "You grab a handful of her hair to give you a better grip and don't let her go anywhere."
                                     "[the_girl.title]'s throat starts to rhythmically clench down on the shaft of your dick."
@@ -313,13 +312,13 @@ label scene_deepthroat_3(the_girl, the_location, the_object):
                                     $ mc.change_arousal(1)
                                     "[the_girl.possessive_title]'s grabs at your legs, looking for support."
                                     menu:
-                                        "Hold her in place" if the_girl.obedience >= 150:
+                                        "Hold her in place." if the_girl.obedience >= 150:
                                             mc.name "You're going to choke on this dick until I'm satisfied. Don't you dare move now."
                                             "[the_girl.title] moans, her throat rumbling around your cock. Her eyes roll up as she tries to make eye contact with you."
                                             $ the_girl.change_arousal(the_girl.get_opinion_score("being submissive"))
                                             "Several more long seconds pass. Pushed to her limit, [the_girl.title] pulls back harder and starts to tap on your leg."
                                             menu:
-                                                "Choke her out" if the_girl.obedience >= 170:
+                                                "Choke her out." if the_girl.obedience >= 170:
                                                     mc.name "I said don't move. Not until I'm done with you."
                                                     "[the_girl.title] squirms and fidgets on her knees, but obeys your commands like a good girl."
                                                     "Little by little her movements slow down, her eyelids start to droop down over her rolled up eyes, and she slips into a half-conscious state."
@@ -338,32 +337,32 @@ label scene_deepthroat_3(the_girl, the_location, the_object):
                                                     "She takes a deep breath, opens wide, and fits you right back into her mouth. This time she bobs her head back and forth, taking quick breaths when she can."
                                                     return #Don't do the rest of the scene because we have our special case here.
 
-                                                "Choke her out\n{color=#ff0000}{size=18}Requires: 170 Obedience{/size}{/color} (disabled)" if the_girl.obedience < 170:
+                                                "Choke her out.\n Requires: 170 Obedience (disabled)" if the_girl.obedience < 170:
                                                     pass
 
-                                                "Let her up":
+                                                "Let her up.":
                                                     pass
-                                        "Hold her in place\n{color=#ff0000}{size=18}Requires: 150 Obedience{/size}{/color} (disabled)" if the_girl.obedience < 150:
+                                        "Hold her in place.\n Requires: 150 Obedience (disabled)" if the_girl.obedience < 150:
                                             pass
 
-                                        "Let her up":
+                                        "Let her up.":
                                             pass
-                                "Hold her in place\n{color=#ff0000}{size=18}Requires: 130 Obedience{/size}{/color} (disabled)" if the_girl.obedience < 130:
+                                "Hold her in place.\n Requires: 130 Obedience (disabled)" if the_girl.obedience < 130:
                                     pass
 
-                                "Let her up":
+                                "Let her up.":
                                     pass
 
-                        "Hold her in place\n{color=#ff0000}{size=18}Requires: 120 Obedience{/size}{/color} (disabled)" if the_girl.obedience < 120:
+                        "Hold her in place.\n Requires: 120 Obedience (disabled)" if the_girl.obedience < 120:
                             pass
 
-                        "Let her up":
+                        "Let her up.":
                             pass
 
-                "Hold her in place\n{color=#ff0000}{size=18}Requires: 110 Obedience{/size}{/color} (disabled)" if the_girl.obedience < 110:
+                "Hold her in place.\n Requires: 110 Obedience (disabled)" if the_girl.obedience < 110:
                     pass
 
-                "Let her up":
+                "Let her up.":
                     pass
 
             "[the_girl.title] yanks her head back and off of your hard cock. She gasps for breath as soon as you're clear."
@@ -383,7 +382,7 @@ label outro_deepthroat(the_girl, the_location, the_object):
     $ deepthroat.redraw_scene(the_girl)
     "The warm, tight feeling of [the_girl.title]'s throat wrapped around your shaft pulls you closer and closer to orgasm. You feel yourself pass the point of no return and let out a soft moan."
     menu:
-        "Cum on her face":
+        "Cum on her face.":
             mc.name "Fuck, here I come!"
             $ deepthroat.current_modifier = None
             $ deepthroat.redraw_scene(the_girl)
@@ -403,10 +402,10 @@ label outro_deepthroat(the_girl, the_location, the_object):
                 $ the_girl.cum_on_face()
                 $ deepthroat.redraw_scene(the_girl)
                 "You let out a shudder moaning as you cum, pumping your sperm onto [the_girl.title]'s face. She flinches as the first splash of warm liquid lands on her cheek, but doesn't pull away entirely."
-            "You take a deep breath to steady yourself once you've finished cumming. [the_girl.possessive_title] looks up at you from her knees, face covered in your semen."
+            "You take a deep breath to steady yourself once you've finised orgasming. [the_girl.possessive_title] looks up at you from her knees, face covered in your semen."
             $ the_girl.call_dialogue("cum_face")
 
-        "Cum in her mouth":
+        "Cum in her mouth.":
             mc.name "Fuck, I'm about to cum! I'm going to fill that cute mouth of yours up!"
             "You keep your hand on the back of [the_girl.title]'s head to make it clear you want her to keep sucking. She keeps throating you until you tense up and start to pump your load out into her mouth."
             if the_girl.sluttiness > 70:
@@ -426,7 +425,7 @@ label outro_deepthroat(the_girl, the_location, the_object):
                 "She straightens up and wipes her lips with the back of her hand."
             $ the_girl.call_dialogue("cum_mouth")
 
-        "Cum down her throat":
+        "Cum down her throat.":
             mc.name "Fuck, here I come!"
             "You use your hand on the back of [the_girl.title]'s head to pull her close, pushing your cock as deep down her throat as you can manage."
             "You grunt and twitch as you start to empty your balls right into her stomach."
@@ -434,7 +433,7 @@ label outro_deepthroat(the_girl, the_location, the_object):
                 "[the_girl.possessive_title] looks up at you and stares into your eyes as you climax. She tightens and relaxes her throat, as if to draw out every last drop of semen from you."
                 $ the_girl.cum_in_mouth()
                 $ deepthroat.redraw_scene(the_girl)
-                "When you're completely finished she pulls off slowly, kissing the tip before leaning back."
+                "Whn you're completely finished she pulls off slowly, kissing the tip before leaning back."
                 $ the_girl.call_dialogue("cum_mouth")
             elif the_girl.sluttiness > 60:
                 "[the_girl.possessive_title] closes her eyes and holds still as you climax. You feel her throat spasm a few times as she struggles to keep your cock in place."
@@ -492,13 +491,13 @@ label strip_ask_deepthroat(the_girl, the_clothing, the_location, the_object):
     "[the_girl.title] pops off your cock and looks up at you from her knees."
     the_girl.char "[the_girl.mc_title], I'd like to take off my [the_clothing.name], would you mind?"
     menu:
-        "Let her strip":
+        "Let her strip.":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = deepthroat.position_tag)
             "[the_girl.possessive_title] stands up and strips out of her [the_clothing.name]. She gets back onto her knees and slides your cock all the way to the back of her mouth."
 
 
-        "Leave it on":
+        "Leave it on.":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 60:
                 the_girl.char "Yeah? Do I look sexy in it?"
@@ -514,7 +513,7 @@ label orgasm_deepthroat(the_girl, the_location, the_object):
     $ deepthroat.redraw_scene(the_girl)
     "[the_girl.title] pulls back on your cock, almost letting it fall out of her mouth. She closes her eyes and quivers slightly."
     menu:
-        "Face fuck her while she cums":
+        "Face fuck her while she cums.":
             "You put your hands on the back of [the_girl.title]'s head and pull her back down onto your shaft, hard."
             mc.name "Cum for me you dirty little slut!"
             if the_girl.sex_skills["Oral"] > 3:
@@ -532,12 +531,11 @@ label orgasm_deepthroat(the_girl, the_location, the_object):
                 if the_girl.outfit.vagina_visible():
                     "You can see that [the_girl.title]'s pussy is dripping wet as she cums."
                 else:
-                    $ the_item = the_girl.outfit.get_lower_top_layer()
-                    if the_item.underwear:
-                        "[the_girl.title]'s dripping wet pussy has managed to soak through her underwear, leaving a wet mark on her [the_item.name]."
+                    $ top_piece = the_girl.outfit.get_lower_ordered()[-1]
+                    if top_piece.underwear:
+                        "[the_girl.title]'s dripping wet pussy has managed to soak through her underwear, leaving a wet mark on her [top_piece.name]."
                     else:
                         "[the_girl.title] clenches her thighs together and rides out her orgasm."
-                    $ the_item = None
                 $ blowjob.current_modifier = None
                 $ blowjob.redraw_scene(the_girl)
                 "When she's finished cumming you let [the_girl.title] pull back off your shaft. She gasps loudly for air."
@@ -546,14 +544,14 @@ label orgasm_deepthroat(the_girl, the_location, the_object):
             else:
                 $ blowjob.current_modifier = None
                 $ blowjob.redraw_scene(the_girl)
-                "When she's finished cumming you let [the_girl.title] pull back off your shaft. She gasps loudly for air and rubs her throat."
+                "When she's finsihed cumming you let [the_girl.title] pull back off your shaft. She gasps loudly for air and rubs her throat."
                 $ the_girl.change_obedience(1)
                 $ the_girl.change_happiness(-2)
                 the_girl.char "Ah... fuck. Go a little easier on me next time, okay?"
                 "She clears her throat, then kisses the side of your dick."
                 the_girl.char "I think I'm ready to get back to it though."
 
-        "Be gentle while she cums":
+        "Be gentle while she cums.":
             "You wait patiently while [the_girl.possessive_title] climaxes. She keeps her lips wrapped around the tip of your cock the entire time."
             mc.name "That's it, cum for me [the_girl.title]. Suck on my cock and cum for me."
             "You hear her whimper and a final shiver runs through her body."

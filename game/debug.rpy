@@ -60,36 +60,65 @@ init -15 python:
                     else:
                         log_message("Warning: Personality \"" + personality.personality_type_prefix + "\" is using it's default entry for dialogue type \"" + ending + "\"")
 
-    class VrenZipImage(renpy.display.im.ImageBase): #TODO: Move this to a more obvious file. Probably something to do along with a bunch of other refactoring.
-        def __init__(self, position, filename, mtime=0, **properties):
-            super(VrenZipImage, self).__init__(position, filename, mtime, **properties)
-            self.position = position
-            self.filename = filename
+    def add_test_text_message():
+        mc.phone.add_new_message(mom, test_text_action)
+        mc.phone.add_new_message(lily, test_text_action)
 
-        def load(self):
-            tries = 0
-            max_tries = 5
-            while tries < max_tries:
-                global mobile_zip_dict
-                try:
-                    data = mobile_zip_dict[self.position].read(self.filename)
-                    sio = io.BytesIO(data)
-                    the_image = renpy.display.pgrender.load_image(sio, self.filename)
-                    return the_image
+    def give_all_insta():
+        for place in list_of_places:
+            for person in place.get_person_list():
+                person.add_role(instapic_role)
 
-                except (zipfile.BadZipfile, RuntimeError): #Not my fault! See: https://github.com/pfnet/pfio/issues/104
-                    e = sys.exc_info()[1]
-                    log_message("ERR " + str(tries) + ": "  + str(e))
-                    tries += 1
-                    if tries >= max_tries:
-                        renpy.notify("Unsuccessful Recovery: " + self.position + ", Item: " + self.filename)
-                        return renpy.display.pgrender.surface((2, 2), True)
+label test_memory_use():
+    #TODO: Create 10 people
+    #TODO: Draw each of them
+    #TODO: Check total memory usage.
+    python:
+        for x in range(0,10):
+            the_person = create_random_person()
+            the_person.draw_person()
+            renpy.say("TEST", "Talking to person " + str(x) + ": " + the_person.name)
+    $ renpy.profile_memory(0.8, 1028)
+    return
 
-                    else:
-                        file_name = mobile_zip_dict[self.position].filename
-                        mobile_zip_dict[self.position].close()
-                        mobile_zip_dict[self.position] = zipfile.ZipFile(self.filename, "r") #May have to convert to a renpy_file first, but I dthink Zipfile will have alreayd done that
 
+label text_message_style_test(the_person = None): #For now we need to both set the text_conversation person as well as the text font. We need to figure out a way to apply it dynamically.
+    mom "This is the normal person style!"
+    $ mc.start_text_convo(the_person)
+    mom "...And this is the text message style!"
+    mom "Here's a much longer conversation!"
+    mom "... It just keeps going!"
+    mom "Oh my god [mom.mc_title], your message log is so large!"
+    mc.name "Now let's see what it looks like when I message you!"
+    mc.name "Ahah! It's working!"
+    mc.name "And now we can display a veeeeeeeeery long mesage to see how well the system handles it. Isn't that impressive?"
+    mc.name "Yeah, of course it is!"
+    mom "So impressive!"
+    "[lily.possessive_title] knocks on your door and opens it up."
+    $ lily.draw_person()
+    mc.name "One second [mom.title], [lily.title] just came into the room."
+    mom "Okay, take your time!"
+    $ mc.phone.add_system_message(mom, mom.title + " set her status to \"Away\".")
+    $ mc.pause_text_convo()
+    mc.name "Hey [lily.title]."
+    lily "Hey [lily.mc_title]. Cool texting system you've got going there."
+    mc.name "Thanks, it works pretty well. Talk to you later, okay?"
+    lily "Okay, talk to you later."
+    $ clear_scene()
+    $ mc.resume_text_convo()
+    mc.name "I'm back. Glad to see this is still working well!."
+    mom "Me too. Now, let's see if it can handle having to make a choice!"
+    menu:
+        "Of course it can!":
+            mc.name "Of course it can [mom.title]!"
+
+        "I have my doubts.":
+            mc.name "I doubt I even made it this far. Oh well."
+    mom "I knew it would work. Good job!"
+    mom "Me too, it's very good. Now let's end the conversation and see if that works properly."
+    $ mc.end_text_convo()
+    mom "And now we should be back to normal!"
+    return
 
 
 label person_select_debug:

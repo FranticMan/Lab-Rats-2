@@ -310,8 +310,8 @@ init 1 python: #TODO: Prevent you from getting the game goal type twice in a row
         return
 
     stat_goals = [] #This list will hold all of the stat goals that the player can be given. Goals are described by frameworks, esntially a list of parameters to hand to the Goal object when the goal is live.
-    work_goals = [] #Holds goals related to the work category of variables
-    sex_goals = [] #Same as above but for sex category goals
+    work_goals = [] #Holds goals related to the work catagory of variables
+    sex_goals = [] #Same as above but for sex catagory goals
 
 
 

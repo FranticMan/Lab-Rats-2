@@ -2,8 +2,8 @@ init:
     python:
         standing_grope = Position(name = "Groping", slut_requirement = 0, slut_cap = 30, requires_hard = False, requires_large_tits = False,
             position_tag = "walking_away" , requires_location = "Stand", requires_clothing = "None", skill_tag = "Foreplay",
-            girl_arousal = 10, girl_energy = 3,
-            guy_arousal = 5, guy_energy = 8,
+            girl_arousal = 10, girl_energy = 5,
+            guy_arousal = 5, guy_energy = 15,
             connections = [],
             intro = "intro_standing_grope",
             scenes = ["scene_standing_grope_1","scene_standing_grope_2","scene_standing_grope_3"],
@@ -28,7 +28,7 @@ label intro_standing_grope(the_girl, the_location, the_object):
     "You reach one hand down, running across her stomach and towards her waist and the other up towards her tits."
     if the_girl.has_large_tits():
         "She sighs and leans into you cup one of her tits and heft it up, massaging it gently."
-        "Your other hand slides between her legs, brushing against her inner thighs and caressing her pussy."
+        "Your other hand slides between her legs, bruishing against her inner thighs and caressing her pussy."
     else:
         "She sighs and leans into you as your hand slides between her legs, brushing her thighs and petting her pussy."
     return
@@ -72,14 +72,12 @@ label scene_standing_grope_2(the_girl, the_location, the_object):
         $ the_item = the_girl.outfit.get_lower_top_layer()
         "[the_girl.title] spreads her legs for you, and you rub her crotch through her [the_item.name]."
         the_girl.char "Mmm..."
-        $ the_item = None
     return
 
 label scene_standing_grope_3(the_girl, the_location, the_object):
     if the_girl.outfit.vagina_available():
         "[the_girl.title] presses her hips back against you, grinding her bare ass rubbing against your crotch."
-        if not mc.recently_orgasmed:
-            the_girl.char "Mmm, I can feel your erection. That's so fucking hot..."
+        the_girl.char "Mmm, I can feel your erection. That's so fucking hot..."
     else:
         "[the_girl.title] presses her hips back against you, grinding her ass against your crotch."
     return
@@ -111,7 +109,6 @@ label transition_standing_grope_standing_fingering(the_girl, the_location, the_o
         if the_item:
             "You slide a hand under her [the_item.name], bringing your hand right to her pussy."
             "She gasps as you tease it with two fingers, then slip them inside of the wet hole."
-            $ the_item = None
         else:
             "You pet [the_girl.title]'s pussy, then slide two fingers inside of it. She gasps as they slip inside."
     the_girl.char "Oh [the_girl.mc_title]... Ah..."
@@ -131,12 +128,12 @@ label strip_standing_grope(the_girl, the_clothing, the_location, the_object):
 label strip_ask_standing_grope(the_girl, the_clothing, the_location, the_object):
     the_girl.char "I want to feel you touch me everywhere... Can I talk off my [the_clothing.name] for you?"
     menu:
-        "Let her strip":
+        "Let her strip.":
             mc.name "Take it off for me."
             $ the_girl.draw_animated_removal(the_clothing, position = standing_grope.position_tag)
             "You watch while [the_girl.possessive_title] takes off her [the_clothing.name] and drops it to the side."
 
-        "Leave it on":
+        "Leave it on.":
             mc.name "No, I like how you look with it on."
             if the_girl.sluttiness < 80:
                 the_girl.char "Do you think I look sexy in it?"

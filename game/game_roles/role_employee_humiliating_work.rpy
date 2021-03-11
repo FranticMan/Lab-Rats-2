@@ -23,18 +23,14 @@ init -2 python:
             return False
         return True
 
-    def add_humiliating_work_report_action(person):
-        humiliating_work_report_action = Action("Humiliating work report crisis", employee_busywork_report_requirement, "employee_humiliating_work_report_label", args = person, requirement_args = person)
-        mc.business.mandatory_crises_list.append(humiliating_work_report_action)
-        return
-
 label employee_humiliating_work_remove_label(the_person):
     python:
         if employee_humiliating_work_role in the_person.special_role:
-            the_person.remove_role(employee_humiliating_work_role, remove_linked = False)
+            the_person.remove_role(employee_humiliating_work_role)
 
         if employee_role in the_person.special_role: #She may have quit/been fired since then.
-            add_humiliating_work_report_action(the_person)
+            humiliating_work_report_action = Action("Humiliating work report crisis", employee_humiliating_work_report_requirement, "employee_humiliating_work_report_label", args = the_person, requirement_args = the_person)
+            mc.business.mandatory_crises_list.append(humiliating_work_report_action)
 
     return
 
@@ -44,25 +40,25 @@ label employee_humiliating_work_report_label(the_person):
 
     $ the_person.draw_person()
     "[the_person.title] catches your attention while you are working."
-    the_person.char "Do you have a moment [the_person.mc_title]?"
+    the_person "Do you have a moment [the_person.title]?"
     mc.name "Sure, what do you need?"
-    the_person.char "I wanted to let you know that I've finished my week of punishment."
+    the_person "I wanted to let you know that I've finished my week of punishment."
     menu:
-        "Tell me about it":
+        "Tell me about it.":
             mc.name "Good. Tell me about it."
-            the_person.char "It was terrible, [the_person.mc_title]. The bathrooms are disgusting, and things get dirty the moment I finish cleaning them!"
-            the_person.char "I never want to have to do that again, it felt so demeaning!"
-            mc.name "What about your other work? Any performance issues to report?"
-            the_person.char "I tried my best, but there was just so much to do every day. I'm sorry, but I haven't been able to keep up."
+            the_person "It was terrible, [the_person.mc_title]. The bathrooms are disgusting, and things get dirty the moment I finish cleaning them!"
+            the_person "I never want to have to do that again, it felt so demeaning!"
+            mc.name "What about your other work? Any performace issues to report?"
+            the_person "I tried my best, but there was just so much to do every day. I'm sorry, but I haven't been able to keep up."
             menu:
-                "Punish her for unfinished work":
+                "Punish her for unfinished work.":
                     mc.name "Well that's simply not acceptable. We'll have to talk about this later. Understood?"
                     $ the_person.add_infraction(Infraction.underperformance_factory())
 
-                "Let her go":
+                "Let her go.":
                     mc.name "I hope you've learned something from the experience. Don't let this happen again."
 
-        "Let her go":
+        "Let her go.":
             mc.name "Good. Don't let this happen again."
 
     "She nods and steps away."

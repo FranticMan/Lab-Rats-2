@@ -594,6 +594,25 @@
             </Feet>
             <Accessories />
         </Outfit>
+		<Outfit name="Sexy Daywear">
+			<UpperBody>
+				<Item name="Vest" red="0.0" green="0.0" blue="0.0" alpha="0.95"/>
+				<Item name="Tshirt" red="1.0" green="1.0" blue="1.0" alpha="0.8"/>
+				<Item name="Lace_Bra" red="1.0" green="0.9" blue="1.0" alpha="0.8" pred="0.82" pgreen="0.71" pblue="1.0" pattern="Pattern_1" palpha="1.0"/>
+			</UpperBody>
+			<LowerBody>
+				<Item name="Jeans" red="0.28" green="0.28" blue="0.28" alpha="1.0"/>
+			</LowerBody>
+			<Feet>
+				<Item name="Garter_and_Fishnets" red="0.0" green="0.0" blue="0.0" alpha="0.95"/>
+				<Item name="Sneakers" red="0.0" green="0.0" blue="0.0" alpha="0.95" pred="1.0" pgreen="1.0" pblue="1.0" pattern="Pattern_1" palpha="0.95"/>
+			</Feet>
+			<Accessories>
+				<Item name="Bead_Bracelet" red="1.0" green="0.15" blue="1.0" alpha="0.8"/>
+				<Item name="Lipstick" red="0.19" green="0.0" blue="0.44" alpha="0.8"/>
+				<Item name="Copper_Ring_Set" red="1.0" green="0.9" blue="1.0" alpha="0.8"/>
+			</Accessories>
+		</Outfit>
     </FullSets>
     <UnderwearSets>
         <Outfit name="No Underwear">
@@ -1303,7 +1322,7 @@
                 <Item alpha="1.0" blue="0.1" green="0.1" name="Lace_Choker" red="0.1" />
             </Accessories>
         </Outfit>
-		<Outfit name="Kitty_1">
+		 <Outfit name="Kitty_1">
             <UpperBody>
                 <Item alpha="1.0" blue="0.91" green="0.82" name="Kitty_Babydoll" red="1.0" />
             </UpperBody>
@@ -1336,6 +1355,62 @@
             </LowerBody>
             <Feet>
                 <Item alpha="1" blue="1" green="1" name="High_Socks" palpha="1.0" pattern="Pattern_1" pblue="0.76" pgreen="1.0" pred="0.7" red="1" />
+            </Feet>
+            <Accessories />
+        </Outfit>
+		<Outfit name="Pinafore_1">
+            <UpperBody>
+                <Item alpha="1" blue="0.67" green="0.47" name="Frilly_Longsleeve_Shirt" red="0.47" />
+                <Item alpha="1.0" blue="0.15" green="0.15" name="Pinafore" red="0.15" />
+            </UpperBody>
+            <LowerBody />
+            <Feet>
+                <Item alpha="1.0" blue="0.1" green="0.1" name="Sandal_Heels" red="0.1" />
+            </Feet>
+            <Accessories />
+        </Outfit>
+        <Outfit name="Pinafore_2">
+            <UpperBody>
+                <Item alpha="1.0" blue="0.3" green="0.3" name="Pinafore" red="0.75" />
+                <Item alpha="1.0" blue="0.99" green="0.95" name="Dress_Shirt" red="1.0" />
+            </UpperBody>
+            <LowerBody />
+            <Feet>
+                <Item alpha="1.0" blue="0.3" green="0.3" name="Slips" red="0.75" />
+            </Feet>
+            <Accessories />
+        </Outfit>
+        <Outfit name="Frilly_Dress_1">
+            <UpperBody>
+                <Item alpha="1" blue="0.43" green="0.2" name="Frilly_Dress" red="0.46" />
+            </UpperBody>
+            <LowerBody />
+            <Feet>
+                <Item alpha="1.0" blue="0.2" green="0.2" name="High_Boots" red="0.2" />
+            </Feet>
+            <Accessories />
+        </Outfit>
+        <Outfit name="Pinafore_3">
+            <UpperBody>
+                <Item alpha="1.0" blue="0.1" green="0.1" name="Pinafore" red="0.1" />
+            </UpperBody>
+            <LowerBody />
+            <Feet>
+                <Item alpha="1.0" blue="0.1" green="0.1" name="Pumps" palpha="0.8" pattern="Pattern_1" pblue="0.1" pgreen="0.1" pred="0.1" red="0.1" />
+            </Feet>
+            <Accessories>
+                <Item alpha="1.0" blue="0.1" green="0.1" name="Wide_Choker" red="0.1" />
+            </Accessories>
+        </Outfit>
+        <Outfit name="Frilly_Shirt_1">
+            <UpperBody>
+                <Item alpha="1.0" blue="0.39" green="0.13" name="Frilly_Longsleeve_Shirt" red="0.15" />
+            </UpperBody>
+            <LowerBody>
+                <Item alpha="1.0" blue="0.1" green="0.1" name="Suit_Pants" red="0.1" />
+            </LowerBody>
+            <Feet>
+                <Item alpha="1.0" blue="0.25" green="0.25" name="Sneakers" palpha="1" pattern="Pattern_1" pblue="0.9" pgreen="0.9" pred="0.9" red="0.25" />
             </Feet>
             <Accessories />
         </Outfit>
@@ -1891,62 +1966,6 @@
 			</LowerBody>
 			<Feet/>
 			<Accessories/>
-		</Outfit>
-		<Outfit name="Pinafore_1">
-            <UpperBody>
-                <Item alpha="1" blue="0.67" green="0.47" name="Frilly_Longsleeve_Shirt" red="0.47" />
-                <Item alpha="1.0" blue="0.15" green="0.15" name="Pinafore" red="0.15" />
-            </UpperBody>
-            <LowerBody />
-            <Feet>
-                <Item alpha="1.0" blue="0.1" green="0.1" name="Sandal_Heels" red="0.1" />
-            </Feet>
-            <Accessories />
-        </Outfit>
-        <Outfit name="Pinafore_2">
-            <UpperBody>
-                <Item alpha="1.0" blue="0.3" green="0.3" name="Pinafore" red="0.75" />
-                <Item alpha="1.0" blue="0.99" green="0.95" name="Dress_Shirt" red="1.0" />
-            </UpperBody>
-            <LowerBody />
-            <Feet>
-                <Item alpha="1.0" blue="0.3" green="0.3" name="Slips" red="0.75" />
-            </Feet>
-            <Accessories />
-        </Outfit>
-        <Outfit name="Frilly_Dress_1">
-            <UpperBody>
-                <Item alpha="1" blue="0.43" green="0.2" name="Frilly_Dress" red="0.46" />
-            </UpperBody>
-            <LowerBody />
-            <Feet>
-                <Item alpha="1.0" blue="0.2" green="0.2" name="High_Boots" red="0.2" />
-            </Feet>
-            <Accessories />
-        </Outfit>
-        <Outfit name="Pinafore_3">
-            <UpperBody>
-                <Item alpha="1.0" blue="0.1" green="0.1" name="Pinafore" red="0.1" />
-            </UpperBody>
-            <LowerBody />
-            <Feet>
-                <Item alpha="1.0" blue="0.1" green="0.1" name="Pumps" palpha="0.8" pattern="Pattern_1" pblue="0.1" pgreen="0.1" pred="0.1" red="0.1" />
-            </Feet>
-            <Accessories>
-                <Item alpha="1.0" blue="0.1" green="0.1" name="Wide_Choker" red="0.1" />
-            </Accessories>
-        </Outfit>
-        <Outfit name="Frilly_Shirt_1">
-            <UpperBody>
-                <Item alpha="1.0" blue="0.39" green="0.13" name="Frilly_Longsleeve_Shirt" red="0.15" />
-            </UpperBody>
-            <LowerBody>
-                <Item alpha="1.0" blue="0.1" green="0.1" name="Suit_Pants" red="0.1" />
-            </LowerBody>
-            <Feet>
-                <Item alpha="1.0" blue="0.25" green="0.25" name="Sneakers" palpha="1" pattern="Pattern_1" pblue="0.9" pgreen="0.9" pred="0.9" red="0.25" />
-            </Feet>
-            <Accessories />
-        </Outfit>		
+</Outfit>
     </OverwearSets>
 </Wardrobe>

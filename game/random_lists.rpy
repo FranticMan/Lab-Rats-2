@@ -62,6 +62,7 @@ init -2:
         list_of_names.append("Melanie")
         list_of_names.append("Tina")
         list_of_names.append("Raven")
+        list_of_names.append("Sarah")
         list_of_names.append("Antonia")
         list_of_names.append("Mina")
         list_of_names.append("Marisha")
@@ -121,6 +122,7 @@ init -2:
         list_of_names.append("Raislyn")
         list_of_names.append("Gina")
         list_of_names.append("Chrystal")
+        list_of_names.append("Jenny")
         list_of_names.append("Selene")
         list_of_names.append("Piper")
         list_of_names.append("Nicole")
@@ -132,6 +134,7 @@ init -2:
         list_of_names.append("Lystra")
         list_of_names.append("Katreena")
         list_of_names.append("Hannah")
+        list_of_names.append("Mara")
         list_of_names.append("Trinity")
         list_of_names.append("Stephine")
         list_of_names.append("Sydney")
@@ -143,6 +146,7 @@ init -2:
         list_of_names.append("Kayla")
         list_of_names.append("Tia")
         list_of_names.append("Mimi")
+        list_of_names.append("Evelyn")
 
         def get_random_name():
             return get_random_from_list(list_of_names)
@@ -162,6 +166,7 @@ init -2:
         list_of_last_names.append("Kurokami")
         list_of_last_names.append("Bergstrom")
         list_of_last_names.append("Fernandez")
+        list_of_last_names.append("Bergstrom")
         list_of_last_names.append("Sasamiya")
         list_of_last_names.append("Onihime")
         list_of_last_names.append("Lancie")
@@ -254,6 +259,7 @@ init -2:
         list_of_last_names.append("Derry")
         list_of_last_names.append("Ling")
         list_of_last_names.append("Bjornson")
+        list_of_last_names.append("Lin")
 
         def get_random_last_name():
             return get_random_from_list(list_of_last_names)
@@ -450,6 +456,7 @@ init -2:
             for a_tit_tuple in list_of_tits:
                 if the_tits == a_tit_tuple[0]:
                     return list_of_tits.index(a_tit_tuple) #Ranges from 0 (AA) to 9 (FF).
+            return 0
 
 
         list_of_clothing_colours = []
@@ -591,6 +598,7 @@ init -2:
         font_list.append("Crimson-Bold.ttf")
         font_list.append("HKVenetian-Regular.otf")
         font_list.append("HKVenetian-Italic.otf")
+        font_list.append("AAntiCorona-L3Ax3.ttf")
 
 
 
@@ -624,6 +632,10 @@ init -2:
             else:
                 list_of_titles.append(personality_titles)
 
+            if the_person.sluttiness > 20:
+                if the_person.obedience > 140:
+                    list_of_titles.append("Slave")
+
 
             if the_person.sluttiness > 60:
                 list_of_titles.append("Slut")
@@ -640,11 +652,11 @@ init -2:
                     list_of_titles.append("Breeding Material")
 
             if the_person.sluttiness > (70 - (the_person.get_opinion_score("drinking cum")*5 + the_person.get_opinion_score("creampies")*5 + the_person.get_opinion_score("cum facials")*5 + the_person.get_opinion_score("being covered in cum")*5)):
-                if the_person.sex_record.get("Cum Facials", 0) > 0 or the_person.sex_record.get("Cum in Mouth", 0) > 0 or the_person.sex_record.get("Cum Covered", 0) > 0:
+                if the_person.sex_record.get("Cum Facials", 0) > 5 or the_person.sex_record.get("Cum in Mouth", 0) > 5 or the_person.sex_record.get("Cum Covered", 0) > 5:
                     list_of_titles.append("Cumslut")
 
             if the_person.sluttiness > (70 - (the_person.get_opinion_score("bareback sex")*5 + the_person.get_opinion_score("creampies")*5)):
-                if the_person.sex_record.get("Vaginal Creampies", 0) > 0 or the_person.sex_record.get("Anal Creampies", 0) > 0:
+                if the_person.sex_record.get("Vaginal Creampies", 0) > 5 or the_person.sex_record.get("Anal Creampies", 0) > 5:
                     list_of_titles.append("Cumdump")
 
 
@@ -652,7 +664,13 @@ init -2:
             if the_person.love >= 60 and girlfriend_role in the_person.special_role:
                 list_of_titles.append("Love")
 
-            return list(set(list_of_titles)) #We return the list so that it can be presented to the player. In general the girl will always want to pick the first one on the list.
+            if the_person.love < 0:
+                list_of_titles.append("Cunt")
+                list_of_titles.append("Bitch")
+
+
+
+            return list_of_titles #We return the list so that it can be presented to the player. In general the girl will always want to pick the first one on the list.
 
         def get_random_title(the_person):
             return get_random_from_list(get_titles(the_person))
@@ -675,10 +693,16 @@ init -2:
             if the_person.love > 10:
                 list_of_possessive_titles.append("Your friend")
 
-            if the_person.obedience > 150 and the_person.sluttiness > 60:
-                list_of_possessive_titles.append("Your dedicated cocksleeve")
+            if the_person.obedience > 150:
+                list_of_possessive_titles.append("Your slave")
+                if the_person.sluttiness > 60:
+                    list_of_possessive_titles.append("Your dedicated cocksleeve")
+
 
             if the_person.sluttiness > 60:
+                if the_person.int == 0 and the_person.has_large_tits():
+                    list_of_possessive_titles.append("Your airhead bimbo")
+
 
                 if the_person.love > 50:
                     list_of_possessive_titles.append("Your personal slut")
@@ -697,10 +721,10 @@ init -2:
                     list_of_possessive_titles.append("Your breeder")
 
             if the_person.sluttiness > (70 - (the_person.get_opinion_score("drinking cum")*5 + the_person.get_opinion_score("creampies")*5 + the_person.get_opinion_score("cum facials")*5 + the_person.get_opinion_score("being covered in cum")*5)):
-                if the_person.sex_record.get("Cum Facials", 0) > 0 or the_person.sex_record.get("Cum in Mouth", 0) > 0 or the_person.sex_record.get("Cum Covered", 0) > 0:
+                if the_person.sex_record.get("Cum Facials", 0) > 5 or the_person.sex_record.get("Cum in Mouth", 0) > 5 or the_person.sex_record.get("Cum Covered", 0) > 5:
                     list_of_possessive_titles.append("Your cumslut")
 
-                if the_person.sex_record.get("Vaginal Creampies", 0) > 0 or the_person.sex_record.get("Anal Creampies", 0) > 0:
+                if the_person.sex_record.get("Vaginal Creampies", 0) > 5 or the_person.sex_record.get("Anal Creampies", 0) > 5:
                     list_of_possessive_titles.append("Your cumdump")
 
 
@@ -715,7 +739,7 @@ init -2:
             if student_role in the_person.special_role:
                 list_of_possessive_titles.append("Your student")
 
-            return list(set(list_of_possessive_titles))
+            return list_of_possessive_titles
 
         def get_random_possessive_title(the_person):
             return get_random_from_list(get_possessive_titles(the_person))
@@ -729,7 +753,7 @@ init -2:
                 list_of_player_titles.append(personality_player_titles)
 
             if employee_role in the_person.special_role or student_role in the_person.special_role:
-                list_of_player_titles.append("Mr. " + mc.last_name)
+                list_of_player_titles.append("Mr." + mc.last_name)
                 if the_person.obedience > 120:
                     list_of_player_titles.append("Sir")
                 elif the_person.obedience < 80 and employee_role in the_person.special_role:
@@ -750,7 +774,7 @@ init -2:
             if student_role in the_person.special_role:
                 list_of_player_titles.append("Teacher")
 
-            return list(set(list_of_player_titles))
+            return list_of_player_titles
 
         def get_random_player_title(the_person):
             return get_random_from_list(get_player_titles(the_person))
@@ -786,84 +810,36 @@ init -2:
                         return_string += an_item.display_name + ", "
             return return_string
 
-        def add_alexia_introduction_actions():
-            alexia_intro_phase_zero_action = Action("Alexia Set Schedule", alexia_intro_phase_zero_requirement, "alexia_phase_zero_label", requirement_args = renpy.random.randint(14, 21))
-            mc.business.mandatory_crises_list.append(alexia_intro_phase_zero_action)
-
-            alexia_intro_phase_one_action = Action("Alexia Intro Phase One", alexia_intro_phase_one_requirement, "alexia_intro_phase_one_label")
-            alexia.on_room_enter_event_list.append(alexia_intro_phase_one_action)
-            return
-
-        def add_lily_introduction_actions():
-            sister_intro_crisis = Action("sister_intro_crisis", sister_intro_crisis_requirements, "sister_intro_crisis_label", args=lily, requirement_args = [lily, renpy.random.randint(7,14)]) #Def is in roles.rpy
-            sister_strip_intro_crisis = Action("sister_strip_intro_crisis", sister_strip_intro_requirement, "sister_strip_intro_label", args=lily, requirement_args = lily)
-
-            mc.business.mandatory_crises_list.append(sister_intro_crisis) #Introduces Lily one to two weeks into the game. She will test serum for cash.
-            mc.business.mandatory_crises_list.append(sister_strip_intro_crisis) #Lily comes asking for more money. She will strip (to varying degrees) for cash)
-
-            instathot_intro_action = Action("Instathot intro", instathot_intro_requirement, "sister_instathot_intro_label") #Event to introduce Lily taking pictures on the internet for money.
-            lily.on_room_enter_event_list.append(instathot_intro_action)
-            return
-
-        def add_mom_introduction_actions():
-            mom_promotion_one_crisis = Action("mom promotion one crisis", mom_work_promotion_one_requirement, "mom_work_promotion_one")
-            mom.on_talk_event_list.append(mom_promotion_one_crisis)
-            return
-
-        def add_aunt_introduction_actions():
-            aunt_intro_action = Action("Aunt introduction", aunt_intro_requirement, "aunt_intro_label", requirement_args = renpy.random.randint(24,30))
-            mc.business.mandatory_crises_list.append(aunt_intro_action) #Aunt and cousin will be visiting tomorrow in the morning
-            family_games_night_intro_action = Action("Family games night intro", family_games_night_intro_requirement, "family_games_night_intro")
-            aunt.on_room_enter_event_list.append(family_games_night_intro_action)
-            return
-
-init -1 python:
-    # wardrobes
-    dinah_wardrobe = wardrobe_from_xml("Dinah_Wardrobe")
-    sylvia_wardrobe = wardrobe_from_xml("Sylvia_Wardrobe")
-    paige_wardrobe = wardrobe_from_xml("Paige_Wardrobe")
-    svetlanna_wardrobe = wardrobe_from_xml("Svetlanna_Wardrobe")
-    kendra_wardrobe = wardrobe_from_xml("Kendra_Wardrobe")
-    kelly_wardrobe = wardrobe_from_xml("Kelly_Wardrobe")
-    stephanie_wardrobe = wardrobe_from_xml("Stephanie_Wardrobe")
-    nora_wardrobe = wardrobe_from_xml("Nora_Wardrobe")
-    alexia_wardrobe = wardrobe_from_xml("Alexia_Wardrobe")
-    emily_wardrobe = wardrobe_from_xml("Emily_Wardrobe")
-    christina_wardrobe = wardrobe_from_xml("Christina_Wardrobe")
-    lily_wardrobe = wardrobe_from_xml("Lily_Wardrobe")
-    mom_wardrobe = wardrobe_from_xml("Mom_Wardrobe")
-    aunt_wardrobe = wardrobe_from_xml("Aunt_Wardrobe")
-    cousin_wardrobe = wardrobe_from_xml("Cousin_Wardrobe")
-
-    # base outfits
-    nora_base = Outfit("Nora's accessories")
-    nora_glasses = modern_glasses.get_copy()
-    nora_glasses.colour = [0.45,0.53,0.6,1.0]
-    nora_earrings = gold_earings.get_copy()
-    nora_earrings.colour = [1.0,1.0,0.93,1.0]
-    nora_base.add_accessory(nora_glasses)
-    nora_base.add_accessory(nora_earrings)
-
-    alexia_base = Outfit("Alexia's accessories")
-    alexia_glasses = big_glasses.get_copy()
-    big_glasses.colour = [0.1,0.1,0.1,1.0]
-    alexia_base.add_accessory(alexia_glasses)
-
 
 init 1 python:
     def generate_premade_list():
+        global list_of_premade_characters
         global list_of_unique_characters
+        list_of_premade_characters = []
+        list_of_premade_characters.append(create_random_person(body_type = "curvy_body", height=0.99, skin="tan", tits="DD",hair_colour="chestnut",hair_style=messy_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "thin_body", height=1.0, skin="white", tits="B",hair_colour="chestnut",hair_style=messy_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "curvy_body", height=0.96, skin="white", tits="DD",hair_colour="brown",hair_style=twintail))
+        list_of_premade_characters.append(create_random_person(body_type = "standard_body", height=0.96, skin="white", tits="DD", hair_colour="chestnut",hair_style=messy_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "thin_body", height=0.92, skin="tan", tits="B", hair_colour="black", hair_style=ponytail))
+        list_of_premade_characters.append(create_random_person(body_type = "standard_body", height=0.90, skin="white", tits="DD", hair_colour="blond", hair_style=messy_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "curvy_body", height=1.00, skin="white", tits="DD", hair_colour="chestnut", hair_style=messy_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "thin_body", height=0.94, skin="white", tits="FF", hair_colour="blond", hair_style=long_hair))
+        list_of_premade_characters.append(create_random_person(body_type = "standard_body", height=0.95, skin="tan", tits="FF", hair_colour="brown", hair_style=ponytail))
+
 
         # Patron reward characters!
         list_of_unique_characters = []
 
+        dinah_wardrobe = wardrobe_from_xml("Dinah_Wardrobe")
         person_dinah = create_random_person(name = "Dinah", last_name = "Midari", body_type = "standard_body", height=0.99, skin="black", tits="D", hair_colour="black", hair_style=short_hair, starting_wardrobe = dinah_wardrobe)
         list_of_unique_characters.append(person_dinah)
 
+        sylvia_wardrobe = wardrobe_from_xml("Sylvia_Wardrobe")
         person_sylvia = create_random_person(name = "Sylvia", last_name = "Weissfeldt", body_type = "curvy_body", height=0.96, skin="white", tits="C", hair_colour="blond", hair_style = long_hair, starting_wardrobe = sylvia_wardrobe,
             personality = reserved_personality)
         list_of_unique_characters.append(person_sylvia)
 
+        paige_wardrobe = wardrobe_from_xml("Paige_Wardrobe")
         # Well educated and raised in a very middle-class family.
         # Paige is a cool-headed young woman who has confidence without exuberance or extraversion.
         # her favourite activities are generally calm and solitary: reading, playing musical instruments, watching TV, etc.
@@ -873,6 +849,7 @@ init 1 python:
             personality = reserved_personality, stat_array = [1,4,3], skill_array = [5,1,2,3,2], sex_array = [2,1,4,2])
         list_of_unique_characters.append(person_paige)
 
+        kendra_wardrobe = wardrobe_from_xml("Kendra_Wardrobe")
         # Kendra's family owns one of the largest pharmaceutical companies in the country. All of the Rivera children went to the finest prep schools.
         # Unlike her siblings, Kendra didn't inherit her parent's good looks or their general attitudes. She also disagreed with her families' viewpoint that being rich makes you better than everyone else.
         # This point of view put her at odds with everyone in her social class so she mostly hung out with the outcasts of her school.
@@ -883,6 +860,7 @@ init 1 python:
             personality = relaxed_personality, stat_array = [4,3,1], skill_array = [5,3,1,2,2], sex_array = [2,2,4,1], face_style = "Face_4")
         list_of_unique_characters.append(person_kendra)
 
+        svetlanna_wardrobe = wardrobe_from_xml("Svetlanna_Wardrobe")
         # Svetlanna moved to the fictional city from a fictional Russian land at the age of 16. She was always fascinated with biochemistry and when her mother became ill, she dove even deeper into her studies.
         # After graduating from public education, she immediately moved to higher studies. She was hell-bent to learn all she could to help her mother.
         # Unfortunately, her mother died before Svetlanna could find a cure for her mysterious disease, which put her into a deep depression.
@@ -892,6 +870,7 @@ init 1 python:
         person_svetlanna.opinions["research work"] = [2, False] # Patron reward
         list_of_unique_characters.append(person_svetlanna)
 
+        kelly_wardrobe = wardrobe_from_xml("Kelly_Wardrobe")
         #
         person_kelly = create_random_person(name = "Kelly", last_name = "Uhls", body_type = "curvy_body", height = 0.98, skin = "white", eyes = "dark blue", tits = "E", hair_colour = "chestnut", hair_style = ponytail, starting_wardrobe = kelly_wardrobe,
             personality = reserved_personality, stat_array = [2,2,4], skill_array = [2,1,2,1,5], sex_array = [3,4,2,1])
@@ -904,7 +883,10 @@ init 1 python:
             personality = wild_personality, stat_array = [3,1,4], skill_array = [2,2,1,1,5], sex_array = [4,3,2,1])
         list_of_unique_characters.append(person_sativa)
 
+
         ### STEPHANIE ###
+        stephanie_wardrobe = wardrobe_from_xml("Stephanie_Wardrobe")
+
 
         global stephanie
         stephanie = create_random_person(name = "Stephanie", age = 29, body_type = "standard_body", face_style = "Face_3",  tits="C", height = 0.94, hair_colour="brown", hair_style = messy_short_hair, skin="white" , \
@@ -915,7 +897,16 @@ init 1 python:
         stephanie.opinions["research work"] = [2, True] #Steph always loves research work, which you know
 
         ### NORA ##
+        nora_wardrobe = wardrobe_from_xml("Nora_Wardrobe")
+
         global nora
+        nora_base = Outfit("Nora's accessories")
+        nora_glasses = modern_glasses.get_copy()
+        nora_glasses.colour = [0.45,0.53,0.6,1.0]
+        nora_earrings = gold_earings.get_copy()
+        nora_earrings.colour = [1.0,1.0,0.93,1.0]
+        nora_base.add_accessory(nora_glasses)
+        nora_base.add_accessory(nora_earrings)
         nora = create_random_person(name = "Nora", age = 47, body_type = "standard_body", face_style = "Face_4", tits = "D", height = 0.98, hair_colour="black", hair_style = bowl_hair, skin = "white", \
             eyes = "grey", personality = nora_personality, name_color = "#dddddd", dial_color = "#dddddd", starting_wardrobe = nora_wardrobe, \
             stat_array = [1,5,4], skill_array = [1,1,5,3,1], sex_array = [3,2,4,1], start_sluttiness = 4, start_obedience = 2, start_happiness = 0, start_love = 3, \
@@ -926,21 +917,35 @@ init 1 python:
         nora.set_schedule(nora.home, times = [0,1,2,3,4])
         nora.home.add_person(nora)
 
+        town_relationships.update_relationship(nora, stephanie, "Friend")
+
         ### ALEXIA ###
+        alexia_wardrobe = wardrobe_from_xml("Alexia_Wardrobe")
+
         global alexia
+        alexia_base = Outfit("Alexia's accessories")
+        alexia_glasses = big_glasses.get_copy()
+        big_glasses.colour = [0.1,0.1,0.1,1.0]
+        alexia_base.add_accessory(alexia_glasses)
         alexia = create_random_person(name = "Alexia", age = 21, body_type = "thin_body", face_style = "Face_2", tits = "C", height = 0.92, hair_colour = "blond", hair_style = short_hair, skin="white",\
             eyes = "brown", personality = alexia_personality, name_color = "#ffff6e", dial_color = "#ffff6e", starting_wardrobe = alexia_wardrobe, \
             stat_array = [4,3,3], skill_array = [1,3,2,1,1], sex_array = [2,2,1,0], start_sluttiness = 3, start_obedience = 0, start_happiness = 102, start_love = 3, \
             title = "Alexia", possessive_title = "Your old classmate",mc_title = mc.name, relationship = "Girlfriend", SO_name = get_random_male_name(), kids = 0, base_outfit = alexia_base)
         alexia.generate_home()
 
-        add_alexia_introduction_actions()
+        alexia_intro_phase_zero_action = Action("Alexia Set Schedule", alexia_intro_phase_zero_requirement, "alexia_phase_zero_label", requirement_args = renpy.random.randint(14, 21))
+        mc.business.mandatory_crises_list.append(alexia_intro_phase_zero_action)
+
+        alexia_intro_phase_one_action = Action("Alexia Intro Phase One", alexia_intro_phase_one_requirement, "alexia_intro_phase_one_label")
+        alexia.on_room_enter_event_list.append(alexia_intro_phase_one_action)
 
         alexia.add_role(alexia_role)
         alexia.set_schedule(alexia.home, times = [0,1,2,3,4])#Hide them in their bedroom off the map until they're ready.
         alexia.home.add_person(alexia)
 
         ### EMILY (18) ###
+        emily_wardrobe = wardrobe_from_xml("Emily_Wardrobe")
+
         global emily
         emily_base = Outfit("Emily's accessories") #TODO: Decide on what her wardrobe should look like. Also decide on name colour
         emily = create_random_person(name = "Emily", last_name = "Vandenberg", age = 19, body_type = "thin_body", face_style = "Face_8", tits = "C", height = 0.91, hair_colour = "chestnut", hair_style = twintail, pubes_style = shaved_pubes, skin = "white", \
@@ -948,12 +953,15 @@ init 1 python:
             start_sluttiness = 6, start_obedience = 0, start_happiness = 100, start_love = 0, relationship = "Single", kids = 0, base_outfit = emily_base)
 
         emily.generate_home()
-        emily.set_schedule(university, days = [0, 1, 2, 3, 4, 5], times = [1,2])
+        emily.set_schedule(university, times = [1,2])
         emily.set_schedule(emily.home, times = [3])
         emily.home.add_person(emily)
         emily.add_role(student_role)
 
+
         ### CHRISTINA (EMILY'S MOM) ###
+        christina_wardrobe = wardrobe_from_xml("Christina_Wardrobe")
+
         global christina
         christina_base = Outfit("Christina's accessories") #TODO: Decide on what her wardrobe should look like. Add wedding ring.
         christina_base.add_accessory(diamond_ring.get_copy())
@@ -967,20 +975,33 @@ init 1 python:
         #Note: She plays an important role to Emily's story, but she is just given the normal affair role during the game.
 
         ### LILY ###
+        lily_wardrobe = wardrobe_from_xml("Lily_Wardrobe")
+
         global lily
         lily = create_random_person(name = "Lily", last_name = mc.last_name, age = 19, body_type = "thin_body", face_style = "Face_6", tits = "B", height = 0.90, hair_colour="blond", hair_style = ponytail, skin="white", \
             eyes = "light blue", personality = lily_personality, name_color = "#FFB1F8", dial_color = "#FFB1F8", starting_wardrobe = lily_wardrobe, start_home = lily_bedroom, \
             stat_array = [5,2,2], skill_array = [2,2,0,1,1], sex_array = [2,1,0,0], start_sluttiness = 8, start_obedience = -26, start_happiness = 122, start_love = 8, \
             title = "Lily", possessive_title = "Your sister", mc_title = mc.name, relationship = "Single", kids = 0)
 
-        add_lily_introduction_actions()
-
         lily.add_role(sister_role)
         lily.set_schedule(lily.home, times = [3])
-        lily.set_schedule(university, days = [0, 1, 2, 3, 4, 5], times = [1,2])
+        lily.set_schedule(university, times = [1,2])
+
+        sister_intro_crisis = Action("sister_intro_crisis", sister_intro_crisis_requirements, "sister_intro_crisis_label", args=lily, requirement_args = [lily, renpy.random.randint(7,14)]) #Def is in roles.rpy
+        sister_strip_intro_crisis = Action("sister_strip_intro_crisis", sister_strip_intro_requirement, "sister_strip_intro_label", args=lily, requirement_args = lily)
+
+        mc.business.mandatory_crises_list.append(sister_intro_crisis) #Introduces Lily one to two weeks into the game. She will test serum for cash.
+        mc.business.mandatory_crises_list.append(sister_strip_intro_crisis) #Lily comes asking for more money. She will strip (to varying degrees) for cash)
+
+        instathot_intro_action = Action("Instathot intro", instathot_intro_requirement, "sister_instathot_intro_label") #Event to introduce Lily taking pictures on the internet for money.
+        lily.on_room_enter_event_list.append(instathot_intro_action)
+
         lily.home.add_person(lily)
+        mc.phone.register_number(lily)
 
         ### MOM ###
+        mom_wardrobe = wardrobe_from_xml("Mom_Wardrobe")
+
         global mom
         mom_base = Outfit("Jennifer's accessories")
         mom_base.add_accessory(diamond_ring.get_copy())
@@ -989,29 +1010,43 @@ init 1 python:
             stat_array = [3,2,4], skill_array = [5,2,0,0,2], sex_array = [2,1,3,0], start_sluttiness = 7, start_obedience = 12, start_happiness = 108, start_love = 8, \
             title = "Mom", possessive_title = "Your mother", mc_title = "Sweetheart", relationship = "Single", kids = 2, base_outfit = mom_base)
 
-        add_mom_weekly_pay_action()
-        add_mom_introduction_actions()
-
         mom.add_role(mother_role)
         mom.set_schedule(kitchen, times = [3])
+        mom.set_work(mom_offices, work_times = [1,2])
+
+        mom_weekly_pay_action = Action("mom weekly pay", mom_weekly_pay_requirement, "mom_weekly_pay_label", args=mom, requirement_args =[mom])
+        mc.business.mandatory_morning_crises_list.append(mom_weekly_pay_action)
+
+        mom_promotion_one_crisis = Action("mom promotion one crisis", mom_work_promotion_one_requirement, "mom_work_promotion_one")
+        mom.on_talk_event_list.append(mom_promotion_one_crisis)
 
         mom.home.add_person(mom)
+        mc.phone.register_number(mom)
 
         ### AUNT ###
+        aunt_wardrobe = wardrobe_from_xml("Aunt_Wardrobe")
+
         global aunt
         aunt = create_random_person(name = "Rebecca", last_name = get_random_last_name(), age = 39, body_type = "thin_body", face_style = "Face_1", tits = "DD", height = 0.92, hair_colour = "blond", hair_style = bobbed_hair, skin="white", \
             eyes = "brown", personality = aunt_personality, name_color = "#66FF8A", dial_color = "#66FF8A", starting_wardrobe = aunt_wardrobe, start_home = aunt_bedroom, \
             stat_array = [5,2,1], skill_array = [1,2,0,0,0], sex_array = [3,5,3,2], start_sluttiness = 11, start_obedience = 0, start_happiness = 70, start_love = 5, \
             title = "Rebecca", possessive_title = "Your aunt", mc_title = mc.name, relationship = "Single", kids = 1)
 
-        add_aunt_introduction_actions()
 
         aunt.add_role(aunt_role)
         aunt.set_schedule(aunt_bedroom, times = [0,1,2,3,4]) #Hide them in their bedroom off the map until they're ready.
         aunt.home.add_person(aunt)
 
+        aunt_intro_action = Action("Aunt introduction", aunt_intro_requirement, "aunt_intro_label", requirement_args = renpy.random.randint(15,20))
+        mc.business.mandatory_crises_list.append(aunt_intro_action) #Aunt and cousin will be visiting tomorrow in the morning
+
+        family_games_night_intro_action = Action("Family games night intro", family_games_night_intro_requirement, "family_games_night_intro")
+        aunt.on_room_enter_event_list.append(family_games_night_intro_action)
+
 
         ### COUSIN ###
+        cousin_wardrobe = wardrobe_from_xml("Cousin_Wardrobe")
+
         global cousin
         cousin = create_random_person(name = "Gabrielle", last_name = aunt.last_name, age = 18, body_type = "curvy_body", face_style = "Face_3", tits = "DDD", height = 0.90, hair_colour = "black", hair_style = messy_short_hair, skin="white",\
             eyes = "brown", personality = cousin_personality, name_color = "#9c4dea", dial_color = "#9c4dea", starting_wardrobe = cousin_wardrobe, start_home = cousin_bedroom, \
@@ -1022,15 +1057,15 @@ init 1 python:
         cousin.set_schedule(cousin_bedroom, times = [0,1,2,3,4]) #Hide them in their bedroom off the map until they're ready
         cousin.home.add_person(cousin)
 
-        town_relationships.update_relationship(nora, stephanie, "Friend")
+
         town_relationships.update_relationship(mom,lily, "Daughter", "Mother")
         town_relationships.update_relationship(mom,aunt, "Sister")
         town_relationships.update_relationship(mom, cousin, "Niece", "Aunt")
         town_relationships.update_relationship(aunt, cousin, "Daughter", "Mother")
         town_relationships.update_relationship(aunt, lily, "Niece", "Aunt")
         town_relationships.update_relationship(lily, cousin, "Cousin")
-        town_relationships.update_relationship(christina, emily, "Daughter", "Mother")
 
+        town_relationships.update_relationship(christina, emily, "Daughter", "Mother")
 
 
     def get_premade_character(): #Get a premade character and return them when the function is called.
@@ -1038,4 +1073,8 @@ init 1 python:
         if person is not None:
             list_of_unique_characters.remove(person)
             return person
+
+        person = get_random_from_list(list_of_premade_characters)
+        if person is not None:
+            list_of_premade_characters.remove(person)
         return person
